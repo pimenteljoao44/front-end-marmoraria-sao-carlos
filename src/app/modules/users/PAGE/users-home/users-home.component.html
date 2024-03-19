@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+<app-users-table
+  [usuarios]="userList"
+  (userEvent)="handleUserAction($event)"
+  (deleteUserEvent)="handleDeleteUserAction($event)"
+></app-users-table>
+<p-confirmDialog [style]="{ widith:'50vw'}"></p-confirmDialog>

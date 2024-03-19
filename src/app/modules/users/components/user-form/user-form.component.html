@@ -1,0 +1,62 @@
+<!-----FORMULARIO DE NOVO USUARIO-->
+<div *ngIf="userAction.event.action === addUserAction">
+  <form [formGroup]="addUserForm" (ngSubmit)="handleSubmitAddUser()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome." formControlName="nome">
+      <input pInputText placeholder="Login." formControlName="login">
+      <input pInputText placeholder="Senha." formControlName="senha">
+      <p-dropdown
+      styleClass="w-full"
+      [options]="niveisAcesso"
+      placeholder="Selecione o nível de acesso"
+      formControlName="nivelAcesso"
+      [(ngModel)]="nivelSelected"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Selecione um nível de acesso"
+    ></p-dropdown>
+    <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <p-button
+          [disabled]="!addUserForm.valid"
+          type="submit"
+          label="Concluir"
+        >
+        </p-button>
+      </div>
+    </div>
+  </form>
+</div>
+<!-----FORMULARIO DE EDITAR USUARIO-->
+
+<div *ngIf="userAction.event.action === editUserAction">
+  <form [formGroup]="editUserForm" (ngSubmit)="handleSubmitEditUser()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome." formControlName="nome">
+      <input pInputText placeholder="Login." formControlName="login">
+      <input pInputText placeholder="Senha." formControlName="senha">
+      <p-dropdown
+      styleClass="w-full"
+      [options]="niveisAcesso"
+      placeholder="Selecione o nível de acesso"
+      formControlName="nivelAcesso"
+      [(ngModel)]="nivelSelected"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Selecione um nível de acesso"
+    ></p-dropdown>
+    <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <p-button
+          [disabled]="!editUserForm.valid"
+          type="submit"
+          label="Concluir"
+        >
+        </p-button>
+      </div>
+    </div>
+  </form>
+</div>
+
