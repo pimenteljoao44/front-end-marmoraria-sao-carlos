@@ -205,7 +205,7 @@
                   pRipple
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-warning"
-                  pTooltip="Editar Usuario"
+                  pTooltip="Editar Cliente"
                   tooltipPosition="top"
                   (click)="handleClientEvent(editClienteEvent,cliente?.id)"
                 ></button>
@@ -214,10 +214,19 @@
                   pRipple
                   icon="pi pi-trash"
                   class="p-button-rounded p-button-danger"
-                  pTooltip="Excluir Usuario"
+                  pTooltip="Excluir Cliente"
                   tooltipPosition="top"
                   (click)="handleDeleteClient(cliente?.id,cliente?.nome)"
                 ></button>
+                <button
+                pButton
+                pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-sucess"
+                pTooltip="Visualizar Cliente"
+                tooltipPosition="top"
+                (click)="handleClientEvent(viewClientEvent, cliente?.id)"
+              ></button>
               </div>
             </td>
           </tr>

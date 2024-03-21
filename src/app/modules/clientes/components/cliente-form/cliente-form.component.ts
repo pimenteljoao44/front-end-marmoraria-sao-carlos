@@ -46,7 +46,6 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
 
     const cpfControl = form.get('cpf');
     const cnpjControl = form.get('cnpj');
-
     cpfControl?.clearValidators();
     cnpjControl?.clearValidators();
 
@@ -68,20 +67,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
     cnpjControl?.updateValueAndValidity();
   }
 
-  formatarCPF(event: any): void {
-    const cpf = event.target.value.replace(/\D/g, '');
-    let formattedCPF = '';
-
-    if (cpf.length <= 11) {
-      formattedCPF = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    } else {
-      formattedCPF = cpf.substring(0, 14);
-    }
-
-    this.addClientForm.get('cpf')?.setValue(formattedCPF);
-  }
-
-  formatarRG(event: any): void {
+  formatarRG(event: any,form: FormGroup): void {
     const rg = event.target.value.replace(/\D/g, '');
     let formattedRG = '';
 
@@ -91,10 +77,23 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
       formattedRG = rg.substring(0, 9);
     }
 
-    this.addClientForm.get('rg')?.setValue(formattedRG);
+    form.get('rg')?.setValue(formattedRG);
   }
 
-  formatarCNPJ(event: any): void {
+  formatarCPF(event: any, form: FormGroup): void {
+    const cpf = event.target.value.replace(/\D/g, '');
+    let formattedCPF = '';
+
+    if (cpf.length <= 11) {
+      formattedCPF = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else {
+      formattedCPF = cpf.substring(0, 14);
+    }
+
+    form.get('cpf')?.setValue(formattedCPF);
+  }
+
+  formatarCNPJ(event: any, form: FormGroup): void {
     const cnpj = event.target.value.replace(/\D/g, '');
     let formattedCNPJ = '';
 
@@ -107,8 +106,9 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
       formattedCNPJ = cnpj.substring(0, 18);
     }
 
-    this.addClientForm.get('cnpj')?.setValue(formattedCNPJ);
+    form.get('cnpj')?.setValue(formattedCNPJ);
   }
+
   onTipoPessoaChange(form: FormGroup): void {
     this.updateValidators(form);
   }
@@ -213,6 +213,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.onTipoPessoaChange(this.addClientForm);
+    this.onTipoPessoaChange(this.editClientForm);
     this.clientAction = this.ref.data;
     if (
       this.clientAction?.event.action === this.editClientAction &&
@@ -221,6 +223,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
       const clientId = this.clientAction?.event?.id as number;
       this.getClientSelectedDatas(clientId as number);
       this.setCidadeNosFormularios(this.cidadeSelecionada);
+      this.updateValidators(this.editClientForm);
     }
     this.getCidades();
   }
@@ -388,10 +391,9 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao editar cliente`,
+            detail: `Erro ao editar cliente, ${err.error.error}`,
             life: 2000,
           });
-          this.editClientForm.reset();
         },
       });
   }

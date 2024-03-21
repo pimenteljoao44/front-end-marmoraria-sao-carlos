@@ -31,27 +31,27 @@
         placeholder="CPF"
         *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
         formControlName="cpf"
-        (input)="formatarCPF($event)"
-        (keyup)="formatarCPF($event)"
-        (keydown)="formatarCPF($event)"
+        (input)="formatarCPF($event,addClientForm)"
+        (keyup)="formatarCPF($event,addClientForm)"
+        (keydown)="formatarCPF($event,addClientForm)"
       />
       <input
         pInputText
         placeholder="RG"
         *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
         formControlName="rg"
-        (input)="formatarRG($event)"
-        (keyup)="formatarRG($event)"
-        (keydown)="formatarRG($event)"
+        (input)="formatarRG($event,addClientForm)"
+        (keyup)="formatarRG($event,addClientForm)"
+        (keydown)="formatarRG($event,addClientForm)"
       />
       <input
         pInputText
         placeholder="CNPJ"
         *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
         formControlName="cnpj"
-        (input)="formatarCNPJ($event)"
-        (keyup)="formatarCNPJ($event)"
-        (keydown)="formatarCNPJ($event)"
+        (input)="formatarCNPJ($event,addClientForm)"
+        (keyup)="formatarCNPJ($event,addClientForm)"
+        (keydown)="formatarCNPJ($event,addClientForm)"
       />
 
       <div formGroupName="endereco">
@@ -99,7 +99,7 @@
           name="tipoPessoa"
           value="PESSOA_FISICA"
           formControlName="tipoPessoa"
-          (change)="onTipoPessoaChange(editClientForm)"
+          (onClick)="onTipoPessoaChange(editClientForm)"
         ></p-radioButton>
         <label for="pessoaJuridica" class="mr-3">Pessoa Jurídica</label>
         <p-radioButton
@@ -108,7 +108,7 @@
           class="p-radiobutton"
           value="PESSOA_JURIDICA"
           formControlName="tipoPessoa"
-          (change)="onTipoPessoaChange(editClientForm)"
+          (onClick)="onTipoPessoaChange(editClientForm)"
         ></p-radioButton>
       </div>
       <input pInputText placeholder="Nome" formControlName="nome" />
@@ -118,18 +118,18 @@
       placeholder="CPF"
       *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
       formControlName="cpf"
-      (input)="formatarCPF($event)"
-      (keyup)="formatarCPF($event)"
-      (keydown)="formatarCPF($event)"
+      (input)="formatarCPF($event,editClientForm)"
+      (keyup)="formatarCPF($event,editClientForm)"
+      (keydown)="formatarCPF($event,editClientForm)"
     />
     <input
       pInputText
       placeholder="RG"
       *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
       formControlName="rg"
-      (input)="formatarRG($event)"
-      (keyup)="formatarRG($event)"
-      (keydown)="formatarRG($event)"
+      (input)="formatarRG($event,editClientForm)"
+      (keyup)="formatarRG($event,editClientForm)"
+      (keydown)="formatarRG($event,editClientForm)"
     />
       <input
         pInputText
