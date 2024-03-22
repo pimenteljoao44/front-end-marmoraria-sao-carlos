@@ -1,30 +1,30 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { Subject, takeUntil } from 'rxjs';
 import { CidadeService } from 'src/app/services/cidade/cidade.service';
-import { ClientesService } from 'src/app/services/clientes/clientes.service';
-import { ClientesDataTransferService } from 'src/app/shared/services/clientes/clientes-data-transfer.service';
-import { ClienteEvent } from 'src/models/enums/cliente/ClienteEvent';
-import { EventAction } from 'src/models/interfaces/User/event/EventAction';
-import { Cidade } from 'src/models/interfaces/cidade/Cidade';
-import { Cliente } from 'src/models/interfaces/cliente/Cliente';
-import { Endereco } from 'src/models/interfaces/endereco/Endereco';
-import { DatePipe, JsonPipe } from '@angular/common';
 import { EstadoService } from 'src/app/services/estado/estado.service';
+import { FuncionarioService } from 'src/app/services/funcionario/funcionario.service';
+import { FuncionariosDataTransferService } from 'src/app/shared/services/funcionarios/funcionarios-data-transfer.service';
+import { FuncionarioEvent } from 'src/models/enums/funcionario/FuncionarioEvent';
+import { Cidade } from 'src/models/interfaces/cidade/Cidade';
+import { Endereco } from 'src/models/interfaces/endereco/Endereco';
+import { Funcionario } from 'src/models/interfaces/funcionario/Funcionario';
+import { EventAction } from 'src/models/interfaces/User/event/EventAction';
 
 @Component({
-  selector: 'app-cliente-form',
-  templateUrl: './cliente-form.component.html',
-  styleUrls: ['./cliente-form.component.scss'],
+  selector: 'app-funcionarios-form',
+  templateUrl: './funcionarios-form.component.html',
+  styleUrls: ['./funcionarios-form.component.scss']
 })
-export class ClienteFormComponent implements OnInit, OnDestroy {
+export class FuncionariosFormComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject();
-  public clientAction!: {
+  public funcionarioAction!: {
     event: EventAction;
-    clientesList: Array<Cliente>;
+    funcionariosList: Array<Funcionario>;
   };
 
   tipoPessoa = [
@@ -33,13 +33,13 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
   ];
 
   public TipoPessoaSelected: Array<{ label: string; value: string }> = [];
-  public clienteSelectedDatas!: Cliente;
-  public clienteDatas: Array<Cliente> = [];
+  public funcionarioSelectedDatas!: Funcionario;
+  public funcionarioDatas: Array<Funcionario> = [];
   public cidades: Array<Cidade> = [];
   public cidadeSelecionada!: Cidade;
 
-  public addClientForm: FormGroup;
-  public editClientForm: FormGroup;
+  public addFuncionarioForm: FormGroup;
+  public editFuncionarioForm: FormGroup;
 
   updateValidators(form: FormGroup): void {
     const tipoPessoaValue = form.get('tipoPessoa')?.value;
@@ -54,20 +54,20 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/),
       ]);
-      cnpjControl?.clearValidators();
+      cnpjControl?.setValue('');
     } else if (tipoPessoaValue === 'PESSOA_JURIDICA') {
       cnpjControl?.setValidators([
         Validators.required,
         Validators.pattern(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/),
       ]);
-      cpfControl?.clearValidators();
+      cpfControl?.setValue('');
     }
 
     cpfControl?.updateValueAndValidity();
     cnpjControl?.updateValueAndValidity();
   }
 
-  formatarRG(event: any, form: FormGroup): void {
+  formatarRG(event: any,form: FormGroup): void {
     const rg = event.target.value.replace(/\D/g, '');
     let formattedRG = '';
 
@@ -138,8 +138,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  public addClientAction = ClienteEvent.CREATE_CLIENT_EVENT;
-  public editClientAction = ClienteEvent.EDIT_CLIENT_EVENT;
+  public addFuncionarioAction = FuncionarioEvent.CREATE_FUNCIONARIO_EVENT;
+  public editFuncionarioAtion = FuncionarioEvent.EDIT_FUNCIONARIO_EVENT;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -147,12 +147,12 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private estadoService: EstadoService,
     private cidadeService: CidadeService,
-    private clientService: ClientesService,
+    private funcionarioService: FuncionarioService,
     private ref: DynamicDialogConfig,
     private datePipe: DatePipe,
-    private clienteDTO: ClientesDataTransferService
+    private funcionarioDTO: FuncionariosDataTransferService
   ) {
-    this.addClientForm = this.formBuilder.group({
+    this.addFuncionarioForm = this.formBuilder.group({
       nome: ['', Validators.required],
       telefone: ['', Validators.required],
       endereco: this.formBuilder.group({
@@ -173,6 +173,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
           }),
         }),
       }),
+      cargo:['',Validators.required],
+      salario:['',Validators.required],
       cpf: [''],
       rg: [''],
       cnpj: [''],
@@ -181,7 +183,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
       dataAtualizacao: [''],
     });
 
-    this.editClientForm = this.formBuilder.group({
+    this.editFuncionarioForm = this.formBuilder.group({
       id: [null],
       nome: ['', Validators.required],
       telefone: ['', Validators.required],
@@ -203,6 +205,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
           }),
         }),
       }),
+      cargo:['',Validators.required],
+      salario:['',Validators.required],
       cpf: [''],
       rg: [''],
       cnpj: [''],
@@ -213,38 +217,34 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.onTipoPessoaChange(this.addClientForm);
-    this.onTipoPessoaChange(this.editClientForm);
-    this.clientAction = this.ref.data;
+    this.onTipoPessoaChange(this.addFuncionarioForm);
+    this.onTipoPessoaChange(this.editFuncionarioForm);
+    this.funcionarioAction = this.ref.data;
     if (
-      this.clientAction?.event.action === this.editClientAction &&
-      this.clientAction?.clientesList
+      this.funcionarioAction?.event.action === this.editFuncionarioAtion &&
+      this.funcionarioAction?.funcionariosList
     ) {
-      const clientId = this.clientAction?.event?.id as number;
-      this.getClientSelectedDatas(clientId as number);
+      const funcId = this.funcionarioAction?.event?.id as number;
+      this.getFuncionarioSelectedDatas(funcId as number);
       this.setCidadeNosFormularios(this.cidadeSelecionada);
-      this.updateValidators(this.editClientForm);
+      this.updateValidators(this.editFuncionarioForm);
     }
     this.getCidades();
   }
 
   setCidadeNosFormularios(cidadeSelecionada: Cidade): void {
-    const addEnderecoForm = this.addClientForm.get('endereco') as FormGroup;
-    const editEnderecoForm = this.editClientForm.get('endereco') as FormGroup;
+    const addEnderecoForm = this.addFuncionarioForm.get('endereco') as FormGroup;
+    const editEnderecoForm = this.editFuncionarioForm.get('endereco') as FormGroup;
 
     const cidadeId = cidadeSelecionada.cidId;
 
     addEnderecoForm.get('cidade.cidId')?.setValue(cidadeId);
     addEnderecoForm.get('cidade.nome')?.setValue(cidadeSelecionada?.nome);
-    addEnderecoForm
-      .get('cidade.estado.id')
-      ?.setValue(cidadeSelecionada?.estado?.id);
+    addEnderecoForm.get('cidade.estado.id')?.setValue(cidadeSelecionada?.estado?.id);
 
     editEnderecoForm.get('cidade.cidId')?.setValue(cidadeId);
     editEnderecoForm.get('cidade.nome')?.setValue(cidadeSelecionada?.nome);
-    editEnderecoForm
-      .get('cidade.estado.id')
-      ?.setValue(cidadeSelecionada?.estado?.id);
+    editEnderecoForm.get('cidade.estado.id')?.setValue(cidadeSelecionada?.estado?.id);
 
     const currentDate = this.getDate();
     addEnderecoForm.get('cidade.estado.dataCriacao')?.setValue(currentDate);
@@ -276,8 +276,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
   }
   handleSubmitAddClient(): void {
     const invalidControls: string[] = [];
-    Object.keys(this.addClientForm.controls).forEach((controlName) => {
-      const control = this.addClientForm.get(controlName);
+    Object.keys(this.addFuncionarioForm.controls).forEach((controlName) => {
+      const control = this.addFuncionarioForm.get(controlName);
       if (control && control.invalid) {
         invalidControls.push(controlName);
       }
@@ -288,7 +288,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
         ', '
       )} estão inválidos.`;
 
-      this.markFormGroupTouched(this.addClientForm);
+      this.markFormGroupTouched(this.addFuncionarioForm);
       this.messageService.add({
         severity: 'warn',
         summary: 'Aviso',
@@ -297,36 +297,27 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
       });
       return;
     }
-    this.clientService
-      .create(this.addClientForm.value as Cliente)
+    this.funcionarioService
+      .create(this.addFuncionarioForm.value as Funcionario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response) {
-            this.addClientForm.reset();
+            this.addFuncionarioForm.reset();
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: `O cliente ${response.nome} foi criado com sucesso!`,
+              detail: `O funcionario ${response.nome} foi criado com sucesso!`,
               life: 2000,
             });
           }
         },
         error: (err) => {
           console.error('Erro durante a solicitação:', err);
-          if (err.error.error === 'Cliente já cadastrado na base de dados!') {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: err.error.error,
-              life: 2000,
-            });
-            return;
-          }
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao criar Cliente.`,
+            detail: `Erro ao criar funcionario.`,
             life: 2000,
           });
           console.log(err);
@@ -336,8 +327,8 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
 
   handleSubmitEditClient(): void {
     const invalidControls: string[] = [];
-    Object.keys(this.editClientForm.controls).forEach((controlName) => {
-      const control = this.editClientForm.get(controlName);
+    Object.keys(this.editFuncionarioForm.controls).forEach((controlName) => {
+      const control = this.editFuncionarioForm.get(controlName);
       if (control && control.invalid) {
         invalidControls.push(controlName);
       }
@@ -348,7 +339,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
         ', '
       )} estão inválidos.`;
 
-      this.markFormGroupTouched(this.editClientForm);
+      this.markFormGroupTouched(this.editFuncionarioForm);
       this.messageService.add({
         severity: 'warn',
         summary: 'Aviso',
@@ -361,12 +352,12 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
     this.setCidadeNosFormularios(this.cidadeSelecionada);
 
     const atualizacao = this.datePipe.transform(new Date(), 'dd/MM/yyyy HH:mm');
-    const endereco = this.editClientForm.value.endereco as Endereco;
+    const endereco = this.editFuncionarioForm.value.endereco as Endereco;
 
-    const requestEditClient: Cliente = {
-      id: this.clientAction.event.id as number,
-      nome: this.editClientForm.value.nome as string,
-      telefone: this.editClientForm.value.telefone as string,
+    const requestEditFuncionario: Funcionario = {
+      id: this.funcionarioAction.event.id as number,
+      nome: this.editFuncionarioForm.value.nome as string,
+      telefone: this.editFuncionarioForm.value.telefone as string,
       endereco: {
         rua: endereco.rua as string,
         numero: endereco.numero as string,
@@ -376,16 +367,18 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
           cidId: this.cidadeSelecionada.cidId as number,
         },
       },
-      cpf: this.editClientForm.value.cpf as string,
-      rg: this.editClientForm.value.rg as string,
-      cnpj: this.editClientForm.value.cnpj as string,
-      tipoPessoa: this.editClientForm.value.tipoPessoa as string,
-      dataCriacao: this.editClientForm.value.dataCriacao as string,
+      cargo: this.editFuncionarioForm.value.cargo,
+      salario: this.editFuncionarioForm.value.salario,
+      cpf: this.editFuncionarioForm.value.cpf as string,
+      rg: this.editFuncionarioForm.value.rg as string,
+      cnpj: this.editFuncionarioForm.value.cnpj as string,
+      tipoPessoa: this.editFuncionarioForm.value.tipoPessoa as string,
+      dataCriacao: this.editFuncionarioForm.value.dataCriacao as string,
       dataAtualizacao: atualizacao !== null ? atualizacao : undefined,
     };
 
-    this.clientService
-      .update(requestEditClient)
+    this.funcionarioService
+      .update(requestEditFuncionario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -396,7 +389,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
               detail: `O cliente foi editado com sucesso!`,
               life: 2000,
             });
-            this.editClientForm.reset();
+            this.editFuncionarioForm.reset();
           }
         },
         error: (err) => {
@@ -404,7 +397,7 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao editar cliente, ${err.error.error}`,
+            detail: `Erro ao editar funcionario, ${err.error.error}`,
             life: 2000,
           });
         },
@@ -421,25 +414,27 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  getClientSelectedDatas(client_id: number): void {
-    const allClients = this.clientAction.clientesList;
+  getFuncionarioSelectedDatas(func_id: number): void {
+    const allEmployes = this.funcionarioAction.funcionariosList;
 
-    if (allClients.length > 0) {
-      const clienteFiltered = allClients.find(
-        (element) => element?.id === client_id
+    if (allEmployes.length > 0) {
+      const clienteFiltered = allEmployes.find(
+        (element) => element?.id === func_id
       );
 
       if (clienteFiltered) {
-        this.clienteSelectedDatas = clienteFiltered;
+        this.funcionarioSelectedDatas = clienteFiltered;
 
         this.cidadeSelecionada = clienteFiltered.endereco.cidade;
 
-        this.editClientForm.patchValue({
+        this.editFuncionarioForm.patchValue({
           id: clienteFiltered.id,
           nome: clienteFiltered.nome,
           telefone: clienteFiltered.telefone,
           cpf: clienteFiltered.cpf,
           rg: clienteFiltered.rg,
+          cargo: clienteFiltered.cargo,
+          salario: clienteFiltered.salario,
           cnpj: clienteFiltered.cnpj,
           tipoPessoa: clienteFiltered.tipoPessoa,
           dataCriacao: clienteFiltered.dataCriacao,
@@ -454,21 +449,21 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
             },
           },
         });
-        this.editClientForm.updateValueAndValidity();
+        this.editFuncionarioForm.updateValueAndValidity();
       }
     }
   }
 
   setUserDatas(): void {
-    this.clientService
+    this.funcionarioService
       .findAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response.length > 0) {
-            this.clienteDatas = response;
-            this.clienteDatas &&
-              this.clienteDTO.setClientesDatas(this.clienteDatas);
+            this.funcionarioDatas = response;
+            this.funcionarioDatas &&
+              this.funcionarioDTO.setFuncionariosDatas(this.funcionarioDatas);
           }
         },
       });
