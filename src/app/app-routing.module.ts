@@ -37,6 +37,11 @@ const routes: Routes = [
     path:'cidade',
     loadChildren:() => import ('./modules/cidade/cidade.module').then((m) => m.CidadeModule),
     canActivate: [AuthGuardService]
+  },
+  {
+    path:'estado',
+    loadChildren:() => import ('./modules/estado/estado.module').then((m) => m.EstadoModule),
+    canActivate: [AuthGuardService]
   }
 ];
 

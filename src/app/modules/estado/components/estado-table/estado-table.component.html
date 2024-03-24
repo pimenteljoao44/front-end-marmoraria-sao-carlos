@@ -1,19 +1,19 @@
 <div class="grid">
   <div class="col-12">
-    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Cidades">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Estados">
       <p-table
         #usersTable
-        [value]="cidades"
+        [value]="estados"
         [rows]="10"
         [paginator]="true"
         [responsive]="true"
         [globalFilterFields]="['nome','login','nivelAcesso']"
         [tableStyle]="{'min-width':'75rem'}"
-        [(selection)]="citySelected"
+        [(selection)]="estadoSelected"
         [rowHover]="true"
         [showCurrentPageReport]="true"
         dataKey="id"
-        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} cidades"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} estados"
       >
       <ng-template pTemplate="header">
         <tr>
@@ -58,13 +58,13 @@
           <th pSortableColumn="estado">
             <div class="flex justify-content-between align-itens-center">
               <div class="flex justify-content-between align-itens-center">
-                Estado
+                Sigla
               </div>
               <div class="flex justify-content-between align-itens-center">
-                <p-sortIcon field="estado"></p-sortIcon>
+                <p-sortIcon field="sigla"></p-sortIcon>
                 <p-columnFilter
                   type="text"
-                  field="estado"
+                  field="sigla"
                   display="menu"
                   matchMode="contains"
                   [showMatchModes]="false"
@@ -81,20 +81,20 @@
                 styleClass="p-button-info"
                 icon="pi pi-plus"
                 label="Novo"
-                pTooltip="Cadastrar nova cidade"
+                pTooltip="Cadastrar novo estado"
                 tooltipPosition="top"
-                (onClick)="handleCidadeEvent(createCidadeEvent)"
+                (onClick)="handleEstadoEvent(createEstadoEvent)"
               >
               </p-button>
             </div>
           </th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-city>
+      <ng-template pTemplate="body" let-est>
         <tr>
-          <td>{{ city?.cidId }}</td>
-          <td>{{  city?.nome }}</td>
-          <td>{{  city?.estado.nome }}</td>
+          <td>{{ est?.id }}</td>
+          <td>{{  est?.nome }}</td>
+          <td>{{  est?.sigla }}</td>
           <td>
             <div
               class="flex justify-content-center gap-3 align-itens-center align-content-center"
@@ -104,27 +104,27 @@
                 pRipple
                 icon="pi pi-pencil"
                 class="p-button-rounded p-button-warning"
-                pTooltip="Editar Ciadade"
+                pTooltip="Editar estado"
                 tooltipPosition="top"
-                (click)="handleCidadeEvent(editCidadeEvent,city?.cidId)"
+                (click)="handleEstadoEvent(editEstadoEvent,est?.id)"
               ></button>
               <button
                 pButton
                 pRipple
                 icon="pi pi-trash"
                 class="p-button-rounded p-button-danger"
-                pTooltip="Excluir Ciadade"
+                pTooltip="Excluir estado"
                 tooltipPosition="top"
-                (click)="handleDeleteCidade(city?.cidId,city?.nome)"
+                (click)="handleDeleteEstado(est?.id,est?.nome)"
               ></button>
               <button
                 pButton
                 pRipple
                 icon="pi pi-eye"
                 class="p-button-rounded p-button-sucess"
-                pTooltip="Visualizar Cidade"
+                pTooltip="Visualizar estado"
                 tooltipPosition="top"
-                (click)="handleCidadeEvent(viewCidadeEvent, city?.cidId)"
+                (click)="handleEstadoEvent(viewEstadoEvent, est?.id)"
               ></button>
             </div>
           </td>
