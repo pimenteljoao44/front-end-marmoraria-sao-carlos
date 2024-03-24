@@ -1,1 +1,51 @@
-<p>cidade-form works!</p>
+<!-- FORMULÁRIO DE NOVO CIDADE -->
+<div *ngIf="cidadeAction.event.action === addCidadeAction">
+  <form [formGroup]="addCidadeForm" (ngSubmit)="handleSubmitAddCidade()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+        <div formGroupName="estado">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="estados"
+            placeholder="Selecione a cidade"
+            formControlName="id"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onEstadoChange($event.value)"
+          ></p-dropdown>
+        </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR CIDADE -->
+<div *ngIf="cidadeAction.event.action === editCidadeAction">
+  <form [formGroup]="editCidadeForm" (ngSubmit)="handleSubmitEditCidade()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+        <div formGroupName="estado">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="estados"
+            placeholder="Selecione o estado"
+            formControlName="id"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onEstadoChange($event.value)"
+          ></p-dropdown>
+        </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

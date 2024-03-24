@@ -32,6 +32,11 @@ const routes: Routes = [
     path:'funcionarios',
     loadChildren:() => import ('./modules/funcionarios/funcionarios.module').then((m) => m.FuncionariosModule),
     canActivate:[AuthGuardService]
+  },
+  {
+    path:'cidade',
+    loadChildren:() => import ('./modules/cidade/cidade.module').then((m) => m.CidadeModule),
+    canActivate: [AuthGuardService]
   }
 ];
 

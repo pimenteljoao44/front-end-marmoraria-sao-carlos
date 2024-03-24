@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { CidadeHomeComponent } from './page/cidade-home/cidade-home.component';
 import { CidadeFormComponent } from './components/cidade-form/cidade-form.component';
 import { CidadeTableComponent } from './components/cidade-table/cidade-table.component';
@@ -15,11 +15,13 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { RouterModule } from '@angular/router';
+import { ConfirmationService } from 'primeng/api';
+import { CidadeViewComponent } from './components/cidade-view/cidade-view.component';
 
 
 
@@ -27,7 +29,8 @@ import { RouterModule } from '@angular/router';
   declarations: [
     CidadeHomeComponent,
     CidadeFormComponent,
-    CidadeTableComponent
+    CidadeTableComponent,
+    CidadeViewComponent
   ],
   imports: [
     CommonModule,
@@ -48,6 +51,7 @@ import { RouterModule } from '@angular/router';
     DropdownModule,
     ConfirmDialogModule,
     TooltipModule
-  ]
+  ],
+  providers:[DialogService,ConfirmationService,DatePipe]
 })
 export class CidadeModule { }
