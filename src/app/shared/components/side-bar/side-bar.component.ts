@@ -14,6 +14,7 @@ export class SideBarComponent implements OnInit {
   reportsOpen:boolean = false;
   cadatrosOpen:boolean = false;
   expedientOpen:boolean = false;
+  financeiroOpen:boolean = false;
   isGerente:boolean = false;
 
   constructor(private userService:UserService) {}
@@ -33,6 +34,10 @@ export class SideBarComponent implements OnInit {
 
   toggleExpedient():void {
     this.expedientOpen = !this.expedientOpen;
+  }
+
+  toggleFinanceiro():void {
+    this.financeiroOpen = !this.financeiroOpen;
   }
 
   toggleFavorites(): void {

@@ -27,7 +27,6 @@ export class UserService {
   }
 
   findAll(): Observable<Array<Usuario>> {
-    console.log(this.httpOptions);
     return this.httpClient.get<Array<Usuario>>(
       `${this.baseUrl}/usuarios`,
       this.httpOptions

@@ -66,6 +66,14 @@
                   <span class="font-medium">Funcionario</span>
                 </a>
               </li>
+              <li routerLink="/produtos" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-shopping-cart mr-2"></i>
+                  <span class="font-medium">Produto</span>
+                </a>
+              </li>
               <li routerLink="/cidade" routerLinkActive="exact_route">
                 <a
                   class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
@@ -89,7 +97,7 @@
               (click)="toggleExpedient()"
               class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
             >
-              <span class="font-medium">EXPEDIENTE</span>
+              <span class="font-medium">MOVIMENTOS</span>
               <i class="pi pi-chevron-down"></i>
             </div>
             <ul *ngIf="expedientOpen" class="list-none p-0 m-0 overflow-hidden">
@@ -114,6 +122,34 @@
 
           <li>
             <div
+              (click)="toggleFinanceiro()"
+              class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
+            >
+              <span class="font-medium">FINANCERO</span>
+              <i class="pi pi-chevron-down"></i>
+            </div>
+            <ul *ngIf="financeiroOpen" class="list-none p-0 m-0 overflow-hidden">
+              <li>
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-money-bill mr-2"></i>
+                  <span class="font-medium">Contas a Pagar</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                <i class="pi pi-money-bill mr-2"></i>
+                  <span class="font-medium">Contas a Receber</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <div
               (click)="toggleReports()"
               class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
             >
@@ -128,14 +164,6 @@
                   <i class="pi pi-dollar mr-2"></i>
                   <span class="font-medium">Vendas</span>
                   <i class="pi pi-chevron-down ml-auto"></i>
-                </a>
-              </li>
-              <li>
-                <a
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
-                >
-                  <i class="pi pi-money-bill mr-2"></i>
-                  <span class="font-medium">Despesas</span>
                 </a>
               </li>
             </ul>

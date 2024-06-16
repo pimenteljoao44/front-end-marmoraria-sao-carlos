@@ -1,19 +1,19 @@
 <div class="grid">
   <div class="col-12">
-    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Clientes">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Produtos">
       <p-table
         #usersTable
-        [value]="clientes"
+        [value]="produtos"
         [rows]="10"
         [paginator]="true"
         [responsive]="true"
-        [globalFilterFields]="['nome','rua','cpf','rg','cidade','complemento']"
+        [globalFilterFields]="['nome','preco','ativo','estoque','grupo.nome','fornecedor.nome','ordemDeServico.id']"
         [tableStyle]="{ 'min-width': '75rem' }"
-        [(selection)]="clienteSelected"
+        [(selection)]="produtoSelected"
         [rowHover]="true"
         [showCurrentPageReport]="true"
         dataKey="id"
-        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} clientes"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} produtos"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -55,16 +55,16 @@
                 </div>
               </div>
             </th>
-            <th pSortableColumn="telefone">
+            <th pSortableColumn="preco">
               <div class="flex justify-content-between align-itens-center">
                 <div class="flex justify-content-between align-itens-center">
-                  Telefone
+                  Preço
                 </div>
                 <div class="flex justify-content-between align-itens-center">
-                  <p-sortIcon field="telefone"></p-sortIcon>
+                  <p-sortIcon field="preco"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="telefone"
+                    field="preco"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -74,16 +74,16 @@
                 </div>
               </div>
             </th>
-            <th pSortableColumn="rua">
+            <th pSortableColumn="ativo">
               <div class="flex justify-content-between align-itens-center">
                 <div class="flex justify-content-between align-itens-center">
-                  Rua
+                  Ativo
                 </div>
                 <div class="flex justify-content-between align-itens-center">
                   <p-sortIcon field="rua"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="rua"
+                    field="ativo"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -93,16 +93,16 @@
                 </div>
               </div>
             </th>
-            <th pSortableColumn="rg">
+            <th pSortableColumn="estoque">
               <div class="flex justify-content-between align-itens-center">
                 <div class="flex justify-content-between align-itens-center">
-                  RG
+                  Estoque
                 </div>
                 <div class="flex justify-content-between align-itens-center">
-                  <p-sortIcon field="rg"></p-sortIcon>
+                  <p-sortIcon field="estoque"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="rg"
+                    field="estoque"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -112,54 +112,16 @@
                 </div>
               </div>
             </th>
-            <th pSortableColumn="cpf">
+            <th pSortableColumn="grupo">
               <div class="flex justify-content-between align-itens-center">
                 <div class="flex justify-content-between align-itens-center">
-                  CPF
+                  Grupo
                 </div>
                 <div class="flex justify-content-between align-itens-center">
-                  <p-sortIcon field="cpf"></p-sortIcon>
+                  <p-sortIcon field="grupo.nome"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="cpf"
-                    display="menu"
-                    matchMode="contains"
-                    [showMatchModes]="false"
-                    [showOperator]="false"
-                    [showAddButton]="false"
-                  ></p-columnFilter>
-                </div>
-              </div>
-            </th>
-            <th pSortableColumn="complemento">
-              <div class="flex justify-content-between align-itens-center">
-                <div class="flex justify-content-between align-itens-center">
-                  Complemento
-                </div>
-                <div class="flex justify-content-between align-itens-center">
-                  <p-sortIcon field="complemento"></p-sortIcon>
-                  <p-columnFilter
-                    type="text"
-                    field="complemento"
-                    display="menu"
-                    matchMode="contains"
-                    [showMatchModes]="false"
-                    [showOperator]="false"
-                    [showAddButton]="false"
-                  ></p-columnFilter>
-                </div>
-              </div>
-            </th>
-            <th pSortableColumn="cidade">
-              <div class="flex justify-content-between align-itens-center">
-                <div class="flex justify-content-between align-itens-center">
-                  Cidade
-                </div>
-                <div class="flex justify-content-between align-itens-center">
-                  <p-sortIcon field="cidade"></p-sortIcon>
-                  <p-columnFilter
-                    type="text"
-                    field="cidade"
+                    field="grupo.nome"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -175,29 +137,27 @@
                   styleClass="p-button-info"
                   icon="pi pi-plus"
                   label="Novo"
-                  pTooltip="Cadastrar novo cliente"
+                  pTooltip="Cadastrar novo produto"
                   tooltipPosition="top"
-                  (onClick)="handleClientEvent(createClienteEvent)"
+                  (onClick)="handleProductEvent(createProductEvent)"
                 ></p-button>
               </div>
             </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-cliente>
+        <ng-template pTemplate="body" let-produto>
           <tr>
-            <td>{{ cliente?.id }}</td>
-            <td>{{ cliente?.nome }}</td>
-            <td>{{ cliente?.telefone }}</td>
+            <td>{{ produto?.id }}</td>
+            <td>{{ produto?.nome }}</td>
+            <td>{{ produto?.preco | currency:"BRL" }}</td>
+            <td>{{ produto?.ativo === true? 'Ativo': 'Inativo' }}</td>
+            <td>{{ produto?.estoque }}</td>
             <td>
-              <ng-container *ngIf="cliente?.endereco !== null">
-                {{ cliente?.endereco?.rua }} {{ cliente?.endereco?.numero }} {{ cliente?.endereco?.complemento }} {{ cliente?.endereco?.bairro }}
+              <ng-container *ngIf="produto?.grupo !== null">
+                {{ produto?.grupo?.nome }}
                 <br>
               </ng-container>
             </td>
-            <td>{{ cliente?.rg }}</td>
-            <td>{{ cliente?.cpf }}</td>
-            <td>{{ cliente?.endereco?.complemento }}</td>
-            <td>{{ cliente?.endereco?.cidade?.nome }}</td>
             <td>
               <div class="flex justify-content-center gap-3 align-itens-center align-content-center">
                 <button
@@ -205,18 +165,18 @@
                   pRipple
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-warning"
-                  pTooltip="Editar Cliente"
+                  pTooltip="Editar Produto"
                   tooltipPosition="top"
-                  (click)="handleClientEvent(editClienteEvent,cliente?.id)"
+                  (click)="handleProductEvent(editProductEvent,produto?.id)"
                 ></button>
                 <button
                   pButton
                   pRipple
                   icon="pi pi-trash"
                   class="p-button-rounded p-button-danger"
-                  pTooltip="Excluir Cliente"
+                  pTooltip="Excluir Produto"
                   tooltipPosition="top"
-                  (click)="handleDeleteClient(cliente?.id,cliente?.nome)"
+                  (click)="handleDeleteProduct(produto?.id,produto?.nome)"
                 ></button>
                 <button
                 pButton
@@ -225,7 +185,7 @@
                 class="p-button-rounded p-button-sucess"
                 pTooltip="Visualizar Cliente"
                 tooltipPosition="top"
-                (click)="handleClientEvent(viewClientEvent, cliente?.id)"
+                (click)="handleProductEvent(viewProductEvent, produto?.id)"
               ></button>
               </div>
             </td>

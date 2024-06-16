@@ -46,26 +46,33 @@ export class ClienteFormComponent implements OnInit, OnDestroy {
 
     const cpfControl = form.get('cpf');
     const cnpjControl = form.get('cnpj');
+    const rgControl = form.get('rg');
+
     cpfControl?.clearValidators();
     cnpjControl?.clearValidators();
+    rgControl?.clearValidators();
 
     if (tipoPessoaValue === 'PESSOA_FISICA') {
       cpfControl?.setValidators([
         Validators.required,
         Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/),
       ]);
-      cnpjControl?.clearValidators();
+      cnpjControl?.setValue('');
+      rgControl?.setValue('');
     } else if (tipoPessoaValue === 'PESSOA_JURIDICA') {
       cnpjControl?.setValidators([
         Validators.required,
         Validators.pattern(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/),
       ]);
-      cpfControl?.clearValidators();
+      cpfControl?.setValue('');
+      rgControl?.setValue('');
     }
 
     cpfControl?.updateValueAndValidity();
     cnpjControl?.updateValueAndValidity();
+    rgControl?.updateValueAndValidity();
   }
+
 
   formatarRG(event: any, form: FormGroup): void {
     const rg = event.target.value.replace(/\D/g, '');

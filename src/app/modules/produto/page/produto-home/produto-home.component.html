@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<app-produto-table
+[produtos]="produtoList"
+(produtoEvent)="handleProductAction($event)"
+(deleteProductEvent)="handleDeleteProductAction($event)"
+></app-produto-table>
+<p-confirmDialog [style]="{ widith:'50vw'}"></p-confirmDialog>
