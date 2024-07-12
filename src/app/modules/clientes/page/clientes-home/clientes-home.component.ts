@@ -154,7 +154,7 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao excluir cliente',
+              detail: `Erro ao excluir cliente ${err.error.error}`,
               life: 2500,
             });
           },

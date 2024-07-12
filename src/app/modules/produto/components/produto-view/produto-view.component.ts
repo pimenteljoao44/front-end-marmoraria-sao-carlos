@@ -18,7 +18,6 @@ export class ProdutoViewComponent implements OnInit {
 
   ngOnInit() {
     this.produto = this.config.data?.produto;
-    console.log(this.produto);
   }
 
   getfornecedor(): void {}

@@ -7,7 +7,7 @@ export interface Produto {
   preco:number,
   ativo?:boolean,
   estoque:number,
-  quantidade?:number,
+  quantidade:number,
   grupo:Grupo,
   fornecedor?:Fornecedor
 }

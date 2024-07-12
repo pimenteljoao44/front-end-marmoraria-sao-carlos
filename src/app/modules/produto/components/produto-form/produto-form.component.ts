@@ -19,7 +19,6 @@ import { Produto } from 'src/models/interfaces/produto/Produto';
 @Component({
   selector: 'app-produto-form',
   templateUrl: './produto-form.component.html',
-  styleUrls: ['./produto-form.component.css'],
 })
 export class ProdutoFormComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject();
@@ -53,6 +52,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
     preco: [0, Validators.required],
     ativo: [this.ativo, Validators.required],
     estoque: [0, Validators.required],
+    quantidade: [0],
     grupo: this.formBuilder.group({
       id: [null, Validators.required],
       nome: ['', Validators.required],
@@ -128,7 +128,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
         id: grupoSelecionado.id,
         nome: grupoSelecionado.nome,
         ativo: grupoSelecionado.ativo,
-        grupoPai: grupoSelecionado.grupoPai,
+        grupoPai: grupoSelecionado.grupoPaiId,
       });
       console.log(this.addProductForm.get('grupo')?.value);
     }
@@ -137,7 +137,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
         id: grupoSelecionado.id,
         nome: grupoSelecionado.nome,
         ativo: grupoSelecionado.ativo,
-        grupoPai: grupoSelecionado.grupoPai,
+        grupoPai: grupoSelecionado.grupoPaiId,
       });
     }
   }
@@ -178,6 +178,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
               detail: `O produto ${response.nome} foi criado com sucesso!`,
               life: 2000,
             });
+            this.addProductForm.reset();
           }
         },
         error: (err) => {
@@ -231,11 +232,12 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
       preco: this.editProductform.value.preco as number,
       ativo: this.editProductform.value.ativo as boolean,
       estoque: this.editProductform.value.estoque as number,
+      quantidade: this.editProductform.value.quantidade as number,
       grupo: {
         id: this.grupoSelecionado.id,
         nome: this.grupoSelecionado.nome,
         ativo: this.grupoSelecionado.ativo,
-        grupoPai: this.grupoSelecionado.grupoPai,
+        grupoPaiId: this.grupoSelecionado.grupoPaiId,
       },
     };
     this.produtoService.update(requestEditProduct as Produto)
@@ -295,7 +297,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
             id: productFiltered.grupo?.id || null,
             nome: productFiltered.grupo?.nome || '',
             ativo: productFiltered.grupo?.ativo || false,
-            grupoPai: productFiltered.grupo?.grupoPai || 0,
+            grupoPai: productFiltered.grupo?.grupoPaiId || 0,
           },
         });
         this.grupoSelecionado = productFiltered.grupo as Grupo;

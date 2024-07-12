@@ -317,8 +317,8 @@ export class FuncionariosFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao criar funcionario.`,
-            life: 2000,
+            detail: `Erro ao criar funcionario ${err.error.error}.`,
+            life: 4000,
           });
           console.log(err);
         },

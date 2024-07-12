@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable } from 'rxjs';
+import { forkJoin, map, mergeMap, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Grupo } from 'src/models/interfaces/grupo/Grupo';
 
@@ -32,8 +32,22 @@ export class GruposService {
     return this.httpClient.get<Array<Grupo>>(
       `${this.baseUrl}/grupo`,
       this.httpOptions
+    ).pipe(
+      mergeMap(grupos =>
+        forkJoin(
+          grupos.map(grupo =>
+            grupo.grupoPaiId
+              ? this.httpClient.get<Grupo>(`${this.baseUrl}/grupo/${grupo.grupoPaiId}`, this.httpOptions)
+                  .pipe(
+                    map(grupoPai => ({ ...grupo, grupoPaiNome: grupoPai.nome }))
+                  )
+              : of(grupo)
+          )
+        )
+      )
     );
   }
+
 
   findById(id: number): Observable<Grupo> {
     return this.httpClient.get<Grupo>(
@@ -52,7 +66,7 @@ export class GruposService {
 
   update(grupo: Grupo): Observable<Grupo> {
     return this.httpClient.put<Grupo>(
-      `${this.baseUrl}/gruṕo/${grupo?.id}`,
+      `${this.baseUrl}/grupo/${grupo?.id}`,
       grupo,
       this.httpOptions
     );

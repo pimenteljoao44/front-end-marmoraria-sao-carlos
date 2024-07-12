@@ -13,11 +13,12 @@ import {ToastModule} from 'primeng/toast';
 import {ButtonModule} from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
+import { GruposModule } from './modules/grupos/grupos.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -28,7 +29,8 @@ import { CookieService } from 'ngx-cookie-service';
     CardModule,
     InputTextModule,
     ToastModule,
-    ButtonModule
+    ButtonModule,
+    GruposModule
   ],
   providers: [MessageService,CookieService],
   bootstrap: [AppComponent]

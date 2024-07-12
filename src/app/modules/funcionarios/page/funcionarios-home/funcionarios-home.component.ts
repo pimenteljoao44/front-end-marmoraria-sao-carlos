@@ -155,8 +155,8 @@ export class FuncionariosHomeComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao excluir funcionario',
-              life: 2500,
+              detail: `Erro ao excluir funcionario ${err.error.error}`,
+              life: 3500,
             });
           },
         });

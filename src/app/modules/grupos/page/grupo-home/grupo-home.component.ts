@@ -3,53 +3,56 @@ import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, takeUntil } from 'rxjs';
-import { ProdutoService } from 'src/app/services/produto/produto.service';
-import { ProdutoDataTransferService } from 'src/app/shared/services/produto/produto-data-transfer.service';
-import { ProdutoEvent } from 'src/models/enums/produto/ProdutoEvent';
+import { GruposService } from 'src/app/services/grupos/grupos.service';
+import { GruposDataTransferService } from 'src/app/shared/services/grupos/grupos-data-transfer.service';
 import { EventAction } from 'src/models/interfaces/User/event/EventAction';
-import { Produto } from 'src/models/interfaces/produto/Produto';
-import { ProdutoFormComponent } from '../../components/produto-form/produto-form.component';
-import { ProdutoViewComponent } from '../../components/produto-view/produto-view.component';
+import { Grupo } from 'src/models/interfaces/grupo/Grupo';
+import { GrupoFormComponent } from '../../components/grupo-form/grupo-form.component';
+import { GrupoViewComponent } from '../../components/grupo-view/grupo-view.component';
+import { GrupoEvent } from 'src/models/enums/grupo/GrupoEvent';
 
 @Component({
-  selector: 'app-produto-home',
-  templateUrl: './produto-home.component.html',
+  selector: 'app-grupo-home',
+  templateUrl: './grupo-home.component.html'
 })
-export class ProdutoHomeComponent implements OnInit,OnDestroy {
+export class GrupoHomeComponent implements OnInit, OnDestroy{
   private readonly destroy$: Subject<void> = new Subject();
-  sidebarVisible = false;
-  public produtoList:Array<Produto> = [];
+  public gruposList: Array<Grupo> = [];
+
   private ref!: DynamicDialogRef;
 
+  sidebarVisible = false;
+
   constructor(
-    private produtoService:ProdutoService,
-    private produtoDtTransferService:ProdutoDataTransferService,
+    private grupoService:GruposService,
+    private grupoDtransferService:GruposDataTransferService,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService
-  ) { }
+  ) {}
+
 
   ngOnInit(): void {
-    this.getServiceProdutosDatas();
+    this.getServiceGruposDatas();
   }
 
-  getServiceProdutosDatas() {
-    const productsLoaded = this.produtoDtTransferService.getProdutosDatas();
-    if (productsLoaded.length > 0) {
-      this.produtoList = productsLoaded;
+  getServiceGruposDatas() {
+    const gruposLoaded = this.grupoDtransferService.getGruposDatas();
+    if (gruposLoaded.length > 0) {
+      this.gruposList = gruposLoaded;
     } else {
-      this.getAPIProdutosDatas();
+      this.getAPIgruposDatas();
     }
   }
 
-  getAPIProdutosDatas() {
-    this.produtoService
+  getAPIgruposDatas() {
+    this.grupoService
       .findAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-            this.produtoList = response;
+            this.gruposList = response;
         },
         error: (err) => {
           console.log(err);
@@ -57,16 +60,16 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar produtos',
+            detail: 'Erro ao buscar grupos',
             life: 2500,
           });
         },
       });
   }
 
-  handleProductAction(event: EventAction): void {
-    if (event.action === ProdutoEvent.CREATE_PRODUCT_EVENT || event.action === ProdutoEvent.EDIT_PRODUCT_EVENT ) {
-      this.ref = this.dialogService.open(ProdutoFormComponent, {
+  handleGrupotAction(event: EventAction): void {
+    if (event.action === GrupoEvent.CREATE_GRUPO_EVENT|| event.action === GrupoEvent.EDIT_GRUPO_EVENT ) {
+      this.ref = this.dialogService.open(GrupoFormComponent, {
         header: event?.action,
         width: '70%',
         contentStyle: { overflow: 'auto' },
@@ -74,14 +77,14 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
         maximizable: true,
         data: {
           event: event,
-          produtoList:this.produtoList
+          gruposList: this.gruposList,
         },
       });
       this.ref.onClose.pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => this.getAPIProdutosDatas(),
+        next: () => this.getAPIgruposDatas(),
       });
     } else {
-      this.handleViewProductAction(event);
+      this.handleViewGrupoAction(event);
     }
   }
 
@@ -89,38 +92,38 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
     this.sidebarVisible = !this.sidebarVisible;
   }
 
-  handleDeleteProductAction(event: { product_id: number; product_name: string }): void {
+  handleDeleteGrupoAction(event: { grupo_id: number; nome: string }): void {
     if (event) {
       this.confirmationService.confirm({
-        message: `Deseja realmente deletar o produto ${event?.product_name}?`,
+        message: `Deseja realmente deletar o grupo ${event?.nome}?`,
         header: 'Confirmação de exclusão',
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: 'Sim',
         rejectLabel: 'Não',
-        accept: () => this.deleteProduct(event?.product_id),
+        accept: () => this.deleteGrupo(event?.grupo_id),
       });
     }
   }
 
-  handleViewProductAction(event: EventAction) {
+  handleViewGrupoAction(event: EventAction) {
     if (event) {
-      this.produtoService.findById(event?.id)
+      this.grupoService.findById(event?.id as number)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             if (response) {
-              this.ref = this.dialogService.open(ProdutoViewComponent, {
+              this.ref = this.dialogService.open(GrupoViewComponent, {
                 header: event?.action,
                 width: '70%',
                 contentStyle: { overflow: 'auto' },
                 baseZIndex: 10000,
                 maximizable: true,
                 data: {
-                  produto: response,
+                  grupo: response,
                 },
               });
               this.ref.onClose.pipe(takeUntil(this.destroy$)).subscribe({
-                next: () => this.getAPIProdutosDatas(),
+                next: () => this.getAPIgruposDatas(),
               });
             }
           },
@@ -131,18 +134,18 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
     }
   }
 
-  deleteProduct(prod_id: number): void {
-    if (prod_id) {
-      this.produtoService
-        .delete(prod_id)
+  deleteGrupo(grupo_id: number): void {
+    if (grupo_id) {
+      this.grupoService
+        .delete(grupo_id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            this.getAPIProdutosDatas();
+            this.getAPIgruposDatas();
             this.messageService.add({
               severity: 'success',
               summary: 'Sucesso',
-              detail: 'Produto Excluido com sucesso!',
+              detail: 'Grupo Excluido com sucesso!',
               life: 2500,
             });
           },
@@ -151,16 +154,16 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao excluir produto ${err.error.error}`,
-              life: 2500,
+              detail: `Erro ao excluir Grupo ${err.error.error}`,
+              life: 3500,
             });
           },
         });
     }
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

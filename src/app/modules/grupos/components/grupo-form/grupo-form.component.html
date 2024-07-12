@@ -1,0 +1,63 @@
+<!-- FORMULÁRIO DE NOVO GRUPO -->
+<div *ngIf="grupoAction.event.action === addGrupoAction">
+  <form [formGroup]="addGrupoform" (ngSubmit)="handleSubmitAddGrupo()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+        <div formGroupName="grupoPai">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="grupos"
+            placeholder="Selecione o Grupo Pai"
+            formControlName="grupoPaiId"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onGrupoChange($event.value)"
+          ></p-dropdown>
+        </div>
+
+        Ativo:
+        <p-checkbox
+          formControlName="ativo"
+          [binary]="true"
+          inputId="binary"
+        />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR GRUPO-->
+<div *ngIf="grupoAction.event.action === editGrupoAction">
+  <form [formGroup]="editGrupoForm" (ngSubmit)="handleSubmitEditGrupo()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+        <div formGroupName="grupoPai">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="grupos"
+            placeholder="Selecione o grupo Pai"
+            formControlName="grupoPaiId"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onGrupoChange($event.value)"
+          ></p-dropdown>
+        </div>
+
+        Ativo:
+        <p-checkbox
+          formControlName="ativo"
+          [binary]="true"
+          inputId="binary"
+        />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

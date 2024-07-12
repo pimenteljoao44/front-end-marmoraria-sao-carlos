@@ -5,7 +5,7 @@
   background-repeat: no-repeat;
   height: 100vh;
   display: flex;
-  align-items: center; /* Vertically center the content */
+  align-items: center; /* Vertical alignment */
 }
 
 @media screen and (min-width: 1400px) {
@@ -23,5 +23,31 @@
 .flex-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the content vertically */
+  align-items: center;
+}
+
+.login-card {
+  width: 90%;
+  max-width: 700px;
+  padding: 3rem;
+}
+
+@media screen and (min-width: 768px) {
+  .login-card {
+    width: 60%;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .login-card {
+    width: 50%;
+  }
+}
+
+input[pInputText] {
+  width: 100%;
+}
+
+button[pButton] {
+  width: 100%;
 }

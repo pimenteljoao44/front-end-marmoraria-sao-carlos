@@ -2,5 +2,6 @@ export interface Grupo {
   id?:any,
   nome:string,
   ativo:boolean,
-  grupoPai:number
+  grupoPaiId:number,
+  grupoPaiNome?: string;
 }

@@ -1,3 +1,4 @@
+import { GruposModule } from './modules/grupos/grupos.module';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './modules/login/login.component';
@@ -46,6 +47,16 @@ const routes: Routes = [
   {
     path:'produtos',
     loadChildren:() => import ('./modules/produto/produto.module').then((m) => m.ProdutoModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'grupos',
+    loadChildren:() => import ('./modules/grupos/grupos.module').then((m)=> m.GruposModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'dashboard',
+    loadChildren: () => import ('./modules/dashboard/dashboard.module').then((m) => m.DashboardModule),
     canActivate: [AuthGuardService]
   }
 ];
