@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  baseUrl:'http://localhost:8080'
+  baseUrl:'https://api-marmoraria-f0a6f6645bc4.herokuapp.com'
 };
