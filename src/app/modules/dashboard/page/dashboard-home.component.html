@@ -1,0 +1,17 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<div class="grid">
+  <div class="col-12">
+      <!---GRAFICO DE PRODUTOS EM ESTOQUE---->
+      <p-card
+      header="Quantidade de Produtos em estoque"
+      styleClass="shadow-3 m-5 text-indigo-800"
+      >
+      <p-chart
+      type="bar"
+      [data]="productsChartDatas"
+      [options]="productsChartOptions"
+      ></p-chart>
+      </p-card>
+  </div>
+</div>

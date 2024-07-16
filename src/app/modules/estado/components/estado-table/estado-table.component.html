@@ -1,0 +1,137 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Estados">
+      <p-table
+        #usersTable
+        [value]="estados"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['nome','login','nivelAcesso']"
+        [tableStyle]="{'min-width':'75rem'}"
+        [(selection)]="estadoSelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} estados"
+      >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                ID
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="id"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="id"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="nome">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Nome
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="nome"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="nome"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="estado">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Sigla
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="sigla"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="sigla"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+
+          <th>
+            <div class="flex justify-content-center">
+              <p-button
+                styleClass="p-button-info"
+                icon="pi pi-plus"
+                label="Novo"
+                pTooltip="Cadastrar novo estado"
+                tooltipPosition="top"
+                (onClick)="handleEstadoEvent(createEstadoEvent)"
+              >
+              </p-button>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-est>
+        <tr>
+          <td>{{ est?.id }}</td>
+          <td>{{  est?.nome }}</td>
+          <td>{{  est?.sigla }}</td>
+          <td>
+            <div
+              class="flex justify-content-center gap-3 align-itens-center align-content-center"
+            >
+              <button
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar estado"
+                tooltipPosition="top"
+                (click)="handleEstadoEvent(editEstadoEvent,est?.id)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Excluir estado"
+                tooltipPosition="top"
+                (click)="handleDeleteEstado(est?.id,est?.nome)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-sucess"
+                pTooltip="Visualizar estado"
+                tooltipPosition="top"
+                (click)="handleEstadoEvent(viewEstadoEvent, est?.id)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    </p-card>
+  </div>
+</div>
+

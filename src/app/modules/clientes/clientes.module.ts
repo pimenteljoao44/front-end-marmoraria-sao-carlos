@@ -22,6 +22,7 @@ import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { CLIENTES_ROUTES } from './clientes.routing';
 import { SharedModule } from 'src/app/shared/shared.module';
 import {RadioButtonModule} from 'primeng/radiobutton';
+import { ClienteViewComponent } from './components/cliente-view/cliente-view.component';
 
 
 
@@ -29,7 +30,8 @@ import {RadioButtonModule} from 'primeng/radiobutton';
   declarations: [
     ClientesHomeComponent,
     ClienteFormComponent,
-    ClientesTableComponent
+    ClientesTableComponent,
+    ClienteViewComponent
   ],
   imports: [
     CommonModule,

@@ -53,7 +53,7 @@ update(cidade: Cidade): Observable<Cidade> {
 
   delete(id:any):Observable<void> {
     return this.httpClient.delete<void>(
-      `${this.baseUrl}/api/ciadade/${id}`,
+      `${this.baseUrl}/api/cidade/${id}`,
       this.httpOptions
     );
   }

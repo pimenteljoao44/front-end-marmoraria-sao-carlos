@@ -1,3 +1,4 @@
+import { GruposModule } from './modules/grupos/grupos.module';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './modules/login/login.component';
@@ -27,6 +28,36 @@ const routes: Routes = [
     path:'clientes',
     loadChildren:() => import ('./modules/clientes/clientes.module').then((m)=> m.ClientesModule),
     canActivate:[AuthGuardService]
+  },
+  {
+    path:'funcionarios',
+    loadChildren:() => import ('./modules/funcionarios/funcionarios.module').then((m) => m.FuncionariosModule),
+    canActivate:[AuthGuardService]
+  },
+  {
+    path:'cidade',
+    loadChildren:() => import ('./modules/cidade/cidade.module').then((m) => m.CidadeModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'estado',
+    loadChildren:() => import ('./modules/estado/estado.module').then((m) => m.EstadoModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'produtos',
+    loadChildren:() => import ('./modules/produto/produto.module').then((m) => m.ProdutoModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'grupos',
+    loadChildren:() => import ('./modules/grupos/grupos.module').then((m)=> m.GruposModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'dashboard',
+    loadChildren: () => import ('./modules/dashboard/dashboard.module').then((m) => m.DashboardModule),
+    canActivate: [AuthGuardService]
   }
 ];
 

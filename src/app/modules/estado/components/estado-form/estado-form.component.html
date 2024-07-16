@@ -1,0 +1,29 @@
+<!-- FORMULÁRIO DE NOVO ESTADO -->
+<div *ngIf="estadoAction.event.action === addEstadoAction">
+  <form [formGroup]="addEstadoForm" (ngSubmit)="handleSubmitAddEstado()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+      <input pInputText placeholder="Sigla" formControlName="sigla" />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR ESTADO -->
+<div *ngIf="estadoAction.event.action === editEstadoAction">
+  <form [formGroup]="editEstadoForm" (ngSubmit)="handleSubmitEditEstado()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input pInputText placeholder="Nome" formControlName="nome" />
+      <input pInputText placeholder="Sigla" formControlName="sigla" />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -18,6 +18,7 @@ export class ClientesTableComponent {
 
   public createClienteEvent = ClienteEvent.CREATE_CLIENT_EVENT;
   public editClienteEvent = ClienteEvent.EDIT_CLIENT_EVENT;
+  public viewClientEvent = ClienteEvent.VIEW_CLIENT_EVENT;
 
   public handleClientEvent(action: string, id?: number): void {
     if (action !== undefined && action !== '') {

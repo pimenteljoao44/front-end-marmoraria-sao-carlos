@@ -1,0 +1,174 @@
+<!-- FORMULÁRIO DE NOVO CLIENTE -->
+<div *ngIf="funcionarioAction.event.action === addFuncionarioAction">
+  <form [formGroup]="addFuncionarioForm" (ngSubmit)="handleSubmitAddClient()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <div
+        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <label for="pessoaFisica" class="mr-3">Pessoa Física</label>
+        <p-radioButton
+          class="mr-5 p-radiobutton"
+          inputId="pessoaFisica"
+          name="tipoPessoa"
+          value="PESSOA_FISICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(addFuncionarioForm)"
+        ></p-radioButton>
+        <label for="pessoaJuridica" class="mr-3">Pessoa Jurídica</label>
+        <p-radioButton
+          inputId="pessoaJuridica"
+          name="tipoPessoa"
+          class="p-radiobutton"
+          value="PESSOA_JURIDICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(addFuncionarioForm)"
+        ></p-radioButton>
+      </div>
+      <input pInputText placeholder="Nome" formControlName="nome" />
+      <input pInputText placeholder="Cargo" formControlName="cargo"/>
+      <input pInputText placeholder="Salario" formControlName="salario"/>
+      <input pInputText placeholder="Telefone" formControlName="telefone" />
+      <input
+        pInputText
+        placeholder="CPF"
+        *ngIf="addFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="cpf"
+        (input)="formatarCPF($event,addFuncionarioForm)"
+        (keyup)="formatarCPF($event,addFuncionarioForm)"
+        (keydown)="formatarCPF($event,addFuncionarioForm)"
+      />
+      <input
+        pInputText
+        placeholder="RG"
+        *ngIf="addFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="rg"
+        (input)="formatarRG($event,addFuncionarioForm)"
+        (keyup)="formatarRG($event,addFuncionarioForm)"
+        (keydown)="formatarRG($event,addFuncionarioForm)"
+      />
+      <input
+        pInputText
+        placeholder="CNPJ"
+        *ngIf="addFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
+        formControlName="cnpj"
+        (input)="formatarCNPJ($event,addFuncionarioForm)"
+        (keyup)="formatarCNPJ($event,addFuncionarioForm)"
+        (keydown)="formatarCNPJ($event,addFuncionarioForm)"
+      />
+
+      <div formGroupName="endereco">
+        <input pInputText placeholder="Rua" formControlName="rua" />
+        <input pInputText placeholder="Número" formControlName="numero" />
+        <input
+          pInputText
+          placeholder="Complemento"
+          formControlName="complemento"
+        />
+        <input pInputText placeholder="Bairro" formControlName="bairro" />
+        <div formGroupName="cidade">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="cidades"
+            placeholder="Selecione a cidade"
+            formControlName="cidId"
+            optionLabel="nome"
+            optionValue="cidId"
+            (onChange)="onCidadeChange($event.value)"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR CLIENTE -->
+<div *ngIf="funcionarioAction.event.action === editFuncionarioAtion">
+  <form [formGroup]="editFuncionarioForm" (ngSubmit)="handleSubmitEditClient()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <div
+        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <label for="pessoaFisica" class="mr-3">Pessoa Física</label>
+        <p-radioButton
+          class="mr-5 p-radiobutton"
+          inputId="pessoaFisica"
+          name="tipoPessoa"
+          value="PESSOA_FISICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(editFuncionarioForm)"
+        ></p-radioButton>
+        <label for="pessoaJuridica" class="mr-3">Pessoa Jurídica</label>
+        <p-radioButton
+          inputId="pessoaJuridica"
+          name="tipoPessoa"
+          class="p-radiobutton"
+          value="PESSOA_JURIDICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(editFuncionarioForm)"
+        ></p-radioButton>
+      </div>
+      <input pInputText placeholder="Nome" formControlName="nome" />
+      <input pInputText placeholder="Cargo" formControlName="cargo"/>
+      <input pInputText placeholder="Salario" formControlName="salario"/>
+      <input pInputText placeholder="Telefone" formControlName="telefone" />
+      <input
+      pInputText
+      placeholder="CPF"
+      *ngIf="editFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+      formControlName="cpf"
+      (input)="formatarCPF($event,editFuncionarioForm)"
+      (keyup)="formatarCPF($event,editFuncionarioForm)"
+      (keydown)="formatarCPF($event,editFuncionarioForm)"
+    />
+    <input
+      pInputText
+      placeholder="RG"
+      *ngIf="editFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+      formControlName="rg"
+      (input)="formatarRG($event,editFuncionarioForm)"
+      (keyup)="formatarRG($event,editFuncionarioForm)"
+      (keydown)="formatarRG($event,editFuncionarioForm)"
+    />
+      <input
+        pInputText
+        placeholder="CNPJ"
+        *ngIf="editFuncionarioForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
+        formControlName="cnpj"
+      />
+
+      <div formGroupName="endereco">
+        <input pInputText placeholder="Rua" formControlName="rua" />
+        <input pInputText placeholder="Número" formControlName="numero" />
+        <input
+          pInputText
+          placeholder="Complemento"
+          formControlName="complemento"
+        />
+        <input pInputText placeholder="Bairro" formControlName="bairro" />
+        <div formGroupName="cidade">
+          <p-dropdown
+            styleClass="w-full"
+            [options]="cidades"
+            placeholder="Selecione a cidade"
+            formControlName="cidId"
+            optionLabel="nome"
+            optionValue="cidId"
+            (onChange)="onCidadeChange($event.value)"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+      <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

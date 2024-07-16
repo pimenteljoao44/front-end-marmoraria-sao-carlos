@@ -8,6 +8,8 @@ import { ClientesService } from 'src/app/services/clientes/clientes.service';
 import { EventAction } from 'src/models/interfaces/User/event/EventAction';
 import { Cliente } from 'src/models/interfaces/cliente/Cliente';
 import { ClienteFormComponent } from '../../components/cliente-form/cliente-form.component';
+import { ClienteViewComponent } from '../../components/cliente-view/cliente-view.component';
+import { ClienteEvent } from 'src/models/enums/cliente/ClienteEvent';
 
 @Component({
   selector: 'app-clientes-home',
@@ -66,7 +68,7 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
   }
 
   handleClientAction(event: EventAction): void {
-    if (event) {
+    if (event.action === ClienteEvent.CREATE_CLIENT_EVENT || event.action === ClienteEvent.EDIT_CLIENT_EVENT ) {
       this.ref = this.dialogService.open(ClienteFormComponent, {
         header: event?.action,
         width: '70%',
@@ -81,6 +83,8 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
       this.ref.onClose.pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.getAPIClientesDatas(),
       });
+    } else {
+      this.handleViewClientAction(event);
     }
   }
 
@@ -98,6 +102,35 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
         rejectLabel: 'Não',
         accept: () => this.deleteClient(event?.cli_id),
       });
+    }
+  }
+
+  handleViewClientAction(event: EventAction) {
+    if (event) {
+      this.clienteService.findById(event?.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            if (response) {
+              this.ref = this.dialogService.open(ClienteViewComponent, {
+                header: event?.action,
+                width: '70%',
+                contentStyle: { overflow: 'auto' },
+                baseZIndex: 10000,
+                maximizable: true,
+                data: {
+                  cliente: response,
+                },
+              });
+              this.ref.onClose.pipe(takeUntil(this.destroy$)).subscribe({
+                next: () => this.getAPIClientesDatas(),
+              });
+            }
+          },
+          error(err) {
+            console.log(err);
+          },
+        });
     }
   }
 
@@ -121,7 +154,7 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao excluir cliente',
+              detail: `Erro ao excluir cliente ${err.error.error}`,
               life: 2500,
             });
           },
