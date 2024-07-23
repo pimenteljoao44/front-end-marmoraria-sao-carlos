@@ -5,18 +5,13 @@
   background-repeat: no-repeat;
   height: 100vh;
   display: flex;
-  align-items: center; /* Vertical alignment */
+  justify-content: center;
+  align-items: center;
 }
 
 @media screen and (min-width: 1400px) {
   .grid {
-    background-position: top;
-  }
-}
-
-@media screen and (min-width: 1000px) {
-  .grid {
-    height: 100vmax;
+    background-position: contain;
   }
 }
 
