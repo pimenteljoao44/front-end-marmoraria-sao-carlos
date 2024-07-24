@@ -20,6 +20,6 @@ export class ToolbarComponent {
 
   handleLogout():void {
     this.cookie.delete('USER_INFO');
-    this.router.navigate(['login']);
+    this.router.navigate(['']);
   }
 }

@@ -15,7 +15,7 @@ export class AuthGuardService {
     | boolean
     | UrlTree {
       if(!this.userService.isLogedIn()){
-        this.router.navigate(['login']);
+        this.router.navigate(['']);
         return false;
       }
       this.userService.isLogedIn();
