@@ -35,7 +35,7 @@ export class LoginComponent implements OnDestroy {
       .subscribe({
         next:(response) => {
           if(response) {
-
+            this.router.navigate(['home']);
             this.cookieService.set('USER_INFO', response?.token);
             this.loginForm.reset();
             this.messageService.add({
@@ -44,7 +44,6 @@ export class LoginComponent implements OnDestroy {
               detail: `Bem vindo devolta ${response?.nome}`,
               life: 2000,
             });
-            this.router.navigate(['home']);
           }
         },  error: (err) => {
           this.messageService.add({
