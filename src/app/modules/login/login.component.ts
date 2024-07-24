@@ -12,7 +12,7 @@ import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   loginForm = this.formBuilder.group({
@@ -27,6 +27,10 @@ export class LoginComponent implements OnDestroy {
     private messageService: MessageService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    this.router.navigate(['']);
+  }
 
   onsubmitLoginForm():void {
     if(this.loginForm.value && this.loginForm.valid) {
