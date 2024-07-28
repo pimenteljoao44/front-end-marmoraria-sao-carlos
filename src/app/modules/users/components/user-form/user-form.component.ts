@@ -35,6 +35,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     nome:['',Validators.required],
     login:['',Validators.required],
     senha:['',Validators.required],
+    email: ['',Validators.required],
     nivelAcesso:[null,Validators.required]
   });
 
@@ -42,6 +43,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     nome:['',Validators.required],
     login:['',Validators.required],
     senha:['',Validators.required],
+    email:['',Validators.required],
     nivelAcesso:[null,Validators.required]
   });
 
@@ -101,6 +103,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
         nome: this.editUserForm?.value?.nome as string,
         login: this.editUserForm?.value?.login as string,
         senha: this.editUserForm?.value?.senha as string,
+        email: this.editUserForm?.value?.email as string,
         nivelAcesso: this.editUserForm?.value.nivelAcesso,
         token:''
       };
@@ -141,6 +144,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           nome: this.usersSelectedDatas?.nome,
           login: this.usersSelectedDatas?.login,
           senha: '',
+          email: this.usersSelectedDatas?.email,
           nivelAcesso: this.usersSelectedDatas?.nivelAcesso
          })
       }

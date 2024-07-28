@@ -14,11 +14,16 @@ import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  displayForgotPasswordDialog: boolean = false;
 
   loginForm = this.formBuilder.group({
     login: ['', Validators.required],
     senha: ['', Validators.required],
   });
+
+  forgotPasswordForm = this.formBuilder.group({
+    email: ['',Validators.required]
+  })
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,35 +37,74 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.router.navigate(['']);
   }
 
-  onsubmitLoginForm():void {
-    if(this.loginForm.value && this.loginForm.valid) {
-      this.userService.authUser(this.loginForm?.value as AuthRequest)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:(response) => {
-          if(response) {
-            this.router.navigate(['home']);
-            this.cookieService.set('USER_INFO', response?.token);
-            this.loginForm.reset();
+  onsubmitLoginForm(): void {
+    if (this.loginForm.value && this.loginForm.valid) {
+      this.userService.authUser(this.loginForm.value as AuthRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            if (response) {
+              this.router.navigate(['home']);
+              this.cookieService.set('USER_INFO', response.token);
+              this.loginForm.reset();
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: `Bem vindo devolta ${response.nome}`,
+                life: 2000,
+              });
+            }
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao fazer Login',
+              life: 2000,
+            });
+            console.log(err);
+          },
+        });
+    }
+  }
+
+  showForgotPasswordDialog(): void {
+    this.displayForgotPasswordDialog = true;
+  }
+
+  hideForgotPasswordDialog(): void {
+    this.displayForgotPasswordDialog = false;
+  }
+
+  onSubmitForgotPasswordForm(): void {
+    if (this.forgotPasswordForm.value && this.forgotPasswordForm.valid) {
+      this.userService.passwordRecover(this.forgotPasswordForm.value.email as string)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Sucesso',
-              detail: `Bem vindo devolta ${response?.nome}`,
+              summary: 'Atenção',
+              detail: 'Enviamos uma senha de acesso para o email informado, verifique sua caixa de entrada',
+              life: 3000,
+            });
+            this.cookieService.set('PASSWORD_RECOVERED', 'true');
+            this.displayForgotPasswordDialog = false;
+            this.forgotPasswordForm.reset();
+          },
+          error: (err) => {
+            console.log(err.error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Não encontramos nenhum usuário com o email informado',
               life: 2000,
             });
           }
-        },  error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: `Erro ao fazer Login`,
-            life: 2000,
-          });
-          console.log(err);
-        },
-      })
+        });
     }
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
