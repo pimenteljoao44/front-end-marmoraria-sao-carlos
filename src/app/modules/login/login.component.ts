@@ -10,7 +10,7 @@ import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
 @Component({
   selector: 'app-home',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -22,8 +22,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   });
 
   forgotPasswordForm = this.formBuilder.group({
-    email: ['',Validators.required]
-  })
+    email: ['', Validators.required],
+  });
 
   constructor(
     private formBuilder: FormBuilder,
@@ -39,7 +39,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onsubmitLoginForm(): void {
     if (this.loginForm.value && this.loginForm.valid) {
-      this.userService.authUser(this.loginForm.value as AuthRequest)
+      this.userService
+        .authUser(this.loginForm.value as AuthRequest)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
@@ -78,14 +79,16 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmitForgotPasswordForm(): void {
     if (this.forgotPasswordForm.value && this.forgotPasswordForm.valid) {
-      this.userService.passwordRecover(this.forgotPasswordForm.value.email as string)
+      this.userService
+        .passwordRecover(this.forgotPasswordForm.value.email as string)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             this.messageService.add({
               severity: 'success',
               summary: 'Atenção',
-              detail: 'Enviamos uma senha de acesso para o email informado, verifique sua caixa de entrada',
+              detail:
+                'Enviamos uma senha de acesso para o email informado, verifique sua caixa de entrada',
               life: 3000,
             });
             this.cookieService.set('PASSWORD_RECOVERED', 'true');
@@ -100,11 +103,10 @@ export class LoginComponent implements OnInit, OnDestroy {
               detail: 'Não encontramos nenhum usuário com o email informado',
               life: 2000,
             });
-          }
+          },
         });
     }
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
