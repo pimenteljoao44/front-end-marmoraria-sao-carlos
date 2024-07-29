@@ -3,6 +3,7 @@ export interface Usuario {
   nome:string;
   login:string;
   senha:any;
+  email: string;
   nivelAcesso:any;
   token:string
 }

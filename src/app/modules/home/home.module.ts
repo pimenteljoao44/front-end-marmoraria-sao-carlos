@@ -12,6 +12,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { Dialog, DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
 
 @NgModule({
   declarations: [HomeComponent],
@@ -25,6 +27,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ToolbarModule,
     CardModule,
     ToastModule,
+    DialogModule,
+    InputTextModule,
     SidebarModule,
     //shared
     SharedModule

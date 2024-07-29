@@ -73,4 +73,19 @@ export class UserService {
       requstDatas
     );
   }
+
+  passwordRecover(email: string): Observable<void> {
+    return this.httpClient.post<void> (
+      `${this.baseUrl}/auth/recovery`,
+      { email}
+    );
+  }
+
+  updatePassword(id: number, newPassword: string): Observable<void> {
+    return this.httpClient.put<void>(
+      `${this.baseUrl}/usuarios/${id}/update-password`,
+      newPassword,
+      this.httpOptions
+    );
+  }
 }

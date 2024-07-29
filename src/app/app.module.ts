@@ -14,6 +14,7 @@ import {ButtonModule} from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
 import { GruposModule } from './modules/grupos/grupos.module';
+import {DialogModule} from 'primeng/dialog';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { GruposModule } from './modules/grupos/grupos.module';
     InputTextModule,
     ToastModule,
     ButtonModule,
-    GruposModule
+    GruposModule,
+    DialogModule
   ],
   providers: [MessageService,CookieService],
   bootstrap: [AppComponent]
