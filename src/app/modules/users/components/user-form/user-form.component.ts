@@ -90,7 +90,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao criar Conta.`,
+              detail: `Erro ao criar Conta ${err.error.error}`,
               life: 2000,
             });
             console.log(err);

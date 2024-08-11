@@ -33,6 +33,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
   public grupoSelecionado!: Grupo;
   public fornecedorSelecionado!: Fornecedor;
   public ativo: boolean = true;
+  public validouEstoquePreco: boolean = false;
 
   public addProductForm = this.formBuilder.group({
     nome: ['', Validators.required],
@@ -145,6 +146,8 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
 
   handleSubmitAddProduct() {
     const invalidControls: string[] = [];
+    const additionalErrors: string[] = [];
+
     Object.keys(this.addProductForm.controls).forEach((controlName) => {
       const control = this.addProductForm.get(controlName);
       if (control && control.invalid) {
@@ -152,16 +155,27 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
       }
     });
 
-    if (invalidControls.length > 0) {
-      const invalidFieldsMessage = `Os campos ${invalidControls.join(
-        ', '
-      )} estão inválidos.`;
+    const preco = this.addProductForm.get('preco')?.value;
+    const estoque = this.addProductForm.get('estoque')?.value;
+    if (preco !== null && preco !== undefined && preco < 0) {
+      additionalErrors.push('preço deve ser maior ou igual a zero');
+    }
+
+    if (estoque !== null && estoque !== undefined && estoque < 0) {
+      additionalErrors.push('estoque deve ser maior ou igual a zero');
+    }
+
+    if (invalidControls.length > 0 || additionalErrors.length > 0) {
+      const invalidFieldsMessage = `Os campos ${invalidControls.join(', ')} estão inválidos`;
+      const additionalErrorsMessage = additionalErrors.length > 0 ? ` e o ${additionalErrors.join(' e ')}` : '';
+
+      const fullMessage = `${invalidFieldsMessage}${additionalErrorsMessage}.`;
 
       this.markFormGroupTouched(this.addProductForm);
       this.messageService.add({
         severity: 'warn',
         summary: 'Aviso',
-        detail: invalidFieldsMessage,
+        detail: fullMessage,
         life: 3000,
       });
       return;
