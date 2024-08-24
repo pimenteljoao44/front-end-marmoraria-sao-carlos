@@ -27,4 +27,34 @@ export class FornecedorService {
       }),
     };
   }
+
+  findAll(): Observable<Array<Fornecedor>> {
+    return this.httpClient.get<Array<Fornecedor>>(
+      `${this.baseUrl}/fornecedores`,
+      this.httpOptions
+    );
+  }
+
+  findById(id: any): Observable<Fornecedor> {
+    return this.httpClient.get<Fornecedor>(`${this.baseUrl}/fornecedores/${id}`, this.httpOptions);
+}
+
+create(fornecedor: Fornecedor): Observable<Fornecedor> {
+    return this.httpClient.post<Fornecedor>(`${this.baseUrl}/fornecedores`, fornecedor, this.httpOptions);
+}
+
+update(fornecedor: Fornecedor): Observable<Fornecedor> {
+  return this.httpClient.put<Fornecedor>(
+    `${this.baseUrl}/fornecedores/${fornecedor?.id}`,
+    fornecedor,
+    this.httpOptions
+  );
+}
+
+  delete(id:any):Observable<void> {
+    return this.httpClient.delete<void>(
+      `${this.baseUrl}/fornecedores/${id}`,
+      this.httpOptions
+    );
+  }
 }
