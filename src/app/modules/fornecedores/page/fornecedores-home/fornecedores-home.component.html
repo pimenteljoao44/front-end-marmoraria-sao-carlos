@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+<app-fornecedores-table
+  [fornecedores]="fornecedoresList"
+  (fornecedorEvent)="handleFornecedorAction($event)"
+  (deleteFornecedorEvent)="handleDeleteFornecedorAction($event)"
+></app-fornecedores-table>
+<p-confirmDialog [style]="{ widith:'50vw'}"></p-confirmDialog>
