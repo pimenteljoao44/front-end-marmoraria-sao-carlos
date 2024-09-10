@@ -1,0 +1,9 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<app-compra-table
+  [compras]="comprasList"
+  (compraEvent)="handleCompraAction($event)"
+></app-compra-table>
+
+<p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>

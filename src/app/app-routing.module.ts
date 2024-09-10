@@ -59,6 +59,11 @@ const routes: Routes = [
     path:'dashboard',
     loadChildren: () => import ('./modules/dashboard/dashboard.module').then((m) => m.DashboardModule),
     canActivate: [AuthGuardService]
+  },
+  {
+    path:'compra',
+    loadChildren:() => import ('./modules/compra/compra.module').then((m) => m.CompraModule),
+    canActivate: [AuthGuardService]
   }
 ];
 
