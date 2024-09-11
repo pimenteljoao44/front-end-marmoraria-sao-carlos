@@ -465,18 +465,28 @@ export class CompraFormComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit(): void {
-    console.log(this.addCompraForm.value);
-    if (this.addCompraForm.invalid) {
+    const invalidControls: string[] = [];
+    Object.keys(this.addCompraForm.controls).forEach((controlName) => {
+      const control = this.addCompraForm.get(controlName);
+      if (control && control.invalid) {
+        invalidControls.push(controlName);
+      }
+    });
+
+    if (invalidControls.length > 0) {
+      const invalidFieldsMessage = `Os campos ${invalidControls.join(
+        ', '
+      )} estão inválidos.`;
+
       this.markFormGroupTouched(this.addCompraForm);
       this.messageService.add({
         severity: 'warn',
         summary: 'Aviso',
-        detail: 'Por favor, preencha todos os campos obrigatórios.',
+        detail: invalidFieldsMessage,
         life: 3000,
       });
       return;
     }
-
     const valorTotal = this.items
       .reduce((acc, item) => acc + item.valor * item.quantidade, 0)
       .toFixed(2);
