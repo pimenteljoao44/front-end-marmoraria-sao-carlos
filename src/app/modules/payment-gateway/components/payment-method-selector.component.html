@@ -1,0 +1,386 @@
+<div class="payment-method-selector">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-credit-card mr-2"></i>
+        Selecionar Método de Pagamento
+      </h3>
+    </div>
+    
+    <div class="card-body">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center py-4">
+        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+        <p class="mt-2">Carregando métodos de pagamento...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        {{ error }}
+        <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="loadAvailablePaymentMethods()">
+          Tentar Novamente
+        </button>
+      </div>
+
+      <!-- Payment Form -->
+      <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" *ngIf="!loading && !error">
+        
+        <!-- Payment Summary -->
+        <div class="payment-summary mb-4 p-3 bg-light rounded">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Valor Total:</strong>
+              <span class="text-success ml-2 h5">{{ formatCurrency(amount) }}</span>
+            </div>
+            <div class="col-md-6" *ngIf="description">
+              <strong>Descrição:</strong>
+              <span class="ml-2">{{ description }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-list mr-2"></i>
+            Método de Pagamento *
+          </label>
+          <div class="payment-methods-grid">
+            <div 
+              *ngFor="let method of availablePaymentMethods" 
+              class="payment-method-option"
+              [class.selected]="selectedPaymentMethod === method"
+              (click)="paymentForm.patchValue({paymentMethod: method})"
+            >
+              <div class="method-icon">
+                <i [class]="getPaymentMethodConfig(method).icon" 
+                   [ngClass]="getPaymentMethodConfig(method).color"></i>
+              </div>
+              <div class="method-info">
+                <div class="method-name">{{ getPaymentMethodDisplayName(method) }}</div>
+                <div class="method-description">{{ getPaymentMethodConfig(method).description }}</div>
+              </div>
+              <div class="method-selector">
+                <input 
+                  type="radio" 
+                  [value]="method" 
+                  formControlName="paymentMethod"
+                  [id]="'method-' + method"
+                >
+              </div>
+            </div>
+          </div>
+          <div *ngIf="isFieldInvalid('paymentMethod')" class="invalid-feedback d-block">
+            {{ getFieldError('paymentMethod') }}
+          </div>
+        </div>
+
+        <!-- Provider Selection -->
+        <div class="form-group" *ngIf="selectedPaymentMethod && availableProviders.length > 1">
+          <label for="provider" class="form-label">
+            <i class="fas fa-server mr-2"></i>
+            Provedor de Pagamento *
+          </label>
+          <select 
+            id="provider" 
+            class="form-control" 
+            formControlName="provider"
+            [class.is-invalid]="isFieldInvalid('provider')"
+          >
+            <option value="">Selecione um provedor</option>
+            <option *ngFor="let provider of availableProviders" [value]="provider.providerId">
+              {{ provider.providerName }}
+              <span *ngIf="provider.feePercentage || provider.fixedFee">
+                (Taxa: {{ provider.feePercentage ? (provider.feePercentage * 100).toFixed(2) + '%' : '' }}
+                {{ provider.fixedFee ? ' + ' + formatCurrency(provider.fixedFee) : '' }})
+              </span>
+            </option>
+          </select>
+          <div *ngIf="isFieldInvalid('provider')" class="invalid-feedback">
+            {{ getFieldError('provider') }}
+          </div>
+        </div>
+
+        <!-- Installments -->
+        <div class="form-group" *ngIf="canUseInstallments()">
+          <label for="installments" class="form-label">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            Número de Parcelas
+          </label>
+          <select 
+            id="installments" 
+            class="form-control" 
+            formControlName="installments"
+            [class.is-invalid]="isFieldInvalid('installments')"
+          >
+            <option *ngFor="let i of [].constructor(getMaxInstallments()); let idx = index" [value]="idx + 1">
+              {{ idx + 1 }}x de {{ formatCurrency(calculateInstallmentAmount() / (idx + 1)) }}
+              <span *ngIf="idx > 0"> (Total: {{ formatCurrency(amount) }})</span>
+            </option>
+          </select>
+          <div *ngIf="isFieldInvalid('installments')" class="invalid-feedback">
+            {{ getFieldError('installments') }}
+          </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="customer-info-section">
+          <h5 class="section-title">
+            <i class="fas fa-user mr-2"></i>
+            Informações do Cliente
+          </h5>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="customerName" class="form-label">Nome Completo *</label>
+                <input 
+                  type="text" 
+                  id="customerName" 
+                  class="form-control" 
+                  formControlName="customerName"
+                  [class.is-invalid]="isFieldInvalid('customerName')"
+                  placeholder="Digite o nome completo"
+                >
+                <div *ngIf="isFieldInvalid('customerName')" class="invalid-feedback">
+                  {{ getFieldError('customerName') }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="customerEmail" class="form-label">Email</label>
+                <input 
+                  type="email" 
+                  id="customerEmail" 
+                  class="form-control" 
+                  formControlName="customerEmail"
+                  [class.is-invalid]="isFieldInvalid('customerEmail')"
+                  placeholder="email@exemplo.com"
+                >
+                <div *ngIf="isFieldInvalid('customerEmail')" class="invalid-feedback">
+                  {{ getFieldError('customerEmail') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="customerDocument" class="form-label">CPF/CNPJ</label>
+                <input 
+                  type="text" 
+                  id="customerDocument" 
+                  class="form-control" 
+                  formControlName="customerDocument"
+                  [class.is-invalid]="isFieldInvalid('customerDocument')"
+                  placeholder="000.000.000-00"
+                >
+                <div *ngIf="isFieldInvalid('customerDocument')" class="invalid-feedback">
+                  {{ getFieldError('customerDocument') }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="customerPhone" class="form-label">Telefone</label>
+                <input 
+                  type="tel" 
+                  id="customerPhone" 
+                  class="form-control" 
+                  formControlName="customerPhone"
+                  [class.is-invalid]="isFieldInvalid('customerPhone')"
+                  placeholder="(11) 99999-9999"
+                >
+                <div *ngIf="isFieldInvalid('customerPhone')" class="invalid-feedback">
+                  {{ getFieldError('customerPhone') }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Credit/Debit Card Information -->
+        <div class="card-info-section" *ngIf="selectedPaymentMethod === 'CREDIT_CARD' || selectedPaymentMethod === 'DEBIT_CARD'">
+          <h5 class="section-title">
+            <i class="fas fa-credit-card mr-2"></i>
+            Informações do Cartão
+          </h5>
+          
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="cardNumber" class="form-label">Número do Cartão *</label>
+                <input 
+                  type="text" 
+                  id="cardNumber" 
+                  class="form-control" 
+                  formControlName="cardNumber"
+                  [class.is-invalid]="isFieldInvalid('cardNumber')"
+                  placeholder="0000 0000 0000 0000"
+                  maxlength="19"
+                >
+                <div *ngIf="isFieldInvalid('cardNumber')" class="invalid-feedback">
+                  {{ getFieldError('cardNumber') }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="cvv" class="form-label">CVV *</label>
+                <input 
+                  type="text" 
+                  id="cvv" 
+                  class="form-control" 
+                  formControlName="cvv"
+                  [class.is-invalid]="isFieldInvalid('cvv')"
+                  placeholder="123"
+                  maxlength="4"
+                >
+                <div *ngIf="isFieldInvalid('cvv')" class="invalid-feedback">
+                  {{ getFieldError('cvv') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="cardHolderName" class="form-label">Nome no Cartão *</label>
+                <input 
+                  type="text" 
+                  id="cardHolderName" 
+                  class="form-control" 
+                  formControlName="cardHolderName"
+                  [class.is-invalid]="isFieldInvalid('cardHolderName')"
+                  placeholder="Nome como impresso no cartão"
+                >
+                <div *ngIf="isFieldInvalid('cardHolderName')" class="invalid-feedback">
+                  {{ getFieldError('cardHolderName') }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Validade *</label>
+                <div class="row">
+                  <div class="col-6">
+                    <select 
+                      class="form-control" 
+                      formControlName="expiryMonth"
+                      [class.is-invalid]="isFieldInvalid('expiryMonth')"
+                    >
+                      <option value="">Mês</option>
+                      <option *ngFor="let month of [].constructor(12); let i = index" [value]="i + 1">
+                        {{ (i + 1).toString().padStart(2, '0') }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <select 
+                      class="form-control" 
+                      formControlName="expiryYear"
+                      [class.is-invalid]="isFieldInvalid('expiryYear')"
+                    >
+                      <option value="">Ano</option>
+                      <option *ngFor="let year of [].constructor(10); let i = index" [value]="new Date().getFullYear() + i">
+                        {{ new Date().getFullYear() + i }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div *ngIf="isFieldInvalid('expiryMonth') || isFieldInvalid('expiryYear')" class="invalid-feedback d-block">
+                  Data de validade obrigatória
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save Card Option -->
+          <div class="form-group" *ngIf="selectedProvider?.supportsRefunds">
+            <div class="form-check">
+              <input 
+                type="checkbox" 
+                id="saveCard" 
+                class="form-check-input" 
+                formControlName="saveCard"
+              >
+              <label for="saveCard" class="form-check-label">
+                Salvar cartão para futuras compras
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIX Information -->
+        <div class="pix-info-section" *ngIf="selectedPaymentMethod === 'PIX'">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>PIX:</strong> Após confirmar, você receberá um QR Code ou chave PIX para realizar o pagamento.
+            O pagamento será processado instantaneamente.
+          </div>
+        </div>
+
+        <!-- Boleto Information -->
+        <div class="boleto-info-section" *ngIf="selectedPaymentMethod === 'BOLETO'">
+          <div class="alert alert-warning">
+            <i class="fas fa-barcode mr-2"></i>
+            <strong>Boleto Bancário:</strong> O boleto será gerado após a confirmação.
+            O prazo para pagamento é de até 3 dias úteis.
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions mt-4">
+          <div class="row">
+            <div class="col-md-6">
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-block"
+                (click)="paymentForm.reset()"
+                [disabled]="disabled"
+              >
+                <i class="fas fa-undo mr-2"></i>
+                Limpar
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-block"
+                [disabled]="paymentForm.invalid || disabled || loading"
+              >
+                <i class="fas fa-credit-card mr-2"></i>
+                <span *ngIf="selectedPaymentMethod === 'PIX'">Gerar PIX</span>
+                <span *ngIf="selectedPaymentMethod === 'BOLETO'">Gerar Boleto</span>
+                <span *ngIf="selectedPaymentMethod === 'CREDIT_CARD' || selectedPaymentMethod === 'DEBIT_CARD'">
+                  Processar Pagamento
+                </span>
+                <span *ngIf="!selectedPaymentMethod">Processar Pagamento</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="security-notice mt-3">
+          <div class="alert alert-light">
+            <i class="fas fa-shield-alt text-success mr-2"></i>
+            <small>
+              <strong>Segurança:</strong> Todas as informações são transmitidas de forma segura e criptografada.
+              Seus dados de pagamento são protegidos pelos mais altos padrões de segurança.
+            </small>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

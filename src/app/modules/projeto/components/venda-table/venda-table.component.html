@@ -1,0 +1,190 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Vendas">
+      <p-table
+        #comprasTable
+        [value]="vendas"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['venId', 'dataAbertura', 'dataFechamento', 'desconto', 'vendaTipo', 'cliente', 'formaPagamento']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="vendaSelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="comprId"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Vendas"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="venId">
+              <div class="flex justify-content-between align-items-center">
+                <div>ID</div>
+                <div>
+                  <p-sortIcon field="venId"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="venId"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="dataAbertura">
+              <div class="flex justify-content-between align-items-center">
+                <div>Date Abertura</div>
+                <div>
+                  <p-sortIcon field="dataAbertura"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="dataAbertura"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="dataFechamento">
+              <div class="flex justify-content-between align-items-center">
+                <div>Valor total</div>
+                <div>
+                  <p-sortIcon field="total"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="total"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="desconto">
+              <div class="flex justify-content-between align-items-center">
+                <div>Desconto</div>
+                <div>
+                  <p-sortIcon field="desconto"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="desconto"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="vendaTipo">
+              <div class="flex justify-content-between align-items-center">
+                <div>Tipo da venda</div>
+                <div>
+                  <p-sortIcon field="vendaTipo"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="vendaTipo"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="cliente">
+              <div class="flex justify-content-between align-items-center">
+                <div>Cliente</div>
+                <div>
+                  <p-sortIcon field="cliente"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="cliente"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="formaPagamento">
+              <div class="flex justify-content-between align-items-center">
+                <div>Forma de Pagamento</div>
+                <div>
+                  <p-sortIcon field="formaPagamento"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="formaPagamento"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th>
+              <div class="flex justify-content-center">
+                <p-button
+                  styleClass="p-button-info"
+                  icon="pi pi-plus"
+                  label="Nova Venda"
+                  pTooltip="Realizar nova Venda"
+                  tooltipPosition="top"
+                  (onClick)="handleVendaEvent(createVendaEvent)"
+                ></p-button>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-venda>
+          <tr>
+            <td>{{ venda.id }}</td>
+            <td>{{ venda.dataAbertura | date:'dd/MM/yyyy':'pt-BR' }}</td>
+            <td>{{ venda.total | currency }}</td>
+            <td>{{ venda.desconto | currency }}</td>
+            <td>{{ getDescricaoVendaTipo(venda.vendaTipo) }}</td>
+            <td>{{ venda.clienteNome }}</td>
+            <td>{{ getDescricaoFormaPagamento(venda.formaPagamento) }}</td>
+            <td>
+              <div class="flex justify-content-center gap-3 align-items-center align-content-center">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-warning"
+                  pTooltip="Editar Venda"
+                  tooltipPosition="top"
+                  (click)="handleVendaEvent(editVendaEvent, venda?.id)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-eye"
+                  class="p-button-rounded p-button-success"
+                  pTooltip="Visualizar Venda"
+                  tooltipPosition="top"
+                  (click)="handleVendaEvent(viewVendaEvent, venda?.id)"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>
+

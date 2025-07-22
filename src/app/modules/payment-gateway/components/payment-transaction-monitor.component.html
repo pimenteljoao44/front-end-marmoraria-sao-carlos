@@ -1,0 +1,296 @@
+<div class="payment-transaction-monitor">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-4">
+    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+    <p class="mt-2">Carregando informações da transação...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    {{ error }}
+    <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="loadTransaction()">
+      Tentar Novamente
+    </button>
+  </div>
+
+  <!-- Transaction Details -->
+  <div *ngIf="!loading && !error && (transaction || statusResponse)" class="transaction-details">
+    
+    <!-- Status Header -->
+    <div class="status-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="status-info">
+            <div class="status-badge" *ngIf="statusResponse">
+              <i [class]="getStatusConfig(statusResponse.status).icon" 
+                 [ngClass]="getStatusConfig(statusResponse.status).color"></i>
+              <span class="status-text">{{ getStatusDisplayName(statusResponse.status) }}</span>
+            </div>
+            <div class="transaction-id">
+              <small class="text-muted">ID da Transação:</small>
+              <code class="ml-1">{{ transactionId }}</code>
+              <button type="button" class="btn btn-sm btn-link p-0 ml-1" (click)="copyTransactionId()" title="Copiar ID">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 text-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="refreshStatus()" [disabled]="loading">
+            <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+            Atualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section" *ngIf="!isTransactionFinal()">
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+             [style.width.%]="getProgressPercentage()"
+             [ngClass]="getStatusConfig(statusResponse?.status || 'PENDING').bgColor">
+        </div>
+      </div>
+      <small class="text-muted">Processando pagamento...</small>
+    </div>
+
+    <!-- Transaction Summary -->
+    <div class="transaction-summary">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="summary-item">
+            <label>Valor:</label>
+            <span class="value text-success font-weight-bold">
+              {{ formatCurrency(statusResponse?.amount || transaction?.amount || 0, statusResponse?.currency || transaction?.currency || 'BRL') }}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6" *ngIf="statusResponse?.processedAmount && statusResponse.processedAmount !== statusResponse.amount">
+          <div class="summary-item">
+            <label>Valor Processado:</label>
+            <span class="value">
+              {{ formatCurrency(statusResponse.processedAmount, statusResponse.currency || 'BRL') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="statusResponse?.fees || transaction?.fees">
+        <div class="col-md-6">
+          <div class="summary-item">
+            <label>Taxas:</label>
+            <span class="value text-warning">
+              {{ formatCurrency(statusResponse?.fees || transaction?.fees || 0, statusResponse?.currency || transaction?.currency || 'BRL') }}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6" *ngIf="statusResponse?.processedAmount && statusResponse?.fees">
+          <div class="summary-item">
+            <label>Valor Líquido:</label>
+            <span class="value text-info">
+              {{ formatCurrency((statusResponse.processedAmount || 0) - (statusResponse.fees || 0), statusResponse.currency || 'BRL') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6" *ngIf="transaction?.paymentMethod">
+          <div class="summary-item">
+            <label>Método de Pagamento:</label>
+            <span class="value">{{ getPaymentMethodDisplayName(transaction.paymentMethod) }}</span>
+          </div>
+        </div>
+        <div class="col-md-6" *ngIf="transaction?.providerId">
+          <div class="summary-item">
+            <label>Provedor:</label>
+            <span class="value">{{ transaction.providerId }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="transaction?.description">
+        <div class="col-12">
+          <div class="summary-item">
+            <label>Descrição:</label>
+            <span class="value">{{ transaction.description }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-section">
+      <h6 class="section-title">
+        <i class="fas fa-history mr-2"></i>
+        Histórico da Transação
+      </h6>
+      
+      <div class="timeline">
+        <div class="timeline-item" *ngIf="statusResponse?.createdAt">
+          <div class="timeline-marker bg-info"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Transação Criada</div>
+            <div class="timeline-time">{{ formatDate(statusResponse.createdAt) }}</div>
+            <div class="timeline-description">Pagamento iniciado</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" *ngIf="statusResponse?.processedAt">
+          <div class="timeline-marker" [ngClass]="isTransactionSuccessful() ? 'bg-success' : 'bg-danger'"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Processamento Concluído</div>
+            <div class="timeline-time">{{ formatDate(statusResponse.processedAt) }}</div>
+            <div class="timeline-description">
+              {{ isTransactionSuccessful() ? 'Pagamento aprovado' : 'Pagamento rejeitado' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" *ngIf="statusResponse?.updatedAt && statusResponse.updatedAt !== statusResponse.createdAt">
+          <div class="timeline-marker bg-warning"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Última Atualização</div>
+            <div class="timeline-time">{{ formatDate(statusResponse.updatedAt) }}</div>
+            <div class="timeline-description">Status: {{ getStatusDisplayName(statusResponse.status) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="time-info text-muted text-center mt-3">
+        <small>
+          <i class="fas fa-clock mr-1"></i>
+          Criado {{ getTimeSinceCreation() }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div class="status-message" *ngIf="statusResponse?.statusMessage">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-2"></i>
+        {{ statusResponse.statusMessage }}
+      </div>
+    </div>
+
+    <!-- Error Information -->
+    <div class="error-info" *ngIf="transaction?.errorMessage">
+      <div class="alert alert-danger">
+        <h6 class="alert-heading">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          Erro no Processamento
+        </h6>
+        <p class="mb-1">{{ transaction.errorMessage }}</p>
+        <small *ngIf="transaction.errorCode" class="text-muted">
+          Código do erro: {{ transaction.errorCode }}
+        </small>
+        <hr *ngIf="transaction.retryCount > 0">
+        <small *ngIf="transaction.retryCount > 0" class="text-muted">
+          Tentativas de reprocessamento: {{ transaction.retryCount }}/{{ transaction.maxRetries }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section" *ngIf="showActions">
+      <div class="row">
+        <div class="col-md-6" *ngIf="canCancel()">
+          <button type="button" class="btn btn-outline-danger btn-block" 
+                  (click)="cancelPayment()" [disabled]="cancelling">
+            <i class="fas fa-ban mr-2" [class.fa-spinner]="cancelling" [class.fa-spin]="cancelling"></i>
+            {{ cancelling ? 'Cancelando...' : 'Cancelar Pagamento' }}
+          </button>
+        </div>
+        <div class="col-md-6" *ngIf="canRefund()">
+          <button type="button" class="btn btn-outline-warning btn-block" 
+                  (click)="toggleRefundForm()" [disabled]="refunding">
+            <i class="fas fa-undo mr-2"></i>
+            Reembolsar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refund Form -->
+    <div class="refund-form" *ngIf="showRefundForm">
+      <div class="card mt-3">
+        <div class="card-header">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-undo mr-2"></i>
+            Processar Reembolso
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="refundAmount">Valor do Reembolso</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">R$</span>
+              </div>
+              <input type="number" id="refundAmount" class="form-control" 
+                     [(ngModel)]="refundAmount" 
+                     [max]="statusResponse?.processedAmount || 0"
+                     step="0.01" min="0.01">
+            </div>
+            <small class="form-text text-muted">
+              Valor máximo: {{ formatCurrency(statusResponse?.processedAmount || 0, statusResponse?.currency || 'BRL') }}
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="refundReason">Motivo do Reembolso</label>
+            <textarea id="refundReason" class="form-control" rows="3" 
+                      [(ngModel)]="refundReason" 
+                      placeholder="Descreva o motivo do reembolso..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <div class="row">
+              <div class="col-6">
+                <button type="button" class="btn btn-secondary btn-block" 
+                        (click)="toggleRefundForm()" [disabled]="refunding">
+                  Cancelar
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-warning btn-block" 
+                        (click)="processRefund()" [disabled]="refunding || !refundAmount || refundAmount <= 0">
+                  <i class="fas fa-undo mr-2" [class.fa-spinner]="refunding" [class.fa-spin]="refunding"></i>
+                  {{ refunding ? 'Processando...' : 'Confirmar Reembolso' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto Refresh Indicator -->
+    <div class="auto-refresh-indicator" *ngIf="autoRefresh && !isTransactionFinal()">
+      <small class="text-muted">
+        <i class="fas fa-sync-alt fa-spin mr-1"></i>
+        Atualizando automaticamente a cada {{ refreshInterval / 1000 }} segundos
+      </small>
+    </div>
+
+    <!-- Provider Response (Debug Info) -->
+    <div class="provider-response" *ngIf="transaction?.providerResponse && transaction.providerResponse !== '{}'">
+      <details>
+        <summary class="text-muted">
+          <small>Informações Técnicas</small>
+        </summary>
+        <pre class="mt-2 p-2 bg-light border rounded"><code>{{ transaction.providerResponse }}</code></pre>
+      </details>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && !transaction && !statusResponse" class="empty-state text-center py-5">
+    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+    <h5 class="text-muted">Nenhuma transação encontrada</h5>
+    <p class="text-muted">Verifique o ID da transação e tente novamente.</p>
+  </div>
+</div>
+

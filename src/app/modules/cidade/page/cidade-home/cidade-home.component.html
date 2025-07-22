@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+<app-cidade-table
+  [cidades]="cidadeList"
+  (cidadeEvent)="handleCidadeAction($event)"
+  (deleteCidadeEvent)="handleDeleteCidadeAction($event)"
+></app-cidade-table>
+<p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>

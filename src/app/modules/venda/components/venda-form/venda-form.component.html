@@ -1,0 +1,437 @@
+<!-- FORMULÁRIO DE REALIZAR COMPRA -->
+<form
+  *ngIf="vendaAction.event.action === addVendaAction"
+  [formGroup]="addVendaForm"
+  (ngSubmit)="handleSubmit()"
+>
+  <p-card>
+    <p-card header="Informações da Venda" class="info-card">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label>Cliente</label>
+          <p-autoComplete
+            id="cliente"
+            formControlName="cliente"
+            [suggestions]="clientes"
+            (completeMethod)="searchClientes($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('funcionario')?.invalid &&
+              addVendaForm.get('funcionario')?.touched
+            }"
+          ></p-autoComplete>
+        </div>
+
+        <div class="p-field">
+          <label>Data da Abertura</label>
+          <input
+            id="dataAbertura"
+            pInputText
+            type="date"
+            formControlName="dataAbertura"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('dataAbertura')?.invalid &&
+              addVendaForm.get('dataAbertura')?.touched
+            }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label>Data da Fechamento</label>
+          <input
+            id="dataFechamento"
+            pInputText
+            type="date"
+            formControlName="dataFechamento"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('dataFechamento')?.invalid &&
+              addVendaForm.get('dataFechamento')?.touched
+            }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label>Forma de Pagamento</label>
+          <p-dropdown
+          styleClass="w-full"
+          [options]="allFormasPagamento"
+          placeholder="Selecione a forma de pagamento"
+          formControlName="formaPagamento"
+          optionLabel="label"
+          optionValue="value"
+          [ngClass]="{
+            'p-invalid':
+            addVendaForm.get('formaPagamento')?.invalid &&
+            addVendaForm.get('formaPagamento')?.touched
+          }"
+        ></p-dropdown>
+        </div>
+
+        <div class="p-field">
+          <label for="desconto">Desconto</label>
+          <input
+            id="desconto"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="desconto"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('desconto')?.invalid &&
+              addVendaForm.get('desconto')?.touched
+            }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label>Tipo de Venda</label>
+          <p-dropdown
+          styleClass="w-full"
+          [options]="vendaTipos"
+          placeholder="Selecione o tipo da venda"
+          formControlName="vendaTipo"
+          optionLabel="label"
+          optionValue="value"
+          [ngClass]="{
+            'p-invalid':
+            addVendaForm.get('vendaTipo')?.invalid &&
+            addVendaForm.get('vendaTipo')?.touched
+          }"
+        ></p-dropdown>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <p-card>
+    <p-card header="Adicionar Novo Item" class="item-card">
+      <div class="p-fluid">
+        <!-- Produto -->
+        <div class="p-field">
+          <label for="produto">Produto</label>
+          <p-autoComplete
+            id="produto"
+            formControlName="produto"
+            [suggestions]="produtos"
+            (completeMethod)="searchProdutos($event)"
+            (onSelect)="onProdutoSelect($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('produto')?.invalid &&
+              addVendaForm.get('produto')?.touched
+            }"
+          ></p-autoComplete>
+        </div>
+
+        <div class="p-field">
+          <label for="quantidade">Quantidade</label>
+          <input
+            id="quantidade"
+            pInputText
+            type="number"
+            formControlName="quantidade"
+            [style]="{ width: '100%' }"
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('quantidade')?.invalid &&
+              addVendaForm.get('quantidade')?.touched
+            }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label for="valor">Valor</label>
+          <input
+            id="valor"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="precoUnitario"
+            [style]="{ width: '100%' }"
+            readonly
+            [ngClass]="{
+              'p-invalid':
+              addVendaForm.get('precoUnitario')?.invalid &&
+              addVendaForm.get('precoUnitario')?.touched
+            }"
+          />
+        </div>
+
+        <div class="p-field">
+          <button
+            type="button"
+            pButton
+            label="Adicionar Item"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="handleAddItem()"
+          ></button>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <p-card>
+    <p-card header="Itens da Venda" class="items-card">
+      <p-table
+        #itemsTable
+        [value]="items"
+        [rows]="5"
+        [responsive]="true"
+        [globalFilterFields]="['produto', 'quantidade', 'valor']"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.produto?.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.precoUnitario | currency }}</td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Remover Item da venda"
+                tooltipPosition="top"
+                (click)="removeItem(item)"
+              ></p-button>
+              <p-button
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Item da venda"
+                tooltipPosition="top"
+                (click)="editItem(item)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </p-card>
+
+  <p-card class="submit-card">
+    <div class="p-field">
+      <button
+        type="submit"
+        pButton
+        label="Concluir"
+        icon="pi pi-check"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </p-card>
+</form>
+
+<!-- FORMULÁRIO DE EDITAR VENDA -->
+<form
+  *ngIf="vendaAction.event.action === editVendaAction"
+  [formGroup]="editVendaForm"
+  (ngSubmit)="handleSubmitUpdateVenda()"
+>
+  <p-card>
+    <p-card header="Informações da Venda" class="info-card">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="cliente">Cliente</label>
+          <p-autoComplete
+            id="cliente"
+            formControlName="cliente"
+            [suggestions]="clientes"
+            (completeMethod)="searchClientes($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <div class="p-field">
+          <label for="dataAbertura">Data da Abertura</label>
+          <input
+            id="dataAbertura"
+            pInputText
+            type="date"
+            formControlName="dataAbertura"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label for="dataFechamento">Data da Fechamento</label>
+          <input
+            id="dataFechamento"
+            pInputText
+            type="date"
+            formControlName="dataFechamento"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label for="formaPagamento">Forma de Pagamento</label>
+          <p-dropdown
+          styleClass="w-full"
+          [options]="allFormasPagamento"
+          placeholder="Selecione a forma de pagamento"
+          formControlName="formaPagamento"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+        </div>
+
+        <div class="p-field">
+          <label for="desconto">Desconto</label>
+          <input
+            id="desconto"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="desconto"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label for="vendaTipo">Tipo de Venda</label>
+          <p-dropdown
+          id="vendaTipo"
+          formControlName="vendaTipo"
+          [options]="vendaTipos"
+          optionLabel="nome"
+          [style]="{ width: '100%' }"
+        ></p-dropdown>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <p-card>
+    <p-card header="Adicionar Novo Item" class="item-card">
+      <div class="p-fluid">
+        <!-- Produto -->
+        <div class="p-field">
+          <label for="produto">Produto</label>
+          <p-autoComplete
+            id="produto"
+            formControlName="produto"
+            [suggestions]="produtos"
+            (completeMethod)="searchProdutos($event)"
+            (onSelect)="onProdutoSelect($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <div class="p-field">
+          <label for="quantidade">Quantidade</label>
+          <input
+            id="quantidade"
+            pInputText
+            type="number"
+            formControlName="quantidade"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <div class="p-field">
+          <label for="valor">Valor</label>
+          <input
+            id="valor"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="precoUnitario"
+            [style]="{ width: '100%' }"
+            readonly
+          />
+        </div>
+
+        <div class="p-field">
+          <button
+            type="button"
+            pButton
+            label="Adicionar Item"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="handleAddItem()"
+          ></button>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <p-card>
+    <p-card header="Itens da Venda" class="items-card">
+      <p-table
+        #itemsTable
+        [value]="items"
+        [rows]="5"
+        [responsive]="true"
+        [globalFilterFields]="['produto', 'quantidade', 'valor']"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.produto?.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.precoUnitario | currency }}</td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Remover Item da venda"
+                tooltipPosition="top"
+                (click)="removeItem(item)"
+              ></p-button>
+              <p-button
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Item da venda"
+                tooltipPosition="top"
+                (click)="editItem(item)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </p-card>
+
+  <p-card class="submit-card">
+    <div class="p-field">
+      <button
+        type="submit"
+        pButton
+        label="Concluir"
+        icon="pi pi-check"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </p-card>
+</form>

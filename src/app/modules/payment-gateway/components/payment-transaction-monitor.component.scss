@@ -1,0 +1,541 @@
+.payment-transaction-monitor {
+  // Status Header
+  .status-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+
+    .status-info {
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 0.5rem;
+
+        i {
+          font-size: 1.25rem;
+          margin-right: 0.5rem;
+        }
+
+        .status-text {
+          font-weight: 600;
+          font-size: 1rem;
+        }
+      }
+
+      .transaction-id {
+        font-size: 0.9rem;
+
+        code {
+          background: #f8f9fa;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.85rem;
+        }
+
+        .btn-link {
+          color: #6c757d;
+          font-size: 0.8rem;
+
+          &:hover {
+            color: #007bff;
+          }
+        }
+      }
+    }
+  }
+
+  // Progress Section
+  .progress-section {
+    margin-bottom: 1.5rem;
+
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #e9ecef;
+      margin-bottom: 0.5rem;
+
+      .progress-bar {
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // Transaction Summary
+  .transaction-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 1.5rem;
+
+    .summary-item {
+      margin-bottom: 1rem;
+
+      label {
+        font-weight: 600;
+        color: #495057;
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .value {
+        font-size: 1rem;
+        color: #212529;
+
+        &.font-weight-bold {
+          font-weight: 700;
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+
+  // Timeline Section
+  .timeline-section {
+    margin-bottom: 1.5rem;
+
+    .section-title {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+
+      i {
+        color: #007bff;
+      }
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .timeline-marker {
+          position: absolute;
+          left: -1.75rem;
+          top: 0.25rem;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-content {
+          .timeline-title {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 0.25rem;
+          }
+
+          .timeline-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+          }
+
+          .timeline-description {
+            font-size: 0.9rem;
+            color: #495057;
+          }
+        }
+      }
+    }
+
+    .time-info {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+  }
+
+  // Status Message
+  .status-message {
+    margin-bottom: 1.5rem;
+
+    .alert {
+      border-radius: 8px;
+    }
+  }
+
+  // Error Info
+  .error-info {
+    margin-bottom: 1.5rem;
+
+    .alert {
+      border-radius: 8px;
+
+      .alert-heading {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  // Actions Section
+  .actions-section {
+    margin-bottom: 1.5rem;
+
+    .btn {
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      &.btn-outline-danger:hover:not(:disabled) {
+        background-color: #dc3545;
+        border-color: #dc3545;
+      }
+
+      &.btn-outline-warning:hover:not(:disabled) {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+      }
+    }
+  }
+
+  // Refund Form
+  .refund-form {
+    .card {
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+      .card-header {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border-bottom: 1px solid #ffeaa7;
+
+        .card-title {
+          color: #856404;
+          font-weight: 600;
+        }
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+
+      label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+
+        &:focus {
+          border-color: #ffc107;
+          box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+      }
+
+      .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #ced4da;
+        font-weight: 600;
+      }
+    }
+
+    .form-actions {
+      margin-top: 1.5rem;
+
+      .btn {
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+
+        &.btn-warning {
+          background-color: #ffc107;
+          border-color: #ffc107;
+          color: #212529;
+
+          &:hover:not(:disabled) {
+            background-color: #e0a800;
+            border-color: #d39e00;
+            transform: translateY(-1px);
+          }
+        }
+
+        &.btn-secondary:hover:not(:disabled) {
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+
+  // Auto Refresh Indicator
+  .auto-refresh-indicator {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+
+    .fa-sync-alt {
+      animation: spin 2s linear infinite;
+    }
+  }
+
+  // Provider Response
+  .provider-response {
+    margin-top: 1.5rem;
+
+    details {
+      summary {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #f8f9fa;
+        }
+      }
+
+      pre {
+        font-size: 0.8rem;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  // Empty State
+  .empty-state {
+    .fa-search {
+      opacity: 0.3;
+    }
+
+    h5, p {
+      margin-bottom: 1rem;
+    }
+  }
+
+  // Status Colors
+  .text-purple {
+    color: #6f42c1 !important;
+  }
+
+  .bg-purple {
+    background-color: #6f42c1 !important;
+  }
+
+  .bg-muted {
+    background-color: #6c757d !important;
+  }
+
+  // Animations
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    .status-header {
+      padding: 1rem;
+
+      .status-info {
+        .status-badge {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
+
+          i {
+            font-size: 1rem;
+          }
+        }
+
+        .transaction-id {
+          font-size: 0.8rem;
+
+          code {
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+
+    .transaction-summary {
+      padding: 1rem;
+
+      .summary-item {
+        margin-bottom: 0.75rem;
+
+        label {
+          font-size: 0.85rem;
+        }
+
+        .value {
+          font-size: 0.9rem;
+
+          &.font-weight-bold {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .timeline-section {
+      .timeline {
+        padding-left: 1.5rem;
+
+        &::before {
+          left: 0.5rem;
+        }
+
+        .timeline-item {
+          .timeline-marker {
+            left: -1.5rem;
+            width: 10px;
+            height: 10px;
+          }
+
+          .timeline-content {
+            .timeline-title {
+              font-size: 0.9rem;
+            }
+
+            .timeline-time {
+              font-size: 0.8rem;
+            }
+
+            .timeline-description {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
+    }
+
+    .actions-section {
+      .row {
+        flex-direction: column;
+
+        .col-md-6 {
+          margin-bottom: 0.5rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
+    .refund-form {
+      .card-body {
+        padding: 1rem;
+      }
+
+      .form-actions {
+        .row {
+          flex-direction: column;
+
+          .col-6 {
+            margin-bottom: 0.5rem;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    .status-header {
+      .row {
+        flex-direction: column;
+
+        .col-md-4 {
+          margin-top: 1rem;
+          text-align: left !important;
+        }
+      }
+    }
+
+    .transaction-summary {
+      .row {
+        flex-direction: column;
+
+        .col-md-6 {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+// Component-specific animations
+.payment-transaction-monitor {
+  .transaction-details {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .refund-form {
+    animation: slideDown 0.3s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

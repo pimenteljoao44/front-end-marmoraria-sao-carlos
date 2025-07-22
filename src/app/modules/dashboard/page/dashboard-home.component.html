@@ -1,0 +1,30 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<div class="grid">
+  <div class="col-12">
+    <!-- Gráfico de Produtos em Estoque -->
+    <p-card
+      header="Quantidade de Produtos em Estoque"
+      styleClass="shadow-3 m-5 custom-card-header"
+    >
+      <p-chart
+        type="bar"
+        [data]="productsChartDatas"
+        [options]="productsChartOptions"
+      ></p-chart>
+    </p-card>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="col-12">
+    <!-- Dashboard Financeiro -->
+    <p-card
+      header="Dashboard Financeiro"
+      styleClass="shadow-3 m-5 custom-card-header"
+    >
+      <app-parcelas-dashboard></app-parcelas-dashboard>
+    </p-card>
+  </div>
+</div>

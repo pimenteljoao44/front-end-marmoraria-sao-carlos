@@ -1,0 +1,7 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<app-funcionarios-table
+ [funcionarios]="funcionariosList"
+ (clienteEvent)="handleFuncionariotAction($event)"
+ (deleteClientEvent)="handleDeleteFuncionarioAction($event)"></app-funcionarios-table>
+<p-confirmDialog [style]="{ widith:'50vw'}"></p-confirmDialog>

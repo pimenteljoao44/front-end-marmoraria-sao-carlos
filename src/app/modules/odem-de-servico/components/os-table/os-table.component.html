@@ -1,0 +1,173 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Ordens de Serviço">
+      <p-tabView>
+
+        <!-- Tab para Ordens de Serviço Abertas -->
+        <p-tabPanel header="O.S. Abertas">
+          <p-table
+            #osAbertasTable
+            [value]="osAbertas"
+            [rows]="10"
+            [paginator]="true"
+            [globalFilterFields]="['id', 'observacoes', 'valorTotal', 'dataAbertura', 'clienteNome', 'funcionarioNome']"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [(selection)]="osSelected"
+            [rowHover]="true"
+            [showCurrentPageReport]="true"
+            dataKey="id"
+            currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Ordens de Serviço"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="id">ID</th>
+                <th pSortableColumn="observacoes">Observações</th>
+                <th pSortableColumn="valorTotal">Valor Total</th>
+                <th pSortableColumn="dataAbertura">Data de Abertura</th>
+                <th pSortableColumn="cliente">Cliente</th>
+                <th pSortableColumn="funcionario">Funcionário</th>
+                <th>
+                  <div class="flex justify-content-center">
+                    <p-button
+                      styleClass="p-button-info"
+                      icon="pi pi-plus"
+                      label="Nova Ordem de Serviço"
+                      (onClick)="handleOsEvent(createOsEvent)"
+                    ></p-button>
+                  </div>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-os>
+              <tr>
+                <td>{{ os?.id }}</td>
+                <td>{{ os?.observacoes }}</td>
+                <td>{{ os?.valorTotal | currency }}</td>
+                <td>{{ os?.dataAbertura | date:'dd/MM/yyyy':'pt-BR' }}</td>
+                <td>{{ os?.clienteNome }}</td>
+                <td>{{ os?.funcionarioNome }}</td>
+                <td>
+                  <div class="flex justify-content-center gap-3 align-items-center">
+                    <button
+                    pButton icon="pi pi-pencil"
+                    class="p-button-rounded p-button-warning"
+                    pTooltip="Editar O.S."
+                    tooltipPosition="top"
+                    (click)="handleOsEvent(editOsEvent,os.id)"
+                    ></button>
+                    <button
+                    pButton icon="pi pi-eye"
+                    class="p-button-rounded p-button-success"
+                    pTooltip="Visualizar O.S."
+                    tooltipPosition="top"
+                    (click)="handleOsEvent(viewOsEvent,os.id)"
+                    ></button>
+                    <!-- botão com icone de inicio -->
+                    <button
+                    pButton icon="pi pi-play"
+                    class="p-button-rounded p-button-success"
+                    pTooltip="Iniciar O.S"
+                    tooltipPosition="top"
+                    (click)="handleInitOs(os)"
+                    ></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+        <!-- Tab para Ordens de Serviço Em Andamento -->
+        <p-tabPanel header="O.S. Em Andamento">
+          <p-table
+            #osEmAndamentoTable
+            [value]="osEmAndamento"
+            [rows]="10"
+            [paginator]="true"
+            [globalFilterFields]="['id', 'observacoes', 'valorTotal', 'dataAbertura', 'clienteNome', 'funcionarioNome']"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [(selection)]="osSelected"
+            [rowHover]="true"
+            [showCurrentPageReport]="true"
+            dataKey="id"
+            currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Ordens de Serviço"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="id">ID</th>
+                <th pSortableColumn="observacoes">Observações</th>
+                <th pSortableColumn="valorTotal">Valor Total</th>
+                <th pSortableColumn="dataAbertura">Data de Abertura</th>
+                <th pSortableColumn="cliente">Cliente</th>
+                <th pSortableColumn="funcionario">Funcionário</th>
+                <th>Ações</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-os>
+              <tr>
+                <td>{{ os?.id }}</td>
+                <td>{{ os?.observacoes }}</td>
+                <td>{{ os?.valorTotal | currency }}</td>
+                <td>{{ os?.dataAbertura | date:'dd/MM/yyyy':'pt-BR' }}</td>
+                <td>{{ os?.clienteNome }}</td>
+                <td>{{ os?.funcionarioNome }}</td>
+                <td>
+                  <div class="flex justify-content-center gap-3 align-items-center">
+                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-warning" pTooltip="Editar O.S." tooltipPosition="top" ></button>
+                    <button pButton icon="pi pi-eye" class="p-button-rounded p-button-success" pTooltip="Visualizar O.S." tooltipPosition="top" ></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+        <!-- Tab para Ordens de Serviço Concluídas -->
+        <p-tabPanel header="O.S. Concluídas">
+          <p-table
+            #osConcluidasTable
+            [value]="osConcluidas"
+            [rows]="10"
+            [paginator]="true"
+            [globalFilterFields]="['id', 'observacoes', 'valorTotal', 'dataFechamento', 'clienteNome', 'funcionarioNome']"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [(selection)]="osSelected"
+            [rowHover]="true"
+            [showCurrentPageReport]="true"
+            dataKey="id"
+            currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Ordens de Serviço"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="id">ID</th>
+                <th pSortableColumn="observacoes">Observações</th>
+                <th pSortableColumn="valorTotal">Valor Total</th>
+                <th pSortableColumn="dataFechamento">Data de Fechamento</th>
+                <th pSortableColumn="cliente">Cliente</th>
+                <th pSortableColumn="funcionario">Funcionário</th>
+                <th>Ações</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-os>
+              <tr>
+                <td>{{ os?.id }}</td>
+                <td>{{ os?.observacoes }}</td>
+                <td>{{ os?.valorTotal | currency }}</td>
+                <td>{{ os?.dataFechamento | date:'dd/MM/yyyy':'pt-BR' }}</td>
+                <td>{{ os?.clienteNome }}</td>
+                <td>{{ os?.funcionarioNome }}</td>
+                <td>
+                  <div class="flex justify-content-center gap-3 align-items-center">
+                    <button pButton icon="pi pi-eye" class="p-button-rounded p-button-success" pTooltip="Visualizar O.S." tooltipPosition="top" ></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-tabPanel>
+
+      </p-tabView>
+    </p-card>
+  </div>
+</div>
+

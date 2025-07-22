@@ -1,0 +1,17 @@
+<p-toolbar styleClass="bg-indigo-800">
+  <div class="p-toolbar-group-start">
+    <p-button
+      icon="pi pi-ellipsis-h"
+      severity="secondary"
+      (click)="openSidebar()"
+    ></p-button>
+  </div>
+  <div class="p-toolbar-group-start">
+    <p-button
+      label="Sair"
+      icon="pi pi-sign-out"
+      styleClass="p-button-danger"
+      (onClick)="handleLogout()"
+    ></p-button>
+  </div>
+</p-toolbar>

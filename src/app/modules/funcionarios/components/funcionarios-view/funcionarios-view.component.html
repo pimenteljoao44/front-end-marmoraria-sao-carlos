@@ -1,0 +1,34 @@
+<div *ngIf="funcionario" class="p-grid p-dir-col">
+  <div class="p-col">
+    <strong>ID:</strong> {{ funcionario.id }}
+  </div>
+  <div class="p-col">
+    <strong>Tipo:</strong> {{ funcionario.tipoPessoa === 'PESSOA_FISICA' ? 'Pessoa Física' : 'Pessoa Jurídica' }}
+  </div>
+  <div class="p-col">
+    <strong>Nome:</strong> {{ funcionario.nome }}
+  </div>
+  <div class="p-col">
+    <strong>Telefone:</strong> {{ funcionario.telefone }}
+  </div>
+  <div class="p-col">
+    <strong>Salario:</strong> {{  funcionario.salario | currency:'BRL':'symbol':'1.2-2'  }}
+  </div>
+  <div class="p-col">
+    <strong>Cargo:</strong> {{ funcionario.cargo }}
+  </div>
+  <div class="p-col">
+    <strong>Endereço:</strong> {{ funcionario.endereco.rua }}, {{ funcionario.endereco.numero }} - {{ funcionario.endereco.complemento }},
+     {{ funcionario.endereco.bairro }}, {{ funcionario.endereco.cidade.nome }},
+      {{funcionario.endereco.estado?.nome}}
+  </div>
+  <div class="p-col" *ngIf="funcionario.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>CPF:</strong> {{ funcionario.cpf }}
+  </div>
+  <div class="p-col" *ngIf="funcionario.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>RG:</strong> {{ funcionario.rg }}
+  </div>
+  <div class="p-col" *ngIf="funcionario.tipoPessoa === 'PESSOA_JURIDICA'">
+    <strong>CNPJ:</strong> {{ funcionario.cnpj }}
+  </div>
+</div>

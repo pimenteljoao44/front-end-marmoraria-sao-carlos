@@ -1,0 +1,244 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Fornecedores">
+      <p-table
+        #usersTable
+        [value]="fornecedores"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['nome','rua','cpf','rg','cidade','complemento']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="fornecedorSelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} fornecedores"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  ID
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="id"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="id"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="nome">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  Nome
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="nome"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="nome"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="telefone">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  Telefone
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="telefone"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="telefone"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="rua">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  Rua
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="rua"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="rua"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="rg">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  RG
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="rg"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="rg"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="cpf">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  CPF
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="cpf"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="cpf"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="complemento">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  Complemento
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="complemento"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="complemento"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="cidade">
+              <div class="flex justify-content-between align-itens-center">
+                <div class="flex justify-content-between align-itens-center">
+                  Cidade
+                </div>
+                <div class="flex justify-content-between align-itens-center">
+                  <p-sortIcon field="cidade"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="cidade"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th>
+              <div class="flex justify-content-center gap-2">
+                <p-button
+                  styleClass="p-button-sm p-button-info"
+                  icon="pi pi-plus"
+                  pTooltip="Cadastrar novo fornecedor"
+                  tooltipPosition="top"
+                  (onClick)="handleFornecedorvent(createFornecedorEvent)">
+                </p-button>
+
+                <p-button
+                  styleClass="p-button-sm p-button-success"
+                  icon="pi pi-file-pdf"
+                  pTooltip="Exportar lista para PDF"
+                  tooltipPosition="top"
+                  (onClick)="exportPDF()">
+                </p-button>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-fornecedor>
+          <tr>
+            <td>{{ fornecedor?.id }}</td>
+            <td>{{ fornecedor?.nome }}</td>
+            <td>{{ fornecedor?.telefone }}</td>
+            <td>
+              <ng-container *ngIf="fornecedor?.endereco !== null">
+                {{ fornecedor?.endereco?.rua }} {{ fornecedor?.endereco?.numero }} {{ fornecedor?.endereco?.complemento }} {{ fornecedor?.endereco?.bairro }}
+                <br>
+              </ng-container>
+            </td>
+            <td>{{ fornecedor?.rg }}</td>
+            <td>{{ fornecedor?.cpf }}</td>
+            <td>{{ fornecedor?.endereco?.complemento }}</td>
+            <td>{{ fornecedor?.endereco?.cidade?.nome }}</td>
+            <td>
+              <div class="flex justify-content-center gap-3 align-itens-center align-content-center">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-warning"
+                  pTooltip="Editar fornecedor"
+                  tooltipPosition="top"
+                  (click)="handleFornecedorvent(editFornecedorEvent,fornecedor?.id)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-danger"
+                  pTooltip="Excluir fornecedor"
+                  tooltipPosition="top"
+                  (click)="handleDeleteFornecedor(fornecedor?.id,fornecedor?.nome)"
+                ></button>
+                <button
+                pButton
+                pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-sucess"
+                pTooltip="Visualizar fornecedor"
+                tooltipPosition="top"
+                (click)="handleFornecedorvent(viewFornecedorvent, fornecedor?.id)"
+              ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>

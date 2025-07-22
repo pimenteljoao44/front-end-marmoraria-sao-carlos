@@ -1,0 +1,9 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<app-os-table
+  [osAbertas]="osList"
+  (osEvent)="handleOsAction($event)"
+></app-os-table>
+
+

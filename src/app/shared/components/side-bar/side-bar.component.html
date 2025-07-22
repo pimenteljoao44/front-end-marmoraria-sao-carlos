@@ -1,0 +1,231 @@
+<p-sidebar #sidebarRef [(visible)]="sidebarVisible">
+  <ng-template pTemplate="headless">
+    <div class="flex flex-column h-full">
+      <div
+        class="flex align-items-center justify-content-between px-4 pt-3 flex-shrink-0"
+      >
+        <span
+          class="inline-flex align-items-center gap-2"
+          routerLink="/home"
+          routerLinkActive="exact_route"
+        >
+          <i class="pi pi-home mr-2 font-semibold text-2xl text-primary"></i>
+          <span class="font-semibold text-2xl text-primary"
+            >Marmoraria São Carlos</span
+          >
+        </span>
+        <span>
+          <p-button
+            type="button"
+            (click)="closeCallback($event)"
+            icon="pi pi-times"
+            styleClass="h-2rem w-2rem"
+          ></p-button>
+        </span>
+      </div>
+      <div class="overflow-y-auto">
+        <ul class="list-none p-3 m-0">
+          <li>
+            <a
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+              routerLink="/dashboard"
+              routerLinkActive="exact_route"
+            >
+              <i class="pi pi-chart-bar"></i>
+              <span class="font-medium">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+              routerLink="/projetos"
+              routerLinkActive="exact_route"
+            >
+              <i class="pi pi-briefcase"></i>
+              <span class="font-medium">Projetos</span>
+            </a>
+          </li>
+          <li>
+            <div
+              (click)="toggleCadastros()"
+              [ngClass]="{ 'menu-item': true, open: cadatrosOpen }"
+              class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
+            >
+              <span class="font-medium">CADASTROS</span>
+              <i
+                [ngClass]="{
+                  'pi pi-chevron-down': cadatrosOpen,
+                  'pi pi-chevron-left': !cadatrosOpen
+                }"
+              ></i>
+            </div>
+            <ul *ngIf="cadatrosOpen" class="list-none p-0 m-0 overflow-hidden">
+              <li routerLink="/usuarios" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-user mr-2"></i>
+                  <span class="font-medium">Usuario</span>
+                </a>
+              </li>
+              <li routerLink="/clientes" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-users mr-2"></i>
+                  <span class="font-medium">Cliente</span>
+                </a>
+              </li>
+              <li routerLink="/fornecedores" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-shopping-cart mr-2"></i>
+                  <span class="font-medium">Fornecedor</span>
+                </a>
+              </li>
+              <li routerLink="/funcionarios" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-cog mr-2"></i>
+                  <span class="font-medium">Funcionario</span>
+                </a>
+              </li>
+              <li routerLink="/produtos" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-shopping-cart mr-2"></i>
+                  <span class="font-medium">Produto</span>
+                </a>
+              </li>
+              <li routerLink="/grupos" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-list mr-2"></i>
+                  <span class="font-medium">Grupo</span>
+                </a>
+              </li>
+              <!--
+              <li routerLink="/cidade" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-building"></i>
+                  <span class="font-medium">Cidade</span>
+                </a>
+              </li>
+              <li routerLink="/estado" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-building"></i>
+                  <span class="font-medium">Estado</span>
+                </a>
+              </li>
+              -->
+            </ul>
+          </li>
+          <li>
+            <div
+              (click)="toggleExpedient()"
+              [ngClass]="{ 'menu-item': true, open: expedientOpen }"
+              class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
+            >
+              <span class="font-medium">MOVIMENTOS</span>
+              <i
+                [ngClass]="{
+                  'pi pi-chevron-down': expedientOpen,
+                  'pi pi-chevron-left': !expedientOpen
+                }"
+              ></i>
+            </div>
+            <ul *ngIf="expedientOpen" class="list-none p-0 m-0 overflow-hidden">
+              <!--
+                   <li routerLink="/ordem-de-servico" routerLinkActive="exact_route">
+                <a class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
+                  <i class="pi pi-bolt mr-2"></i>
+                  <span class="font-medium">Ordens de Serviço</span>
+                </a>
+              </li>
+            -->
+              <li routerLink="/venda" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-dollar mr-2"></i>
+                  <span class="font-medium">Vendas</span>
+                </a>
+              </li>
+              <li routerLink="/compra" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-shopping-cart mr-2"></i>
+                  <span class="font-medium">Compras</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+<li>
+          <li>
+            <div (click)="toggleFinanceiro()" [ngClass]="{'menu-item': true, 'open': financeiroOpen}" class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer">
+              <span class="font-medium">FINANCEIRO</span>
+              <i [ngClass]="{'pi pi-chevron-down': financeiroOpen, 'pi pi-chevron-left': !financeiroOpen}"></i>
+            </div>
+            <ul *ngIf="financeiroOpen" class="list-none p-0 m-0 overflow-hidden">
+              <li routerLink="/financeiro/contas-a-pagar" routerLinkActive="exact_route">
+                <a class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
+                  <i class="pi pi-money-bill mr-2"></i>
+                  <span class="font-medium">Contas a Pagar</span>
+                </a>
+              </li>
+              <li routerLink="/financeiro/contas-a-receber" routerLinkActive="exact_route">
+                <a class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
+                  <i class="pi pi-money-bill mr-2"></i>
+                  <span class="font-medium">Contas a Receber</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <div
+              (click)="toggleReports()"
+              [ngClass]="{ 'menu-item': true, open: reportsOpen }"
+              class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer"
+            >
+              <span class="font-medium">RELATÓRIOS</span>
+              <i
+                [ngClass]="{
+                  'pi pi-chevron-down': reportsOpen,
+                  'pi pi-chevron-left': !reportsOpen
+                }"
+              ></i>
+            </div>
+            <ul *ngIf="reportsOpen" class="list-none p-0 m-0 overflow-hidden">
+              <li routerLink="/relatorio" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-dollar mr-2"></i>
+                  <span class="font-medium">Vendas</span>
+                </a>
+              </li>
+              <li routerLink="/relatorio-compra" routerLinkActive="exact_route">
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                >
+                  <i class="pi pi-dollar mr-2"></i>
+                  <span class="font-medium">Compras</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </ng-template>
+</p-sidebar>

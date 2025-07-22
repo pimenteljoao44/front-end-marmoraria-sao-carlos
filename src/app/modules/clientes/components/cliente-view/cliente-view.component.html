@@ -1,0 +1,28 @@
+<div *ngIf="cliente" class="p-grid p-dir-col">
+  <div class="p-col">
+    <strong>ID:</strong> {{ cliente.id }}
+  </div>
+  <div class="p-col">
+    <strong>Tipo:</strong> {{ cliente.tipoPessoa === 'PESSOA_FISICA' ? 'Pessoa Física' : 'Pessoa Jurídica' }}
+  </div>
+  <div class="p-col">
+    <strong>Nome:</strong> {{ cliente.nome }}
+  </div>
+  <div class="p-col">
+    <strong>Telefone:</strong> {{ cliente.telefone }}
+  </div>
+  <div class="p-col">
+    <strong>Endereço:</strong> {{ cliente.endereco.rua }}, {{ cliente.endereco.numero }} - {{ cliente.endereco.complemento }},
+     {{ cliente.endereco.bairro }}, {{ cliente.endereco.cidade.nome }},
+      {{cliente.endereco.cidade.uf}}
+  </div>
+  <div class="p-col" *ngIf="cliente.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>CPF:</strong> {{ cliente.cpf }}
+  </div>
+  <div class="p-col" *ngIf="cliente.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>RG:</strong> {{ cliente.rg }}
+  </div>
+  <div class="p-col" *ngIf="cliente.tipoPessoa === 'PESSOA_JURIDICA'">
+    <strong>CNPJ:</strong> {{ cliente.cnpj }}
+  </div>
+</div>

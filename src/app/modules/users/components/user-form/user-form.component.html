@@ -1,0 +1,170 @@
+<!-----FORMULARIO DE NOVO USUARIO-->
+<div *ngIf="userAction.event.action === addUserAction">
+  <form [formGroup]="addUserForm" (ngSubmit)="handleSubmitAddUser()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome."
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            addUserForm.get('nome')?.invalid && addUserForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Login."
+        formControlName="login"
+        [ngClass]="{
+          'p-invalid':
+            addUserForm.get('login')?.invalid &&
+            addUserForm.get('login')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Senha."
+        formControlName="senha"
+        [ngClass]="{
+          'p-invalid':
+            addUserForm.get('senha')?.invalid &&
+            addUserForm.get('senha')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Email"
+        formControlName="email"
+        [ngClass]="{
+          'p-invalid':
+            addUserForm.get('email')?.invalid &&
+            addUserForm.get('email')?.touched
+        }"
+      />
+      <p-dropdown
+        styleClass="w-full"
+        [options]="niveisAcesso"
+        placeholder="Selecione o nível de acesso"
+        formControlName="nivelAcesso"
+        [(ngModel)]="nivelSelected"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione um nível de acesso"
+        [ngClass]="{
+          'p-invalid':
+            addUserForm.get('nivelAcesso')?.invalid &&
+            addUserForm.get('nivelAcesso')?.touched
+        }"
+      ></p-dropdown>
+      <!-----Campo só aparece se tiver usuários cadastrados no sistema-->
+      <!----Deixa o campo de autocomplete do mesmo size que o  resto dos campos do formulário-->
+      <div class="p-field" *ngIf="allFuncionarios.length > 0">
+        <label for="funcionario">Funcionário</label>
+        <p-autoComplete
+          id="funcionario"
+          formControlName="funcionario"
+          [suggestions]="funcionarios"
+          (completeMethod)="searchFuncionarios($event)"
+          field="nome"
+          [style]="{ width: '100%' }"
+          [size]="82"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+            addUserForm.get('funcionario')?.invalid &&
+            addUserForm.get('funcionario')?.touched
+          }"
+        ></p-autoComplete>
+      </div>
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+<!-----FORMULARIO DE EDITAR USUARIO-->
+
+<div *ngIf="userAction.event.action === editUserAction">
+  <form [formGroup]="editUserForm" (ngSubmit)="handleSubmitEditUser()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome."
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            editUserForm.get('nome')?.invalid && addUserForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Login."
+        formControlName="login"
+        [ngClass]="{
+          'p-invalid':
+            editUserForm.get('login')?.invalid &&
+            editUserForm.get('login')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Senha."
+        formControlName="senha"
+        [ngClass]="{
+          'p-invalid':
+          editUserForm.get('senha')?.invalid &&
+          editUserForm.get('senha')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Email"
+        formControlName="email"
+        [ngClass]="{
+          'p-invalid':
+          editUserForm.get('email')?.invalid &&
+            editUserForm.get('email')?.touched
+        }"
+      />
+      <p-dropdown
+        styleClass="w-full"
+        [options]="niveisAcesso"
+        placeholder="Selecione o nível de acesso"
+        formControlName="nivelAcesso"
+        [(ngModel)]="nivelSelected"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione um nível de acesso"
+        [ngClass]="{
+          'p-invalid':
+            editUserForm.get('nivelAcesso')?.invalid &&
+            editUserForm.get('nivelAcesso')?.touched
+        }"
+      ></p-dropdown>
+      <!-----Campo só aparece se tiver usuários cadastrados no sistema-->
+      <div class="p-field" *ngIf="allFuncionarios.length > 0">
+        <label for="funcionario">Funcionário</label>
+        <p-autoComplete
+          id="funcionario"
+          formControlName="funcionario"
+          [suggestions]="funcionarios"
+          (completeMethod)="searchFuncionarios($event)"
+          field="nome"
+          [style]="{ width: '100%' }"
+          [size]="82"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+            editUserForm.get('funcionario')?.invalid &&
+            editUserForm.get('funcionario')?.touched
+          }"
+        ></p-autoComplete>
+      </div>
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,207 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Compras">
+      <p-table
+        #comprasTable
+        [value]="compras"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['comprId', 'observacoes', 'valorTotal', 'quantidadeTotal', 'dataCompra', 'fornecedor', 'funcionario', 'formaPagamento']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="compraSelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="comprId"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Compras"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="comprId">
+              <div class="flex justify-content-between align-items-center">
+                <div>ID</div>
+                <div>
+                  <p-sortIcon field="comprId"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="comprId"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="observacoes">
+              <div class="flex justify-content-between align-items-center">
+                <div>Observações</div>
+                <div>
+                  <p-sortIcon field="observacoes"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="observacoes"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="valorTotal">
+              <div class="flex justify-content-between align-items-center">
+                <div>Valor Total</div>
+                <div>
+                  <p-sortIcon field="valorTotal"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="valorTotal"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="quantidadeTotal">
+              <div class="flex justify-content-between align-items-center">
+                <div>Quantidade Total</div>
+                <div>
+                  <p-sortIcon field="quantidadeTotal"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="quantidadeTotal"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="dataCompra">
+              <div class="flex justify-content-between align-items-center">
+                <div>Data da Compra</div>
+                <div>
+                  <p-sortIcon field="dataCompra"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="dataCompra"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="fornecedor">
+              <div class="flex justify-content-between align-items-center">
+                <div>Fornecedor</div>
+                <div>
+                  <p-sortIcon field="fornecedor"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="fornecedorNome"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="funcionario">
+              <div class="flex justify-content-between align-items-center">
+                <div>Funcionário</div>
+                <div>
+                  <p-sortIcon field="funcionario"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="funcionarioNome"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="formaPagamento">
+              <div class="flex justify-content-between align-items-center">
+                <div>Forma de Pagamento</div>
+                <div>
+                  <p-sortIcon field="formaPagamento"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="formaPagamento"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th>
+              <div class="flex justify-content-center">
+                <p-button
+                  styleClass="p-button-info"
+                  icon="pi pi-plus"
+                  label="Nova Compra"
+                  pTooltip="Realizar nova Compra"
+                  tooltipPosition="top"
+                  (onClick)="handleCompraEvent(createCompraEvent)"
+                ></p-button>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-compra>
+          <tr>
+            <td>{{ compra?.comprId }}</td>
+            <td>{{ compra?.observacoes }}</td>
+            <td>{{ compra?.valorTotal | currency }}</td>
+            <td>{{ compra?.quantidadeTotal }}</td>
+            <td>{{ compra?.dataCompra | date:'dd/MM/yyyy':'pt-BR' }}</td>
+            <td>{{ compra?.fornecedorNome }}</td>
+            <td>{{ compra?.funcionarioNome }}</td>
+            <td>{{ getDescricaoFormaPagamento(compra?.formaPagamento) }}</td>
+            <td>
+              <div class="flex justify-content-center gap-3 align-items-center align-content-center">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-warning"
+                  pTooltip="Editar Compra"
+                  tooltipPosition="top"
+                  (click)="handleCompraEvent(editCompraEvent, compra?.comprId)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-eye"
+                  class="p-button-rounded p-button-success"
+                  pTooltip="Visualizar Compra"
+                  tooltipPosition="top"
+                  (click)="handleCompraEvent(viewCompraEvent, compra?.comprId)"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+/* Estilo para o cartão principal */
+.form-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+/* Estilo para os cartões de informações e itens */
+.info-card,
+.items-card,
+.submit-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+/* Estilo para campos de entrada e dropdowns */
+.p-field {
+  margin-bottom: 1rem;
+}
+
+textarea {
+  resize: vertical;
+  border-radius: 6px;
+}
+
+.p-dropdown {
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.p-button-success {
+  margin-right: 0.5rem;
+}
+
+.p-button-danger {
+  margin-right: 0.5rem;
+}
+
+.p-button-primary {
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* Estilo para a tabela */
+.p-table {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.p-table thead {
+  background-color: #f4f4f4;
+}
+
+/* Estilo para o botão adicionar item */
+.p-button-success {
+  border-radius: 6px;
+}
+
+/* Estilo para o botão de excluir item */
+.p-button-danger {
+  border-radius: 6px;
+}

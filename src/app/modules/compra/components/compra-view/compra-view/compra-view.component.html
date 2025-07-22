@@ -1,0 +1,47 @@
+<div *ngIf="compra" class="p-grid p-dir-col">
+  <div class="p-col">
+    <strong>ID:</strong> {{ compra.comprId }}
+  </div>
+  <div class="p-col">
+    <strong>Observações:</strong> {{ compra.observacoes }}
+  </div>
+  <div class="p-col">
+    <strong>Valor Total:</strong> {{ compra.valorTotal | currency }}
+  </div>
+  <div class="p-col">
+    <strong>Quantidade Total:</strong> {{ compra.quantidadeTotal }}
+  </div>
+  <div class="p-col">
+    <strong>Data da Compra:</strong> {{ compra.dataCompra | date:'dd/MM/yyyy':'pt-BR' }}
+  </div>
+  <div class="p-col">
+    <strong>Fornecedor:</strong> {{ compra.fornecedorNome }}
+  </div>
+  <div class="p-col">
+    <strong>Funcionário:</strong> {{ compra.funcionarioNome }}
+  </div>
+  <div class="p-col">
+    <strong>Forma de Pagamento:</strong> {{ getDescricaoFormaPagamento(compra.formaPagamento) }}
+  </div>
+
+  <!-- Tabela dos Itens da Compra -->
+  <div class="p-col">
+    <strong>Itens da Compra:</strong>
+    <p-table *ngIf="compra.itensCompra" [value]="compra.itensCompra" [paginator]="true" [rows]="10" [responsive]="true" [stripedRows]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Valor Unitário</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.produtoNome}}</td>
+          <td>{{ item.quantidade }}</td>
+          <td>{{ item.valor | currency }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

@@ -1,0 +1,664 @@
+<div class="projeto-builder-container">
+  <!-- Header -->
+  <div class="builder-header">
+    <div class="flex justify-content-between align-items-center">
+      <div>
+        <h2 class="mb-1">
+          <i class="pi pi-plus mr-2"></i>
+          {{ isEditMode ? 'Editar Projeto' : 'Criar Novo Projeto' }}
+        </h2>
+        <p class="text-muted mb-0">
+          {{ isEditMode ? 'Modifique as informações do projeto' : 'Siga os passos para criar seu projeto personalizado' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          styleClass="p-button-text mr-2"
+          (onClick)="cancelar()">
+        </p-button>
+        <p-button
+          label="Salvar"
+          icon="pi pi-save"
+          [loading]="loading"
+          [disabled]="!projetoForm.valid"
+          (onClick)="salvar()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="steps-container">
+    <div class="steps-wrapper">
+      <div
+        *ngFor="let step of steps; let i = index"
+        class="step-item"
+        [class.active]="step.active"
+        [class.completed]="step.completed"
+        (click)="goToStep(i)">
+
+        <div class="step-circle">
+          <i *ngIf="step.completed" class="pi pi-check"></i>
+          <i *ngIf="!step.completed" [class]="step.icon"></i>
+        </div>
+
+        <div class="step-content">
+          <div class="step-title">{{ step.title }}</div>
+          <div class="step-description">{{ step.description }}</div>
+        </div>
+
+        <div *ngIf="i < steps.length - 1" class="step-connector"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="builder-content">
+    <form [formGroup]="projetoForm">
+
+      <!-- Step 1: Tipo de Projeto -->
+      <div *ngIf="currentStep === 0" class="step-content-wrapper">
+        <!-- Project Name -->
+        <div class="mt-4" >
+          <div class="p-field">
+            <label for="nome" class="form-label">Nome do Projeto *</label>
+            <input
+              pInputText
+              id="nome"
+              formControlName="nome"
+              placeholder="Ex: Bancada da Cozinha Principal"
+              class="w-full"
+              [ngClass]="{'p-invalid': projetoForm.get('nome')?.invalid && (projetoForm.get('nome')?.dirty || projetoForm.get('nome')?.touched)}">
+            <small class="p-error" *ngIf="projetoForm.get('nome')?.invalid && (projetoForm.get('nome')?.dirty || projetoForm.get('nome')?.touched)">
+              Nome é obrigatório
+            </small>
+          </div>
+        </div>
+        <div class="step-header">
+          <h3>Que tipo de projeto você deseja criar?</h3>
+          <p>Selecione o tipo que melhor descreve seu projeto. Isso nos ajudará a sugerir os materiais mais adequados.</p>
+        </div>
+
+        <div class="project-types-grid">
+          <div
+            *ngFor="let tipo of tiposProjetoOptions"
+            class="project-type-card"
+            [class.selected]="projetoForm.get('tipoProjeto')?.value === tipo.value"
+            (click)="projetoForm.get('tipoProjeto')?.setValue(tipo.value)">
+
+            <div class="card-icon">
+              <i [class]="tipo.icon"></i>
+            </div>
+
+            <div class="card-content">
+              <h4>{{ tipo.label }}</h4>
+              <p>{{ tipo.description }}</p>
+            </div>
+
+            <div class="card-check" *ngIf="projetoForm.get('tipoProjeto')?.value === tipo.value">
+              <i class="pi pi-check"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Cliente -->
+      <div *ngIf="currentStep === 1" class="step-content-wrapper">
+        <div class="step-header">
+          <h3>Para qual cliente é este projeto?</h3>
+          <p>Selecione o cliente ou adicione um novo cliente para este projeto.</p>
+        </div>
+
+        <div class="cliente-selection">
+          <div class="p-field">
+            <label for="cliente" class="form-label">Cliente *</label>
+            <p-dropdown
+              inputId="cliente"
+              formControlName="clienteId"
+              [options]="clientes"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione o cliente"
+              [showClear]="true"
+              class="w-full"
+              [filter]="true"
+              filterBy="nome">
+
+              <ng-template let-cliente pTemplate="item">
+                <div class="cliente-item">
+                  <div class="cliente-info">
+                    <div class="cliente-nome">{{ cliente.nome }}</div>
+                    <div class="cliente-telefone" *ngIf="cliente.telefone">{{ cliente.telefone }}</div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="mt-3">
+            <p-button
+              label="Adicionar Novo Cliente"
+              icon="pi pi-plus"
+              styleClass="p-button-outlined"
+              (onClick)="adicionarNovoCliente()">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Project Description -->
+        <div class="mt-4" *ngIf="projetoForm.get('clienteId')?.value">
+          <div class="p-field">
+            <label for="descricao" class="form-label">Descrição do Projeto</label>
+            <textarea
+              pInputTextarea
+              id="descricao"
+              formControlName="descricao"
+              rows="3"
+              placeholder="Descreva detalhes específicos do projeto..."
+              class="w-full">
+            </textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Medidas -->
+      <div *ngIf="currentStep === 2" class="step-content-wrapper">
+        <div class="step-header">
+          <h3>Quais são as dimensões do projeto?</h3>
+          <p>Informe as medidas para calcularmos automaticamente a quantidade de material necessária.</p>
+        </div>
+
+        <div formGroupName="medidas" class="medidas-section">
+          <div class="medidas-grid">
+
+            <!-- Profundidade -->
+            <div class="medida-field">
+              <label for="profundidade" class="form-label">Profundidade *</label>
+              <div class="p-inputgroup">
+                <p-inputNumber
+                  inputId="profundidade"
+                  formControlName="profundidade"
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  placeholder="0,00"
+                  [min]="0.01"
+                  class="w-full">
+                </p-inputNumber>
+                <span class="p-inputgroup-addon">m</span>
+              </div>
+            </div>
+
+            <!-- Largura -->
+            <div class="medida-field">
+              <label for="largura" class="form-label">Largura *</label>
+              <div class="p-inputgroup">
+                <p-inputNumber
+                  inputId="largura"
+                  formControlName="largura"
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  placeholder="0,00"
+                  [min]="0.01"
+                  class="w-full">
+                </p-inputNumber>
+                <span class="p-inputgroup-addon">m</span>
+              </div>
+            </div>
+
+            <!-- Altura -->
+            <div class="medida-field">
+              <label for="altura" class="form-label">Altura *</label>
+              <div class="p-inputgroup">
+                <p-inputNumber
+                  inputId="altura"
+                  formControlName="altura"
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  placeholder="0,00"
+                  [min]="0.01"
+                  class="w-full">
+                </p-inputNumber>
+                <span class="p-inputgroup-addon">m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculated Values -->
+          <div class="calculated-values" *ngIf="projetoForm.get('medidas.profundidade')?.value && projetoForm.get('medidas.largura')?.value">
+            <div class="calculation-cards">
+              <div class="calc-card area">
+                <div class="calc-icon">
+                  <i class="pi pi-th-large"></i>
+                </div>
+                <div class="calc-content">
+                  <div class="calc-value">
+                    {{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }} m²
+                  </div>
+                  <div class="calc-label">Área Total</div>
+                </div>
+              </div>
+
+              <div class="calc-card perimeter">
+                <div class="calc-icon">
+                  <i class="pi pi-circle"></i>
+                </div>
+                <div class="calc-content">
+                  <div class="calc-value">
+                    {{ (2 * (projetoForm.get('medidas.profundidade')?.value + projetoForm.get('medidas.largura')?.value)).toFixed(2) }} m
+                  </div>
+                  <div class="calc-label">Perímetro</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observações das medidas -->
+          <div class="mt-4">
+            <div class="p-field">
+              <label for="medidasObs" class="form-label">Observações sobre as medidas</label>
+              <textarea
+                pInputTextarea
+                id="medidasObs"
+                formControlName="observacoes"
+                rows="2"
+                placeholder="Observações especiais sobre as medidas, recortes, etc."
+                class="w-full">
+              </textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Materiais -->
+      <div *ngIf="currentStep === 3" class="step-content-wrapper">
+        <div class="step-header">
+          <h3>Selecione os materiais</h3>
+          <p>Escolha os materiais necessários para seu projeto. Você pode usar nossas sugestões ou buscar outros materiais.</p>
+        </div>
+
+        <!-- Materiais Sugeridos -->
+        <div class="materiais-sugeridos" *ngIf="materiaisSugeridos.length > 0">
+          <h4>
+            <i class="pi pi-lightbulb mr-2"></i>
+            Materiais Sugeridos para {{ getTipoProjetoOption(projetoForm.get('tipoProjeto')?.value)?.label }}
+          </h4>
+
+          <div class="materiais-grid">
+            <div
+              *ngFor="let material of materiaisSugeridos"
+              class="material-card suggested">
+
+              <div class="material-header">
+                <div class="material-name">{{ material.nome }}</div>
+                <div class="material-category">{{ material.categoria }}</div>
+              </div>
+
+              <div class="material-info">
+                <div class="material-price">
+                  R$ {{ material.preco.toFixed(2) }} / {{ material.unidade }}
+                </div>
+                <div class="material-qty">
+                  Qtd. recomendada: {{ material.quantidadeRecomendada }} {{ material.unidade }}
+                </div>
+                <div class="material-application">{{ material.aplicacao }}</div>
+              </div>
+
+              <div class="material-actions">
+                <p-button
+                  label="Adicionar"
+                  icon="pi pi-plus"
+                  styleClass="p-button-sm"
+                  (onClick)="adicionarMaterial(material)">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Material Search -->
+        <div class="material-search-section">
+          <div class="search-header">
+            <h4>Buscar Outros Materiais</h4>
+            <p-button
+              label="Ver Catálogo"
+              icon="pi pi-search"
+              styleClass="p-button-outlined"
+              (onClick)="showMaterialSearch = !showMaterialSearch">
+            </p-button>
+          </div>
+
+          <div class="material-search" *ngIf="showMaterialSearch">
+            <div class="search-filters">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">
+                  <i class="pi pi-search"></i>
+                </span>
+                <input
+                  pInputText
+                  [(ngModel)]="materialSearchTerm"
+                  placeholder="Buscar materiais..."
+                  class="w-full">
+              </div>
+
+              <p-dropdown
+                [(ngModel)]="selectedMaterialCategory"
+                [options]="materialCategories"
+                placeholder="Categoria"
+                [showClear]="true">
+              </p-dropdown>
+            </div>
+
+            <div class="materiais-grid">
+              <div
+                *ngFor="let material of filteredMateriais"
+                class="material-card">
+
+                <div class="material-header">
+                  <div class="material-name">{{ material.nome }}</div>
+                  <div class="material-category">{{ material.categoria }}</div>
+                  <div class="material-popular" *ngIf="material.popular">
+                    <i class="pi pi-star-fill"></i>
+                    Popular
+                  </div>
+                </div>
+
+                <div class="material-info">
+                  <div class="material-price">
+                    R$ {{ material.preco.toFixed(2) }} / {{ material.unidade }}
+                  </div>
+                </div>
+
+                <div class="material-actions">
+                  <p-button
+                    label="Adicionar"
+                    icon="pi pi-plus"
+                    styleClass="p-button-sm"
+                    (onClick)="adicionarMaterial(material)">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Materiais Selecionados -->
+        <div class="materiais-selecionados" *ngIf="itensFormArray.length > 0">
+          <h4>
+            <i class="pi pi-shopping-cart mr-2"></i>
+            Materiais Selecionados ({{ itensFormArray.length }})
+          </h4>
+
+          <div formArrayName="itens" class="selected-materials">
+            <div
+              *ngFor="let item of itensFormArray.controls; let i = index"
+              [formGroupName]="i"
+              class="selected-material-item">
+
+              <div class="material-info">
+                <div class="material-name">
+                  {{ getMaterialById(item.get('produtoId')?.value)?.nome }}
+                </div>
+                <div class="material-category">
+                  {{ getMaterialById(item.get('produtoId')?.value)?.categoria }}
+                </div>
+              </div>
+
+              <div class="quantity-controls">
+                <label>Quantidade</label>
+                <p-inputNumber
+                  formControlName="quantidade"
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  [min]="0.01"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  [step]="0.1">
+                </p-inputNumber>
+              </div>
+
+              <div class="price-controls">
+                <label>Valor Unitário</label>
+                <p-inputNumber
+                  formControlName="valorUnitario"
+                  mode="currency"
+                  currency="BRL"
+                  locale="pt-BR"
+                  [min]="0">
+                </p-inputNumber>
+              </div>
+
+              <div class="total-value">
+                <label>Total</label>
+                <div class="value-display">
+                  R$ {{ (item.get('valorTotal')?.value || 0).toFixed(2) }}
+                </div>
+              </div>
+
+              <div class="item-actions">
+                <p-button
+                  icon="pi pi-trash"
+                  styleClass="p-button-danger p-button-text"
+                  (onClick)="removerMaterial(item.get('produtoId')?.value)"
+                  pTooltip="Remover material">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-materials" *ngIf="itensFormArray.length === 0">
+          <div class="empty-icon">
+            <i class="pi pi-box"></i>
+          </div>
+          <h4>Nenhum material selecionado</h4>
+          <p>Adicione materiais usando as sugestões acima ou busque no catálogo</p>
+        </div>
+      </div>
+
+      <!-- Step 5: Orçamento -->
+      <div *ngIf="currentStep === 4" class="step-content-wrapper">
+        <div class="step-header">
+          <h3>Revisão do Orçamento</h3>
+          <p>Revise os valores calculados e ajuste a margem de lucro conforme necessário.</p>
+        </div>
+
+        <div class="orcamento-section">
+
+          <!-- Resumo do Projeto -->
+          <div class="projeto-summary">
+            <h4>Resumo do Projeto</h4>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <label>Nome</label>
+                <div>{{ projetoForm.get('nome')?.value }}</div>
+              </div>
+              <div class="summary-item">
+                <label>Cliente</label>
+                <div>{{ getClienteNome(projetoForm.get('clienteId')?.value) }}</div>
+              </div>
+              <div class="summary-item">
+                <label>Tipo</label>
+                <div>{{ getTipoProjetoOption(projetoForm.get('tipoProjeto')?.value)?.label }}</div>
+              </div>
+              <div class="summary-item">
+                <label>Área</label>
+                <div>{{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }} m²</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cálculos -->
+          <div class="calculation-section">
+            <div class="calculation-grid">
+
+              <!-- Materiais -->
+              <div class="calc-item materials">
+                <div class="calc-header">
+                  <i class="pi pi-box"></i>
+                  <span>Materiais</span>
+                </div>
+                <div class="calc-value">
+                  R$ {{ valorMateriais.toFixed(2) }}
+                </div>
+                <div class="calc-details">
+                  {{ itensFormArray.length }} item(s) selecionado(s)
+                </div>
+              </div>
+
+              <!-- Mão de Obra -->
+              <div class="calc-item labor">
+                <div class="calc-header">
+                  <i class="pi pi-users"></i>
+                  <span>Mão de Obra</span>
+                </div>
+                <div class="calc-value">
+                  R$ {{ valorMaoObra.toFixed(2) }}
+                </div>
+                <div class="calc-details">
+                  R$ {{ getLaborRate(projetoForm.get('tipoProjeto')?.value).toFixed(2) }}/m² × {{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }}m²
+                </div>
+              </div>
+
+              <!-- Margem de Lucro -->
+              <div class="calc-item margin">
+                <div class="calc-header">
+                  <i class="pi pi-percentage"></i>
+                  <span>Margem de Lucro</span>
+                </div>
+                <div class="margin-control">
+                  <p-inputNumber
+                    formControlName="margemLucro"
+                    [min]="0"
+                    [max]="100"
+                    suffix="%"
+                    [showButtons]="true"
+                    buttonLayout="horizontal"
+                    (onInput)="calcularTotais()">
+                  </p-inputNumber>
+                </div>
+                <div class="calc-details">
+                  R$ {{ ((valorMateriais + valorMaoObra) * (projetoForm.get('margemLucro')?.value / 100)).toFixed(2) }}
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="calc-item total">
+                <div class="calc-header">
+                  <i class="pi pi-calculator"></i>
+                  <span>Valor Total</span>
+                </div>
+                <div class="calc-value total-value">
+                  R$ {{ valorTotal.toFixed(2) }}
+                </div>
+                <div class="calc-details">
+                  Valor final do projeto
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Prevista e Observações -->
+          <div class="additional-info">
+            <div class="info-grid">
+              <div class="p-field">
+                <label for="dataPrevista" class="form-label">Data Prevista de Entrega</label>
+                <p-calendar
+                  inputId="dataPrevista"
+                  formControlName="dataPrevista"
+                  [showIcon]="true"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Selecione a data">
+                </p-calendar>
+              </div>
+
+              <div class="p-field">
+                <label for="observacoes" class="form-label">Observações Gerais</label>
+                <textarea
+                  pInputTextarea
+                  id="observacoes"
+                  formControlName="observacoes"
+                  rows="3"
+                  placeholder="Observações adicionais sobre o projeto..."
+                  class="w-full">
+                </textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ações do Orçamento -->
+          <div class="orcamento-actions">
+            <p-button
+              label="Recalcular Automaticamente"
+              icon="pi pi-refresh"
+              styleClass="p-button-outlined mr-2"
+              [loading]="calculandoOrcamento"
+              (onClick)="solicitarCalculoOrcamento()">
+            </p-button>
+
+            <p-button
+              label="Gerar PDF"
+              icon="pi pi-file-pdf"
+              styleClass="p-button-outlined"
+              (onClick)="gerarPDF()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Navigation Footer -->
+  <div class="builder-footer">
+    <div class="flex justify-content-between align-items-center">
+      <p-button
+        label="Anterior"
+        icon="pi pi-chevron-left"
+        styleClass="p-button-outlined"
+        [disabled]="currentStep === 0"
+        (onClick)="previousStep()">
+      </p-button>
+
+      <div class="step-indicator">
+        Passo {{ currentStep + 1 }} de {{ steps.length }}
+      </div>
+
+      <p-button
+        *ngIf="currentStep < steps.length - 1"
+        label="Próximo"
+        icon="pi pi-chevron-right"
+        iconPos="right"
+        [disabled]="!canAdvanceStep()"
+        (onClick)="nextStep()">
+      </p-button>
+
+      <p-button
+        *ngIf="currentStep === steps.length - 1"
+        label="Finalizar Projeto"
+        icon="pi pi-check"
+        iconPos="right"
+        [loading]="loading"
+        (onClick)="salvar()">
+      </p-button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="loading">
+  <div class="loading-content">
+    <p-progressSpinner></p-progressSpinner>
+    <div class="loading-text">
+      {{ isEditMode ? 'Atualizando projeto...' : 'Criando projeto...' }}
+    </div>
+  </div>
+</div>
+

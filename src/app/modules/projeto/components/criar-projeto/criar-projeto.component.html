@@ -1,0 +1,500 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <div class="flex justify-content-between align-items-center">
+        <h3 class="mb-0">
+          <i class="pi pi-plus mr-2"></i>
+          {{ isEditMode ? 'Editar Projeto' : 'Novo Projeto' }}
+        </h3>
+        <div>
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            styleClass="p-button-secondary mr-2"
+            (onClick)="cancelar()">
+          </p-button>
+          <p-button
+            label="Salvar"
+            icon="pi pi-save"
+            [loading]="loading"
+            (onClick)="salvar()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="projetoForm">
+        <p-tabView>
+
+          <!-- Tab: Informações Gerais -->
+          <p-tabPanel header="Informações Gerais" leftIcon="pi pi-info-circle">
+            <div class="p-fluid p-formgrid p-grid">
+
+              <!-- Nome do Projeto -->
+              <div class="p-field p-col-12 p-md-6">
+                <label for="nome">Nome do Projeto *</label>
+                <input
+                  pInputText
+                  id="nome"
+                  formControlName="nome"
+                  placeholder="Digite o nome do projeto"
+                  [class.ng-invalid]="projetoForm.get('nome')?.invalid && projetoForm.get('nome')?.touched">
+                <small
+                  class="p-error"
+                  *ngIf="projetoForm.get('nome')?.invalid && projetoForm.get('nome')?.touched">
+                  Nome é obrigatório
+                </small>
+              </div>
+
+              <!-- Cliente -->
+              <div class="p-field p-col-12 p-md-6">
+                <label for="cliente">Cliente *</label>
+                <p-dropdown
+                  inputId="cliente"
+                  formControlName="clienteId"
+                  [options]="clientes"
+                  optionLabel="nome"
+                  optionValue="id"
+                  placeholder="Selecione o cliente"
+                  [showClear]="true"
+                  [class.ng-invalid]="projetoForm.get('clienteId')?.invalid && projetoForm.get('clienteId')?.touched">
+                </p-dropdown>
+                <small
+                  class="p-error"
+                  *ngIf="projetoForm.get('clienteId')?.invalid && projetoForm.get('clienteId')?.touched">
+                  Cliente é obrigatório
+                </small>
+              </div>
+
+              <!-- Tipo de Projeto -->
+              <div class="p-field p-col-12">
+                <label>Tipo de Projeto *</label>
+                <div class="p-grid">
+                  <div
+                    class="p-col-12 p-md-3"
+                    *ngFor="let tipo of tiposProjetoOptions">
+                    <p-card
+                      [styleClass]="'projeto-tipo-card ' + (projetoForm.get('tipoProjeto')?.value === tipo.value ? 'selected' : '')"
+                      (click)="projetoForm.get('tipoProjeto')?.setValue(tipo.value)">
+                      <div class="text-center">
+                        <i [class]="tipo.icon + ' projeto-tipo-icon'"></i>
+                        <h5>{{ tipo.label }}</h5>
+                        <p class="text-sm text-muted">{{ tipo.description }}</p>
+                      </div>
+                    </p-card>
+                  </div>
+                </div>
+                <small
+                  class="p-error"
+                  *ngIf="projetoForm.get('tipoProjeto')?.invalid && projetoForm.get('tipoProjeto')?.touched">
+                  Tipo de projeto é obrigatório
+                </small>
+              </div>
+
+              <!-- Data Prevista -->
+              <div class="p-field p-col-12 p-md-6">
+                <label for="dataPrevista">Data Prevista</label>
+                <p-calendar
+                  inputId="dataPrevista"
+                  formControlName="dataPrevista"
+                  [showIcon]="true"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Selecione a data">
+                </p-calendar>
+              </div>
+
+              <!-- Status -->
+              <div class="p-field p-col-12 p-md-6">
+                <label for="status">Status</label>
+                <p-dropdown
+                  inputId="status"
+                  formControlName="status"
+                  [options]="[
+                    {label: 'Orçamento', value: 'ORCAMENTO'},
+                    {label: 'Aprovado', value: 'APROVADO'},
+                    {label: 'Em Produção', value: 'EM_PRODUCAO'},
+                    {label: 'Pronto', value: 'PRONTO'},
+                    {label: 'Entregue', value: 'ENTREGUE'},
+                    {label: 'Cancelado', value: 'CANCELADO'}
+                  ]"
+                  placeholder="Selecione o status">
+                </p-dropdown>
+              </div>
+
+              <!-- Descrição -->
+              <div class="p-field p-col-12">
+                <label for="descricao">Descrição</label>
+                <textarea
+                  pInputTextarea
+                  id="descricao"
+                  formControlName="descricao"
+                  rows="3"
+                  placeholder="Descreva detalhes do projeto">
+                </textarea>
+              </div>
+
+            </div>
+          </p-tabPanel>
+
+          <!-- Tab: Medidas -->
+          <p-tabPanel header="Medidas" leftIcon="pi pi-ruler">
+            <div formGroupName="medidas" class="p-fluid p-formgrid p-grid">
+
+              <div class="p-col-12">
+                <p-fieldset legend="Dimensões do Projeto" [toggleable]="false">
+
+                  <div class="p-grid">
+                    <!-- Profundidade -->
+                    <div class="p-field p-col-12 p-md-4">
+                      <label for="profundidade">Profundidade (m) *</label>
+                      <p-inputNumber
+                        inputId="profundidade"
+                        formControlName="profundidade"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        suffix=" m"
+                        placeholder="0,00"
+                        [min]="0.01">
+                      </p-inputNumber>
+                      <small
+                        class="p-error"
+                        *ngIf="projetoForm.get('medidas.profundidade')?.invalid && projetoForm.get('medidas.profundidade')?.touched">
+                        Profundidade é obrigatória
+                      </small>
+                    </div>
+
+                    <!-- Largura -->
+                    <div class="p-field p-col-12 p-md-4">
+                      <label for="largura">Largura (m) *</label>
+                      <p-inputNumber
+                        inputId="largura"
+                        formControlName="largura"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        suffix=" m"
+                        placeholder="0,00"
+                        [min]="0.01">
+                      </p-inputNumber>
+                      <small
+                        class="p-error"
+                        *ngIf="projetoForm.get('medidas.largura')?.invalid && projetoForm.get('medidas.largura')?.touched">
+                        Largura é obrigatória
+                      </small>
+                    </div>
+
+                    <!-- Altura -->
+                    <div class="p-field p-col-12 p-md-4">
+                      <label for="altura">Altura (m) *</label>
+                      <p-inputNumber
+                        inputId="altura"
+                        formControlName="altura"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        suffix=" m"
+                        placeholder="0,00"
+                        [min]="0.01">
+                      </p-inputNumber>
+                      <small
+                        class="p-error"
+                        *ngIf="projetoForm.get('medidas.altura')?.invalid && projetoForm.get('medidas.altura')?.touched">
+                        Altura é obrigatória
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- Área e Perímetro calculados -->
+                  <div class="p-grid mt-3"
+                       *ngIf="projetoForm.get('medidas.profundidade')?.value && projetoForm.get('medidas.largura')?.value">
+                    <div class="p-col-12 p-md-6">
+                      <div class="p-card p-2">
+                        <strong>Área: </strong>
+                        {{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }}
+                        m²
+                      </div>
+                    </div>
+                    <div class="p-col-12 p-md-6">
+                      <div class="p-card p-2">
+                        <strong>Perímetro: </strong>
+                        {{ (2 * (projetoForm.get('medidas.profundidade')?.value + projetoForm.get('medidas.largura')?.value)).toFixed(2) }}
+                        m
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Observações das medidas -->
+                  <div class="p-field mt-3">
+                    <label for="medidasObs">Observações sobre as medidas</label>
+                    <textarea
+                      pInputTextarea
+                      id="medidasObs"
+                      formControlName="observacoes"
+                      rows="2"
+                      placeholder="Observações especiais sobre as medidas">
+                    </textarea>
+                  </div>
+
+                </p-fieldset>
+              </div>
+
+              <!-- Materiais Sugeridos -->
+              <div class="p-col-12" *ngIf="materiaisSugeridos.length > 0">
+                <p-fieldset legend="Materiais Sugeridos" [toggleable]="true">
+                  <div class="p-grid">
+                    <div
+                      class="p-col-12 p-md-6 p-lg-4"
+                      *ngFor="let material of materiaisSugeridos">
+                      <p-card>
+                        <div class="flex justify-content-between align-items-center">
+                          <div>
+                            <h6 class="mb-1">{{ material.produto.nome }}</h6>
+                            <small class="text-muted">{{ material.aplicacao }}</small>
+                            <div class="mt-2">
+                              <strong>Qtd: {{ material.quantidadeRecomendada }}</strong><br>
+                              <span class="text-success">R$ {{ material.produto.preco.toFixed(2) }}</span>
+                            </div>
+                          </div>
+                          <p-button
+                            icon="pi pi-plus"
+                            styleClass="p-button-sm p-button-rounded"
+                            (onClick)="adicionarMaterialSugerido(material)"
+                            pTooltip="Adicionar ao projeto">
+                          </p-button>
+                        </div>
+                      </p-card>
+                    </div>
+                  </div>
+                </p-fieldset>
+              </div>
+
+            </div>
+          </p-tabPanel>
+
+          <!-- Tab: Materiais -->
+          <p-tabPanel header="Materiais" leftIcon="pi pi-box">
+            <div class="p-fluid">
+
+              <!-- Botão para adicionar item -->
+              <div class="mb-3">
+                <p-button
+                  label="Adicionar Material"
+                  icon="pi pi-plus"
+                  styleClass="p-button-sm"
+                  (onClick)="adicionarItem()">
+                </p-button>
+              </div>
+
+              <!-- Lista de itens -->
+              <div formArrayName="itens">
+                <div
+                  *ngFor="let item of itensFormArray.controls; let i = index"
+                  [formGroupName]="i"
+                  class="p-card p-3 mb-3">
+
+                  <div class="p-grid p-formgrid">
+                    <!-- Produto -->
+                    <div class="p-field p-col-12 p-md-4">
+                      <label>Produto *</label>
+                      <p-dropdown
+                        formControlName="produtoId"
+                        [options]="produtos"
+                        optionLabel="nome"
+                        optionValue="id"
+                        placeholder="Selecione o produto"
+                        [showClear]="true">
+                      </p-dropdown>
+                    </div>
+
+                    <!-- Quantidade -->
+                    <div class="p-field p-col-12 p-md-2">
+                      <label>Quantidade *</label>
+                      <p-inputNumber
+                        formControlName="quantidade"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        [min]="0.01">
+                      </p-inputNumber>
+                    </div>
+
+                    <!-- Valor Unitário -->
+                    <div class="p-field p-col-12 p-md-2">
+                      <label>Valor Unit. *</label>
+                      <p-inputNumber
+                        formControlName="valorUnitario"
+                        mode="currency"
+                        currency="BRL"
+                        locale="pt-BR"
+                        [min]="0">
+                      </p-inputNumber>
+                    </div>
+
+                    <!-- Valor Total -->
+                    <div class="p-field p-col-12 p-md-2">
+                      <label>Valor Total</label>
+                      <p-inputNumber
+                        formControlName="valorTotal"
+                        mode="currency"
+                        currency="BRL"
+                        locale="pt-BR"
+                        [disabled]="true">
+                      </p-inputNumber>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="p-field p-col-12 p-md-2 flex align-items-end">
+                      <p-button
+                        icon="pi pi-trash"
+                        styleClass="p-button-danger p-button-sm"
+                        (onClick)="removerItem(i)"
+                        pTooltip="Remover item">
+                      </p-button>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="p-field p-col-12" *ngIf="item.get('observacoes')">
+                      <label>Observações</label>
+                      <input
+                        pInputText
+                        formControlName="observacoes"
+                        placeholder="Observações do item">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sem itens -->
+                <div *ngIf="itensFormArray.length === 0" class="text-center p-4">
+                  <i class="pi pi-box text-6xl text-muted"></i>
+                  <h5 class="text-muted mt-3">Nenhum material adicionado</h5>
+                  <p class="text-muted">Clique em "Adicionar Material" para começar</p>
+                </div>
+              </div>
+
+            </div>
+          </p-tabPanel>
+
+          <!-- Tab: Orçamento -->
+          <p-tabPanel header="Orçamento" leftIcon="pi pi-calculator">
+            <div class="p-fluid p-formgrid p-grid">
+
+              <!-- Margem de Lucro -->
+              <div class="p-field p-col-12 p-md-4">
+                <label for="margemLucro">Margem de Lucro (%) *</label>
+                <p-inputNumber
+                  inputId="margemLucro"
+                  formControlName="margemLucro"
+                  [min]="0"
+                  [max]="100"
+                  suffix="%"
+                  (onInput)="calcularTotais()">
+                </p-inputNumber>
+              </div>
+
+              <!-- Botão Calcular -->
+              <div class="p-field p-col-12 p-md-4 flex align-items-end">
+                <p-button
+                  label="Recalcular Orçamento"
+                  icon="pi pi-refresh"
+                  [loading]="calculandoOrcamento"
+                  (onClick)="calcularOrcamentoAutomatico()">
+                </p-button>
+              </div>
+
+              <!-- Resumo Financeiro -->
+              <div class="p-col-12">
+                <p-fieldset legend="Resumo Financeiro" [toggleable]="false">
+                  <div class="p-grid">
+
+                    <div class="p-col-12 p-md-3">
+                      <div class="p-card p-3 text-center bg-blue-50">
+                        <h6 class="text-blue-800 mb-2">Materiais</h6>
+                        <h4 class="text-blue-800 mb-0">
+                          {{ valorMateriais | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div class="p-col-12 p-md-3">
+                      <div class="p-card p-3 text-center bg-green-50">
+                        <h6 class="text-green-800 mb-2">Mão de Obra</h6>
+                        <h4 class="text-green-800 mb-0">
+                          {{ valorMaoObra | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div class="p-col-12 p-md-3">
+                      <div class="p-card p-3 text-center bg-orange-50">
+                        <h6 class="text-orange-800 mb-2">Lucro ({{ margemLucro }}%)</h6>
+                        <h4 class="text-orange-800 mb-0">
+                          {{ (valorTotal - valorMateriais - valorMaoObra) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div class="p-col-12 p-md-3">
+                      <div class="p-card p-3 text-center bg-purple-50">
+                        <h6 class="text-purple-800 mb-2">Total</h6>
+                        <h3 class="text-purple-800 mb-0">
+                          {{ valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                        </h3>
+                      </div>
+                    </div>
+
+                  </div>
+                </p-fieldset>
+              </div>
+
+              <!-- Observações -->
+              <div class="p-field p-col-12">
+                <label for="observacoes">Observações Gerais</label>
+                <textarea
+                  pInputTextarea
+                  id="observacoes"
+                  formControlName="observacoes"
+                  rows="4"
+                  placeholder="Observações gerais do projeto">
+                </textarea>
+              </div>
+
+            </div>
+          </p-tabPanel>
+
+        </p-tabView>
+      </form>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="card-footer">
+      <div class="flex justify-content-between">
+        <div>
+          <p-button
+            *ngIf="isEditMode && projetoForm.get('status')?.value === 'ORCAMENTO'"
+            label="Gerar O.S."
+            icon="pi pi-file-export"
+            styleClass="p-button-success"
+            (onClick)="gerarOrdemServico()">
+          </p-button>
+        </div>
+        <div>
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            styleClass="p-button-secondary mr-2"
+            (onClick)="cancelar()">
+          </p-button>
+          <p-button
+            label="{{ isEditMode ? 'Atualizar' : 'Salvar' }}"
+            icon="pi pi-save"
+            [loading]="loading"
+            (onClick)="salvar()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

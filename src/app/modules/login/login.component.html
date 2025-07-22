@@ -1,0 +1,51 @@
+<div class="grid">
+  <div class="col-12 flex-container">
+    <!-- Logo/Nome da Empresa -->
+    <div class="company-branding">
+      <h1 class="company-name">
+        <span class="company-main">Marmoraria</span>
+        <span class="company-location">São Carlos</span>
+      </h1>
+      <p class="company-tagline">Elegância em Pedra Natural</p>
+    </div>
+
+    <form
+      class="login-card"
+      [formGroup]="loginForm"
+      (ngSubmit)="onsubmitLoginForm()"
+    >
+      <p-card styleClass="mt-3" header="Fazer Login" class="login-container">
+        <div class="flex justify-content-center align-content-center text-align-center">
+          <input pInputText type="text" placeholder="Login" formControlName="login" />
+        </div>
+        <div class="flex justify-content-center align-content-center text-align-center mt-3">
+          <input pInputText type="password" placeholder="Senha" formControlName="senha" />
+        </div>
+        <div class="card flex justify-content-center mt-3">
+          <button pButton pRiple type="submit" label="Entrar" [disabled]="!this.loginForm.valid"></button>
+        </div>
+        <div class="card flex justify-content-center mt-3">
+          <span (click)="showForgotPasswordDialog()" style="cursor: pointer;">Esqueceu a sua senha?</span>
+        </div>
+      </p-card>
+    </form>
+  </div>
+</div>
+
+<p-dialog header="Esqueceu a senha?" [(visible)]="displayForgotPasswordDialog" [modal]="true" [closable]="false" [style]="{width: '50vw'}">
+  <form
+    class="forgot-password-form"
+    [formGroup]="forgotPasswordForm"
+    (ngSubmit)="onSubmitForgotPasswordForm()">
+    <p>Digite seu e-mail para recuperar a senha</p>
+    <input pInputText type="email" placeholder="Seu e-mail" formControlName="email"/>
+
+    <div class="flex justify-content-center align-content-center text-align-center mt-3 ui-dialog-buttonpane ui-helper-clearfix">
+      <button pButton type="submit" label="Recuperar Senha"></button>
+    </div>
+
+    <div class="flex justify-content-center align-content-center text-align-center mt-3 ui-dialog-buttonpane ui-helper-clearfix">
+      <button pButton type="button" (click)="hideForgotPasswordDialog()" label="Cancelar"></button>
+    </div>
+  </form>
+</p-dialog>

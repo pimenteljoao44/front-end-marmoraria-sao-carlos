@@ -1,0 +1,298 @@
+.dashboard-container {
+  padding: 1rem;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    color: #495057;
+    font-weight: 600;
+    margin: 0;
+    
+    i {
+      margin-right: 0.5rem;
+      color: #007bff;
+    }
+  }
+}
+
+.summary-cards {
+  margin-bottom: 2rem;
+  
+  .summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    &.total {
+      border-left-color: #007bff;
+    }
+    
+    &.success {
+      border-left-color: #28a745;
+    }
+    
+    &.warning {
+      border-left-color: #ffc107;
+    }
+    
+    &.danger {
+      border-left-color: #dc3545;
+    }
+    
+    .card-content {
+      display: flex;
+      align-items: center;
+      
+      .card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        
+        i {
+          font-size: 1.5rem;
+          color: white;
+        }
+      }
+      
+      .card-info {
+        h3 {
+          font-size: 2rem;
+          font-weight: bold;
+          margin: 0;
+          color: #495057;
+        }
+        
+        p {
+          margin: 0;
+          color: #6c757d;
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+    
+    &.total .card-icon {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+    
+    &.success .card-icon {
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+    }
+    
+    &.warning .card-icon {
+      background: linear-gradient(135deg, #ffc107, #e0a800);
+    }
+    
+    &.danger .card-icon {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+  }
+}
+
+.chart-card,
+.list-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  
+  .card-header {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h4 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 1.1rem;
+      
+      i {
+        margin-right: 0.5rem;
+        color: #007bff;
+      }
+    }
+    
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      
+      &.badge-danger {
+        background-color: #dc3545;
+        color: white;
+      }
+      
+      &.badge-warning {
+        background-color: #ffc107;
+        color: #212529;
+      }
+    }
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.list-card {
+  &.danger-border {
+    border-left: 4px solid #dc3545;
+  }
+  
+  &.warning-border {
+    border-left: 4px solid #ffc107;
+  }
+}
+
+.total-value {
+  font-size: 1.1rem;
+  color: #495057;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.parcelas-list {
+  max-height: 300px;
+  overflow-y: auto;
+  
+  .parcela-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .parcela-info {
+      flex: 1;
+      
+      .parcela-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+        
+        .parcela-numero {
+          font-weight: 600;
+          color: #495057;
+        }
+        
+        .parcela-valor {
+          font-weight: bold;
+          color: #28a745;
+        }
+      }
+      
+      .parcela-details {
+        font-size: 0.75rem;
+        
+        .text-muted {
+          color: #6c757d;
+        }
+      }
+    }
+    
+    .parcela-actions {
+      margin-left: 1rem;
+      
+      .p-button {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .summary-cards {
+    .row > div {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .dashboard-content {
+    .row > div {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .parcela-item {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .parcela-actions {
+      margin-left: 0;
+      margin-top: 0.5rem;
+      align-self: flex-end;
+    }
+  }
+}
+
+// Customização do PrimeNG
+::ng-deep {
+  .p-chart {
+    .p-chart-canvas {
+      max-height: 300px;
+    }
+  }
+  
+  .p-button.p-button-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+

@@ -1,0 +1,120 @@
+<form [formGroup]="contaPagarForm" (ngSubmit)="onSubmit()">
+  <div class="grid">
+    <div class="col-12">
+      <div class="field">
+        <label for="descricao">Descrição *</label>
+        <input
+          id="descricao"
+          type="text"
+          pInputText
+          formControlName="descricao"
+          placeholder="Digite a descrição da conta"
+          [class.ng-invalid]="isFieldInvalid('descricao')"
+        />
+        <small class="p-error" *ngIf="isFieldInvalid('descricao')">
+          {{ getFieldError('descricao') }}
+        </small>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div class="field">
+        <label for="valor">Valor *</label>
+        <p-inputNumber
+          id="valor"
+          formControlName="valor"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [class.ng-invalid]="isFieldInvalid('valor')"
+        ></p-inputNumber>
+        <small class="p-error" *ngIf="isFieldInvalid('valor')">
+          {{ getFieldError('valor') }}
+        </small>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div class="field">
+        <label for="dataVencimento">Data de Vencimento *</label>
+        <p-calendar
+          id="dataVencimento"
+          formControlName="dataVencimento"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          [class.ng-invalid]="isFieldInvalid('dataVencimento')"
+        ></p-calendar>
+        <small class="p-error" *ngIf="isFieldInvalid('dataVencimento')">
+          {{ getFieldError('dataVencimento') }}
+        </small>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="field">
+        <label for="fornecedorId">Fornecedor *</label>
+        <p-dropdown
+          id="fornecedorId"
+          formControlName="fornecedorId"
+          [options]="fornecedores"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione um fornecedor"
+          [filter]="true"
+          filterBy="nome"
+          [class.ng-invalid]="isFieldInvalid('fornecedorId')"
+        ></p-dropdown>
+        <small class="p-error" *ngIf="isFieldInvalid('fornecedorId')">
+          {{ getFieldError('fornecedorId') }}
+        </small>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="field">
+        <label for="observacoes">Observações</label>
+        <textarea
+          id="observacoes"
+          pInputTextarea
+          formControlName="observacoes"
+          rows="3"
+          placeholder="Digite observações adicionais"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="col-12" *ngIf="isEditMode">
+      <div class="field">
+        <label for="status">Status</label>
+        <p-dropdown
+          id="status"
+          formControlName="status"
+          [options]="[
+            { label: 'Pendente', value: 'PENDENTE' },
+            { label: 'Paga', value: 'PAGA' },
+            { label: 'Vencida', value: 'VENCIDA' }
+          ]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione o status"
+        ></p-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end gap-2 mt-3">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      styleClass="p-button-text"
+      (onClick)="ref.close()"
+    ></p-button>
+    <p-button
+      label="{{ isEditMode ? 'Atualizar' : 'Salvar' }}"
+      icon="pi pi-check"
+      type="submit"
+      [disabled]="contaPagarForm.invalid"
+    ></p-button>
+  </div>
+</form>
+

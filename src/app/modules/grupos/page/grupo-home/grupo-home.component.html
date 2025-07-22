@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<app-grupo-table
+[grupos]="gruposList"
+(grupoEvent)="handleGrupotAction($event)"
+(deleteGrupoEvent)="handleDeleteGrupoAction($event)">
+</app-grupo-table>
+<p-confirmDialog [style]="{ widith:'50vw'}"></p-confirmDialog>

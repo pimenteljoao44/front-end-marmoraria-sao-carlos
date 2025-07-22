@@ -1,0 +1,23 @@
+<div *ngIf="produto" class="p-grid p-dir-col">
+  <div class="p-col">
+    <strong>ID:</strong> {{ produto.id }}
+  </div>
+  <div class="p-col">
+    <strong>Nome:</strong> {{ produto.nome }}
+  </div>
+  <div class="p-col">
+    <strong>Preço:</strong> {{ produto.preco | currency: "BRL" }}
+  </div>
+  <div class="p-col">
+    <strong>Ativo:</strong> {{ produto.ativo === true ?'Sim':'Não' }}
+  </div>
+  <div class="p-col">
+    <strong>Grupo:</strong> {{ produto.grupo.nome }}
+  </div>
+  <div class="p-col">
+    <strong>Estoque:</strong> {{ produto.estoque }}
+  </div>
+  <div class="p-col">
+    <strong>Fornecedor:</strong> {{ produto.fornecedor?.nome }}
+  </div>
+</div>

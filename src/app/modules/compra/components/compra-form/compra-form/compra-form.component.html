@@ -1,0 +1,410 @@
+<!-- FORMULÁRIO DE REALIZAR COMPRA -->
+<form
+  *ngIf="compraAction.event.action === addCompraAction"
+  [formGroup]="addCompraForm"
+  (ngSubmit)="handleSubmit()"
+>
+  <p-card>
+    <!-- Informações da Compra -->
+    <p-card header="Informações da Compra" class="info-card">
+      <div class="p-fluid">
+        <!-- Fornecedor -->
+        <div class="p-field">
+          <label for="fornecedor">Fornecedor</label>
+          <p-autoComplete
+            id="fornecedor"
+            formControlName="fornecedor"
+            [suggestions]="fornecedores"
+            (completeMethod)="searchFornecedores($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Funcionário -->
+        <div class="p-field">
+          <label for="funcionario">Funcionário</label>
+          <p-autoComplete
+            id="funcionario"
+            formControlName="funcionario"
+            [suggestions]="funcionarios"
+            (completeMethod)="searchFuncionarios($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Data da Compra -->
+        <div class="p-field">
+          <label for="dataCompra">Data da Compra</label>
+          <input
+            id="dataCompra"
+            pInputText
+            type="date"
+            formControlName="dataCompra"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <!-- Forma de Pagamento -->
+        <div class="p-field">
+          <label for="formaPagamento">Forma de Pagamento</label>
+          <p-dropdown
+          styleClass="w-full"
+          [options]="allFormasPagamento"
+          placeholder="Selecione a forma de pagamento"
+          formControlName="formaPagamento"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+
+        </div>
+
+        <!-- Observações -->
+        <div class="p-field">
+          <label for="observacoes">Observações</label>
+          <textarea
+            id="observacoes"
+            pInputTextarea
+            rows="3"
+            placeholder="Escreva aqui as observações da compra..."
+            formControlName="observacoes"
+            [style]="{ width: '100%' }"
+          ></textarea>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <!-- Adicionar Novo Item -->
+  <p-card>
+    <p-card header="Adicionar Novo Item" class="item-card">
+      <div class="p-fluid">
+        <!-- Produto -->
+        <div class="p-field">
+          <label for="produto">Produto</label>
+          <p-autoComplete
+            id="produto"
+            formControlName="produto"
+            [suggestions]="produtos"
+            (completeMethod)="searchProdutos($event)"
+            (onSelect)="onProdutoSelect($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Quantidade -->
+        <div class="p-field">
+          <label for="quantidade">Quantidade</label>
+          <input
+            id="quantidade"
+            pInputText
+            type="number"
+            formControlName="quantidade"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <!-- Valor -->
+        <div class="p-field">
+          <label for="valor">Valor</label>
+          <input
+            id="valor"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="precoUnitario"
+            [style]="{ width: '100%' }"
+            readonly
+          />
+        </div>
+
+        <!-- Botão Adicionar Item -->
+        <div class="p-field">
+          <button
+            type="button"
+            pButton
+            label="Adicionar Item"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="handleAddItem()"
+          ></button>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <!-- Itens da Compra -->
+  <p-card>
+    <p-card header="Itens da Compra" class="items-card">
+      <p-table
+        #itemsTable
+        [value]="items"
+        [rows]="5"
+        [responsive]="true"
+        [globalFilterFields]="['produto', 'quantidade', 'valor']"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.produto?.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.valor | currency }}</td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Remover Item da compra"
+                tooltipPosition="top"
+                (click)="removeItem(item)"
+              ></p-button>
+              <p-button
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Item da compra"
+                tooltipPosition="top"
+                (click)="editItem(item)"
+              >
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  <!-- Configuração de Parcelamento -->
+  <p-card>
+    <p-card header="Configuração de Parcelamento" class="installment-card">
+      <app-installment-config
+        [valorTotal]="valorTotalCompra"
+        [enabled]="installmentEnabled"
+        (configChange)="onInstallmentConfigChange($event)"
+        (enabledChange)="onInstallmentEnabledChange($event)">
+      </app-installment-config>
+    </p-card>
+  </p-card>
+
+  </p-card>
+
+  <!-- Botão de Salvar -->
+  <p-card class="submit-card">
+    <div class="p-field">
+      <button
+        type="submit"
+        pButton
+        label="Concluir"
+        icon="pi pi-check"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </p-card>
+</form>
+
+<!-- FORMULÁRIO DE EDITAR COMPRA -->
+<form
+  *ngIf="compraAction.event.action === editCompraAction"
+  [formGroup]="editCompraForm"
+  (ngSubmit)="handleSubmitUpdateCompra()"
+>
+  <p-card>
+    <!-- Informações da Compra -->
+    <p-card header="Informações da Compra" class="info-card">
+      <div class="p-fluid">
+        <!-- Fornecedor -->
+        <div class="p-field">
+          <label for="fornecedor">Fornecedor</label>
+          <p-autoComplete
+            id="fornecedor"
+            formControlName="fornecedor"
+            [suggestions]="fornecedores"
+            (completeMethod)="searchFornecedores($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Funcionário -->
+        <div class="p-field">
+          <label for="funcionario">Funcionário</label>
+          <p-autoComplete
+            id="funcionario"
+            formControlName="funcionario"
+            [suggestions]="funcionarios"
+            (completeMethod)="searchFuncionarios($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Data da Compra -->
+        <div class="p-field">
+          <label for="dataCompra">Data da Compra</label>
+          <input
+            id="dataCompra"
+            pInputText
+            type="date"
+            formControlName="dataCompra"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <!-- Forma de Pagamento -->
+        <div class="p-field">
+          <label for="formaPagamento">Forma de Pagamento</label>
+          <p-dropdown
+          styleClass="w-full"
+          [options]="allFormasPagamento"
+          placeholder="Selecione a forma de pagamento"
+          formControlName="formaPagamento"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+        </div>
+
+        <!-- Observações -->
+        <div class="p-field">
+          <label for="observacoes">Observações</label>
+          <textarea
+            id="observacoes"
+            pInputTextarea
+            rows="3"
+            placeholder="Escreva aqui as observações da compra..."
+            formControlName="observacoes"
+            [style]="{ width: '100%' }"
+          ></textarea>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <!-- Adicionar Novo Item -->
+  <p-card>
+    <p-card header="Adicionar Novo Item" class="item-card">
+      <div class="p-fluid">
+        <!-- Produto -->
+        <div class="p-field">
+          <label for="produto">Produto</label>
+          <p-autoComplete
+            id="produto"
+            formControlName="produto"
+            [suggestions]="produtos"
+            (completeMethod)="searchProdutos($event)"
+            (onSelect)="onProdutoSelect($event)"
+            field="nome"
+            [style]="{ width: '100%' }"
+          ></p-autoComplete>
+        </div>
+
+        <!-- Quantidade -->
+        <div class="p-field">
+          <label for="quantidade">Quantidade</label>
+          <input
+            id="quantidade"
+            pInputText
+            type="number"
+            formControlName="quantidade"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+
+        <!-- Valor -->
+        <div class="p-field">
+          <label for="valor">Valor</label>
+          <input
+            id="valor"
+            pInputText
+            type="number"
+            step="0.01"
+            formControlName="precoUnitario"
+            [style]="{ width: '100%' }"
+            readonly
+          />
+        </div>
+
+        <!-- Botão Adicionar Item -->
+        <div class="p-field">
+          <button
+            type="button"
+            pButton
+            label="Adicionar Item"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="handleAddItem()"
+          ></button>
+        </div>
+      </div>
+    </p-card>
+  </p-card>
+
+  <!-- Itens da Compra -->
+  <p-card>
+    <p-card header="Itens da Compra" class="items-card">
+      <p-table
+        #itemsTable
+        [value]="items"
+        [rows]="5"
+        [responsive]="true"
+        [globalFilterFields]="['produto', 'quantidade', 'valor']"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.produto?.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.valor | currency }}</td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Remover Item da compra"
+                tooltipPosition="top"
+                (click)="removeItem(item)"
+              ></p-button>
+              <p-button
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Item da compra"
+                tooltipPosition="top"
+                (click)="editItem(item)"
+              >
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </p-card>
+
+  <!-- Botão de Salvar -->
+  <p-card class="submit-card">
+    <div class="p-field">
+      <button
+        type="submit"
+        pButton
+        label="Concluir"
+        icon="pi pi-check"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </p-card>
+</form>

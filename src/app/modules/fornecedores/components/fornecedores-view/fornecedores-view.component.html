@@ -1,0 +1,28 @@
+<div *ngIf="fornecedor" class="p-grid p-dir-col">
+  <div class="p-col">
+    <strong>ID:</strong> {{ fornecedor.id }}
+  </div>
+  <div class="p-col">
+    <strong>Tipo:</strong> {{ fornecedor.tipoPessoa === 'PESSOA_FISICA' ? 'Pessoa Física' : 'Pessoa Jurídica' }}
+  </div>
+  <div class="p-col">
+    <strong>Nome:</strong> {{ fornecedor.nome }}
+  </div>
+  <div class="p-col">
+    <strong>Telefone:</strong> {{ fornecedor.telefone }}
+  </div>
+  <div class="p-col">
+    <strong>Endereço:</strong> {{ fornecedor.endereco.rua }}, {{ fornecedor.endereco.numero }} - {{ fornecedor.endereco.complemento }},
+     {{ fornecedor.endereco.bairro }}, {{ fornecedor.endereco.cidade.nome }},
+      {{fornecedor.endereco.estado?.nome}}
+  </div>
+  <div class="p-col" *ngIf="fornecedor.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>CPF:</strong> {{ fornecedor.cpf }}
+  </div>
+  <div class="p-col" *ngIf="fornecedor.tipoPessoa === 'PESSOA_FISICA'">
+    <strong>RG:</strong> {{ fornecedor.rg }}
+  </div>
+  <div class="p-col" *ngIf="fornecedor.tipoPessoa === 'PESSOA_JURIDICA'">
+    <strong>CNPJ:</strong> {{ fornecedor.cnpj }}
+  </div>
+</div>

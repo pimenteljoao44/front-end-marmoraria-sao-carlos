@@ -1,0 +1,54 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<div class="center-container">
+  <img
+    src="./../../../../../assets/LogoMarmoraria.png"
+    alt="Descrição da imagem"
+  />
+</div>
+
+<p-toast></p-toast>
+
+<p-dialog
+  header="Bem-vindo!"
+  [(visible)]="showSwitchPasswordModal"
+  [modal]="true"
+  width="300"
+  [responsive]="true"
+>
+  <p>Recomendamos que você altere sua senha por questão de segurança.</p>
+  <form
+    class="forgot-password-form"
+    [formGroup]="updatePasswordForm"
+    (ngSubmit)="onSubmitUpdatePasswordForm()"
+  >
+    <div
+      class="flex justify-content-center align-content-center text-align-center mt-3"
+    >
+      <input
+        pInputText
+        type="password"
+        placeholder="Digite a nova senha"
+        formControlName="newPassword"
+      />
+    </div>
+    <br />
+    <div
+      class="flex justify-content-center align-content-center text-align-center mt-3"
+    >
+      <input
+        pInputText
+        type="password"
+        placeholder="Confirme a nova senha"
+        formControlName="confirmNewPassword"
+      />
+    </div>
+
+    <div
+      class="flex justify-content-center align-content-center text-align-center mt-3 ui-dialog-buttonpane ui-helper-clearfix"
+    >
+      <button pButton type="submit" label="Alterar Senha"></button>
+    </div>
+  </form>
+</p-dialog>

@@ -1,0 +1,261 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="pi pi-calendar-times"></i>
+      Gerenciamento de Parcelas
+    </h3>
+  </div>
+
+  <div class="card-body">
+    <!-- Filtros -->
+    <div class="filter-section mb-4">
+      <div class="row">
+        <div class="col-md-2">
+          <label for="filtroStatus">Status:</label>
+          <p-dropdown
+            id="filtroStatus"
+            [options]="statusOptions"
+            [(ngModel)]="filtroStatus"
+            (onChange)="onFiltroChange()"
+            placeholder="Selecione o status"
+            styleClass="w-100">
+          </p-dropdown>
+        </div>
+
+        <div class="col-md-2">
+          <label for="filtroTipo">Tipo:</label>
+          <p-dropdown
+            id="filtroTipo"
+            [options]="tipoOptions"
+            [(ngModel)]="filtroTipo"
+            (onChange)="onFiltroChange()"
+            placeholder="Selecione o tipo"
+            styleClass="w-100">
+          </p-dropdown>
+        </div>
+
+        <div class="col-md-2">
+          <label for="filtroDataInicio">Data Início:</label>
+          <p-calendar
+            id="filtroDataInicio"
+            [(ngModel)]="filtroDataInicio"
+            (onSelect)="onFiltroChange()"
+            dateFormat="dd/mm/yy"
+            placeholder="Data início"
+            styleClass="w-100">
+          </p-calendar>
+        </div>
+
+        <div class="col-md-2">
+          <label for="filtroDataFim">Data Fim:</label>
+          <p-calendar
+            id="filtroDataFim"
+            [(ngModel)]="filtroDataFim"
+            (onSelect)="onFiltroChange()"
+            dateFormat="dd/mm/yy"
+            placeholder="Data fim"
+            styleClass="w-100">
+          </p-calendar>
+        </div>
+
+        <div class="col-md-2">
+          <label>&nbsp;</label>
+          <div class="form-check">
+            <p-checkbox
+              [(ngModel)]="filtroVencidas"
+              (onChange)="onFiltroChange()"
+              binary="true"
+              inputId="filtroVencidas">
+            </p-checkbox>
+            <label for="filtroVencidas" class="form-check-label ml-2">
+              Apenas vencidas
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <label>&nbsp;</label>
+          <div class="d-flex gap-2">
+            <p-button
+              label="Limpar"
+              icon="pi pi-filter-slash"
+              (onClick)="limparFiltros()"
+              styleClass="p-button-outlined p-button-secondary">
+            </p-button>
+            <p-button
+              label="Atualizar"
+              icon="pi pi-refresh"
+              (onClick)="carregarParcelas()"
+              styleClass="p-button-outlined">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="summary-section mb-4">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="summary-card bg-primary">
+            <div class="summary-content">
+              <div class="summary-number">{{ parcelasFiltradas.length }}</div>
+              <div class="summary-label">Total de Parcelas</div>
+            </div>
+            <i class="pi pi-list summary-icon"></i>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card bg-success">
+            <div class="summary-content">
+              <div class="summary-number">
+                {{ (parcelasFiltradas | filter: { status: 'PAGO' }).length }}
+              </div>
+              <div class="summary-label">Pagas</div>
+            </div>
+            <i class="pi pi-check-circle summary-icon"></i>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card bg-warning">
+            <div class="summary-content">
+              <div class="summary-number">
+                {{ (parcelasFiltradas | filter: { status: 'PENDENTE' }).length }}
+              </div>
+              <div class="summary-label">Pendentes</div>
+            </div>
+            <i class="pi pi-clock summary-icon"></i>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card bg-danger">
+            <div class="summary-content">
+              <div class="summary-number">
+                {{ parcelasFiltradas.filter(p => isVencida(p)).length }}
+              </div>
+              <div class="summary-label">Vencidas</div>
+            </div>
+            <i class="pi pi-exclamation-triangle summary-icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Parcelas -->
+    <p-table
+      [value]="parcelasFiltradas"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [sortField]="'dataVencimento'"
+      [sortOrder]="1"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="descricaoParcela">
+            Parcela
+            <p-sortIcon field="descricaoParcela"></p-sortIcon>
+          </th>
+          <th pSortableColumn="valorParcela">
+            Valor
+            <p-sortIcon field="valorParcela"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dataVencimento">
+            Vencimento
+            <p-sortIcon field="dataVencimento"></p-sortIcon>
+          </th>
+          <th pSortableColumn="status">
+            Status
+            <p-sortIcon field="status"></p-sortIcon>
+          </th>
+          <th>Tipo</th>
+          <th>Cliente/Fornecedor</th>
+          <th pSortableColumn="dataPagamento">
+            Data Pagamento
+            <p-sortIcon field="dataPagamento"></p-sortIcon>
+          </th>
+          <th>Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-parcela>
+        <tr [class.table-danger]="isVencida(parcela)">
+          <td>
+            <span class="font-weight-bold">{{ getDescricaoParcela(parcela) }}</span>
+          </td>
+          <td>
+            <span class="font-weight-bold text-primary">
+              {{ formatCurrency(parcela.valorParcela) }}
+            </span>
+          </td>
+          <td>
+            {{ formatDate(parcela.dataVencimento) }}
+            <span *ngIf="isVencida(parcela)" class="badge badge-danger ml-2">
+              <i class="pi pi-exclamation-triangle"></i> Vencida
+            </span>
+          </td>
+          <td>
+            <p-tag
+              [value]="getStatusLabel(parcela.status)"
+              [severity]="getStatusSeverity(parcela.status)">
+            </p-tag>
+          </td>
+          <td>
+            <span class="badge badge-info">{{ getTipoConta(parcela) }}</span>
+          </td>
+          <td>{{ getNomeRelacionado(parcela) }}</td>
+          <td>
+            {{ parcela.dataPagamento ? formatDate(parcela.dataPagamento) : '-' }}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button
+                *ngIf="parcela.status === 'PENDENTE'"
+                icon="pi pi-check"
+                (onClick)="marcarComoPaga(parcela)"
+                pTooltip="Marcar como paga"
+                tooltipPosition="top"
+                styleClass="p-button-rounded p-button-success p-button-sm mr-2">
+              </p-button>
+              
+              <p-button
+                *ngIf="parcela.status === 'PENDENTE'"
+                icon="pi pi-times"
+                (onClick)="cancelarParcela(parcela)"
+                pTooltip="Cancelar parcela"
+                tooltipPosition="top"
+                styleClass="p-button-rounded p-button-danger p-button-sm">
+              </p-button>
+              
+              <span *ngIf="parcela.status === 'PAGO'" class="text-success">
+                <i class="pi pi-check-circle"></i> Paga
+              </span>
+              
+              <span *ngIf="parcela.status === 'CANCELADO'" class="text-danger">
+                <i class="pi pi-times-circle"></i> Cancelada
+              </span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-info-circle" style="font-size: 3rem; color: #6c757d;"></i>
+              <p class="mt-3">Nenhuma parcela encontrada</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Confirmação de ações -->
+<p-confirmDialog></p-confirmDialog>
+

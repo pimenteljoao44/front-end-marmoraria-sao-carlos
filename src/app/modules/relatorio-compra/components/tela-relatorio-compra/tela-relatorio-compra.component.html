@@ -1,0 +1,81 @@
+<div class="relatorio-compra-container">
+  <p-panel header="Relatório de Compras" styleClass="p-shadow-5">
+    <p-panel header="Escolha os filtros abaixo para geração do relatório">
+      <form [formGroup]="relatorioCompraForm">
+        <div class="p-grid p-justify-center">
+
+          <div class="p-col-12 p-md-4">
+            <div class="p-field">
+              <div class="field-checkbox">
+                <input type="checkbox" id="checkboxFornecedor" (change)="toggleField('fornecedor')" />
+                <label for="checkboxFornecedor">Fornecedor</label>
+              </div>
+              <div id="fornecedor" style="display: none;">
+                <p-autoComplete
+                  id="fornecedor"
+                  formControlName="fornecedorNome"
+                  [suggestions]="fornecedores"
+                  (completeMethod)="searchFornecedores($event)"
+                  (onSelect)="onFornecedorSelect($event)"
+                  field="nome"
+                  [style]="{ width: '100%' }"
+                ></p-autoComplete>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-4">
+            <div class="p-field">
+              <div class="field-checkbox">
+                <input type="checkbox" id="checkboxDataInicialCompra" (change)="toggleField('dataInicial')" />
+                <label for="checkboxDataInicialCompra">Data Inicial</label>
+              </div>
+              <div id="dataInicial" style="display: none;">
+                <input id="dataInicialCompra" pInputText type="date" formControlName="dataInicial" />
+              </div>
+            </div>
+          </div>
+
+
+          <div class="p-col-12 p-md-4">
+            <div class="p-field">
+              <div class="field-checkbox">
+                <input type="checkbox" id="checkboxDataFinalCompra" (change)="toggleField('dataFinal')" />
+                <label for="checkboxDataFinalCompra">Data Final</label>
+              </div>
+              <div id="dataFinal" style="display: none;"> <!-- Ajuste para id="dataFinal" -->
+                <input id="dataFinalCompra" pInputText type="date" formControlName="dataFinal" />
+              </div>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-4">
+            <div class="p-field">
+              <div class="field-checkbox">
+                <input type="checkbox" id="checkboxFormaPagamentoCompra" (change)="toggleField('formaPagamento')" />
+                <label for="checkboxFormaPagamentoCompra">Forma de Pagamento</label>
+              </div>
+              <div id="formaPagamento" style="display: none;"> <!-- Ajuste para id="formaPagamento" -->
+                <p-dropdown
+                  styleClass="w-full"
+                  [options]="allFormasPagamento"
+                  placeholder="Selecione a forma de pagamento"
+                  formControlName="formaPagamento"
+                  optionLabel="nome"
+                  optionValue="label"
+                  (onChange)="onFormaPagamentoChange($event.value)"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-col-12">
+            <div class="button-container">
+              <button pButton type="button" label="Gerar Relatório" icon="pi pi-file" class="p-button-rounded p-button-info" (click)="gerarRelatorioDeCompras()"></button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </p-panel>
+  </p-panel>
+</div>

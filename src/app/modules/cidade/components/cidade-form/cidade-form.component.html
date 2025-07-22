@@ -1,0 +1,79 @@
+<!-- FORMULÁRIO DE NOVO CIDADE -->
+<div *ngIf="cidadeAction.event.action === addCidadeAction">
+  <form [formGroup]="addCidadeForm" (ngSubmit)="handleSubmitAddCidade()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !addCidadeForm.get('nome')?.valid &&
+            addCidadeForm.get('nome')?.touched
+        }"
+      />
+      <div formGroupName="estado">
+        <p-dropdown
+          styleClass="w-full"
+          [options]="estados"
+          placeholder="Selecione o estado"
+          formControlName="id"
+          optionLabel="nome"
+          optionValue="id"
+          (onChange)="onEstadoChange($event.value)"
+          [ngClass]="{
+            'p-invalid':
+              !addCidadeForm.get('estado')?.valid &&
+              addCidadeForm.get('estado')?.touched
+          }"
+        ></p-dropdown>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR CIDADE -->
+<div *ngIf="cidadeAction.event.action === editCidadeAction">
+  <form [formGroup]="editCidadeForm" (ngSubmit)="handleSubmitEditCidade()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !editCidadeForm.get('nome')?.valid &&
+            editCidadeForm.get('nome')?.touched
+        }"
+      />
+      <div formGroupName="estado">
+        <p-dropdown
+          styleClass="w-full"
+          [options]="estados"
+          placeholder="Selecione o estado"
+          formControlName="id"
+          optionLabel="nome"
+          optionValue="id"
+          (onChange)="onEstadoChange($event.value)"
+          [ngClass]="{
+            'p-invalid':
+              !editCidadeForm.get('estado')?.valid &&
+              editCidadeForm.get('estado')?.touched
+          }"
+        ></p-dropdown>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

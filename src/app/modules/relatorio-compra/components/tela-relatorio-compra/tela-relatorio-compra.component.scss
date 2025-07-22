@@ -1,0 +1,61 @@
+.relatorio-compra-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  padding: 20px;
+  background-color: #101111; /* Cor de fundo escura */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra mais suave */
+}
+
+.p-panel {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 10px;
+  background-color: #272525; /* Fundo branco do painel */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.p-field {
+  background: #2b2929; /* Fundo claro para campos de entrada */
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="date"],
+.p-dropdown {
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #201e1e; /* Borda sutíl */
+  background-color: #1d1c1c; /* Fundo dos campos de input */
+  padding: 10px; /* Padding para inputs */
+}
+
+input[type="checkbox"] {
+  margin-right: 10px; /* Margem à direita para checkbox */
+}
+
+button {
+  width: 100%;
+  margin-bottom: 15px;
+  transition: background-color 0.3s; /* Transição suave ao passar o mouse */
+}
+
+button:hover {
+  background-color: #007ad9; /* Cor de fundo ao passar o mouse */
+  color: rgb(39, 37, 37); /* Cor do texto ao passar o mouse */
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,9 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<app-venda-table
+  [vendas]="vendasList"
+  (vendaEvent)="handleVendaAction($event)"
+></app-venda-table>
+
+<p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>

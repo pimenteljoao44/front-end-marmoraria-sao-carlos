@@ -1,0 +1,137 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Cidades">
+      <p-table
+        #usersTable
+        [value]="cidades"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['nome','login','nivelAcesso']"
+        [tableStyle]="{'min-width':'75rem'}"
+        [(selection)]="citySelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} cidades"
+      >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                ID
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="id"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="id"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="nome">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Nome
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="nome"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="nome"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="estado">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Estado
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="estado"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="estado"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+
+          <th>
+            <div class="flex justify-content-center">
+              <p-button
+                styleClass="p-button-info"
+                icon="pi pi-plus"
+                label="Novo"
+                pTooltip="Cadastrar nova cidade"
+                tooltipPosition="top"
+                (onClick)="handleCidadeEvent(createCidadeEvent)"
+              >
+              </p-button>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-city>
+        <tr>
+          <td>{{ city?.cidId }}</td>
+          <td>{{  city?.nome }}</td>
+          <td>{{  city?.estado.nome }}</td>
+          <td>
+            <div
+              class="flex justify-content-center gap-3 align-itens-center align-content-center"
+            >
+              <button
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Ciadade"
+                tooltipPosition="top"
+                (click)="handleCidadeEvent(editCidadeEvent,city?.cidId)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Excluir Ciadade"
+                tooltipPosition="top"
+                (click)="handleDeleteCidade(city?.cidId,city?.nome)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-sucess"
+                pTooltip="Visualizar Cidade"
+                tooltipPosition="top"
+                (click)="handleCidadeEvent(viewCidadeEvent, city?.cidId)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    </p-card>
+  </div>
+</div>
+

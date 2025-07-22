@@ -1,0 +1,103 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<div class="grid">
+  <div class="col-12">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center justify-content-between">
+          <h4 class="m-0">Contas a Receber</h4>
+          <p-button
+            icon="pi pi-plus"
+            label="Nova Conta a Receber"
+            (onClick)="openAddContaReceberDialog()"
+          ></p-button>
+        </div>
+      </ng-template>
+
+      <p-table
+        #dt
+        [value]="contasReceber"
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [globalFilterFields]="[
+          'descricao',
+          'valor',
+          'dataVencimento',
+          'status'
+        ]"
+        [loading]="loading"
+      >
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-end">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="descricao">Descrição <p-sortIcon field="descricao"></p-sortIcon></th>
+            <th pSortableColumn="valor">Valor <p-sortIcon field="valor"></p-sortIcon></th>
+            <th pSortableColumn="dataVencimento">Data Vencimento <p-sortIcon field="dataVencimento"></p-sortIcon></th>
+            <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+            <th>Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-conta>
+          <tr [ngClass]="{'bg-red-50': isVencida(conta.dataVencimento) && conta.status === 'PENDENTE'}">
+            <td>{{ conta.descricao }}</td>
+            <td>{{ conta.valor | currency: 'BRL' }}</td>
+            <td>{{ conta.dataVencimento | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag
+                [value]="conta.status"
+                [severity]="getSeverity(conta.status)"
+              ></p-tag>
+            </td>
+            <td>
+              <p-button
+                *ngIf="conta.status === 'PENDENTE'"
+                icon="pi pi-pencil"
+                styleClass="p-button-rounded p-button-text"
+                (onClick)="openEditContaReceberDialog(conta)"
+                [disabled]="conta.status === 'RECEBIDA'"
+              ></p-button>
+              <p-button
+                *ngIf="conta.status === 'PENDENTE'"
+                icon="pi pi-check"
+                styleClass="p-button-rounded p-button-text p-button-success"
+                (onClick)="receberConta(conta)"
+                pTooltip="Marcar como Recebida"
+                tooltipPosition="top"
+              ></p-button>
+              <p-button
+                *ngIf="conta.status === 'PENDENTE'"
+                icon="pi pi-trash"
+                styleClass="p-button-rounded p-button-text p-button-danger"
+                (onClick)="deleteConta(conta)"
+                [disabled]="conta.status === 'RECEBIDA'"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptyMessage">
+          <tr>
+            <td colspan="5">Nenhuma conta a receber encontrada.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

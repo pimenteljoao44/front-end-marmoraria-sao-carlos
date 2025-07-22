@@ -1,0 +1,11 @@
+export enum TipoProjeto {
+  BANHEIRO = 'BANHEIRO',
+  COZINHA = 'COZINHA',
+  CUBA = 'CUBA',
+  ESCADA = 'ESCADA',
+  BANCADA = 'BANCADA',
+  OUTROS = 'OUTROS',
+  PIA = 'PIA',
+  LAREIRA = 'LAREIRA',
+  SOLEIRA = 'SOLEIRA'
+}

@@ -1,0 +1,65 @@
+<!-- FORMULÁRIO DE NOVO ESTADO -->
+<div *ngIf="estadoAction.event.action === addEstadoAction">
+  <form [formGroup]="addEstadoForm" (ngSubmit)="handleSubmitAddEstado()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !addEstadoForm.get('nome')?.valid &&
+            addEstadoForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Sigla"
+        formControlName="sigla"
+        [ngClass]="{
+          'p-invalid':
+            !addEstadoForm.get('sigla')?.valid &&
+            addEstadoForm.get('sigla')?.touched
+        }"
+      />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR ESTADO -->
+<div *ngIf="estadoAction.event.action === editEstadoAction">
+  <form [formGroup]="editEstadoForm" (ngSubmit)="handleSubmitEditEstado()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !editEstadoForm.get('nome')?.valid &&
+            editEstadoForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Sigla"
+        formControlName="sigla"
+        [ngClass]="{
+          'p-invalid':
+            !editEstadoForm.get('sigla')?.valid &&
+            editEstadoForm.get('sigla')?.touched
+        }"
+      />
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

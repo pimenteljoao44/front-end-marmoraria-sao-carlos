@@ -1,0 +1,140 @@
+<!-- FORMULÁRIO DE NOVO PRODUTO -->
+<div *ngIf="produtoAction?.event?.action === addProdutoAction">
+  <form [formGroup]="addProductForm" (ngSubmit)="handleSubmitAddProduct()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <!-- Nome do produto -->
+      Nome:
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !addProductForm.get('nome')?.valid &&
+            addProductForm.get('nome')?.touched
+        }"
+      />
+      <!-- Grupo do produto -->
+      <div formGroupName="grupo">
+        <p-dropdown
+          styleClass="w-full"
+          [options]="grupos"
+          placeholder="Selecione o Grupo"
+          formControlName="id"
+          optionLabel="nome"
+          optionValue="id"
+          (onChange)="onGroupChange($event.value)"
+          [ngClass]="{
+            'p-invalid':
+              !addProductForm.get('grupo')?.valid &&
+              addProductForm.get('grupo')?.touched
+          }"
+        ></p-dropdown>
+      </div>
+      <!-- Preço do produto -->
+      Preço:
+      <input
+        pInputText
+        placeholder="Preço"
+        formControlName="preco"
+        [ngClass]="{
+          'p-invalid':
+            addProductForm.get('preco')?.valid &&
+            addProductForm.get('preco')?.touched
+        }"
+      />
+      <!-- Descrição do produto -->
+      Estoque:
+      <input
+        pInputText
+        placeholder="Estoque"
+        formControlName="estoque"
+        [ngClass]="{
+          'p-invalid':
+            !addProductForm.get('estoque')?.valid &&
+            addProductForm.get('estoque')?.touched
+        }"
+      />
+
+      <!-- Ativo --->
+      Ativo:
+      <p-checkbox formControlName="ativo" [binary]="true" inputId="binary" />
+
+      <div
+        class="flex flex-row justify-content-center align-content-center align-items-center m-1"
+      >
+        <p-button type="submit" label="Concluir"></p-button>
+      </div>
+    </div>
+  </form>
+</div>
+<!-- FORMULÁRIO DE EDITAR PRODUTO -->
+<div *ngIf="produtoAction.event?.action === editProductAction">
+  <form [formGroup]="editProductform" (ngSubmit)="handleSubmitEditProduct()">
+    <div class="card flex flex-column md:flex-column gap-3">
+      <!-- Nome do produto -->
+      Nome:
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            !editProductform.get('nome')?.valid &&
+            editProductform.get('nome')?.touched
+        }"
+      />
+      <!-- Grupo do produto -->
+      <div formGroupName="grupo">
+        <p-dropdown
+          styleClass="w-full"
+          [options]="grupos"
+          placeholder="Selecione o Grupo"
+          formControlName="id"
+          optionLabel="nome"
+          optionValue="id"
+          (onChange)="onGroupChange($event.value)"
+          [ngClass]="{
+            'p-invalid':
+              !editProductform.get('grupo')?.valid &&
+              editProductform.get('grupo')?.touched
+          }"
+        ></p-dropdown>
+      </div>
+      <!-- Preço do produto -->
+      Preço:
+      <input
+        pInputText
+        placeholder="Preço"
+        formControlName="preco"
+        [ngClass]="{
+          'p-invalid':
+            !editProductform.get('preco')?.valid &&
+            editProductform.get('preco')?.touched
+        }"
+      />
+      <!-- Descrição do produto -->
+      Estoque:
+      <input
+        pInputText
+        placeholder="Estoque"
+        formControlName="estoque"
+        [ngClass]="{
+          'p-invalid':
+            !editProductform.get('estoque')?.valid &&
+            editProductform.get('estoque')?.touched
+        }"
+      />
+
+      <!-- Ativo --->
+      Ativo:
+      <p-checkbox formControlName="ativo" [binary]="true" inputId="binary" />
+
+      <div
+        class="flex flex-row justify-content-center align-content-center align-items-center m-1"
+      >
+        <p-button type="submit" label="Concluir"></p-button>
+      </div>
+    </div>
+  </form>
+</div>

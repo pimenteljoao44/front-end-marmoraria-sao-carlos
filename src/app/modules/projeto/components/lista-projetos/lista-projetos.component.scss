@@ -1,0 +1,135 @@
+.status-info {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-success {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.status-warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-help {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-danger {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+::ng-deep .p-datatable {
+  .p-datatable-thead > tr > th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+  }
+
+  .p-datatable-tbody > tr:hover {
+    background: #f8f9fa;
+  }
+
+  .p-rowgroup-header {
+    background: #e9ecef;
+  }
+}
+
+::ng-deep .p-chip {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.projeto-actions {
+  .p-button {
+    margin-right: 0.25rem;
+  }
+}
+
+.medidas-grid {
+  .medida-card {
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.financeiro-grid {
+  .valor-card {
+    border-left: 4px solid;
+
+    &.materiais {
+      border-left-color: #2196F3;
+    }
+
+    &.mao-obra {
+      border-left-color: #4CAF50;
+    }
+
+    &.margem {
+      border-left-color: #FF9800;
+    }
+
+    &.total {
+      border-left-color: #9C27B0;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .projeto-actions {
+    display: flex;
+    flex-direction: column;
+
+    .p-button {
+      margin-bottom: 0.25rem;
+      margin-right: 0;
+    }
+  }
+
+  .financeiro-grid .p-col-12 {
+    margin-bottom: 1rem;
+  }
+}
+
+// Loading states
+.p-datatable-loading-overlay {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+::ng-deep .p-progress-spinner {
+  width: 50px;
+  height: 50px;
+}
+
+// Custom scrollbar for expanded content
+.p-tabview-panels {
+  max-height: 400px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}

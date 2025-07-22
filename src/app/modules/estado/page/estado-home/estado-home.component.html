@@ -1,0 +1,8 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+<app-estado-table
+  [estados]="estadoList"
+  (estadoEvent)="handleEstadoAction($event)"
+  (deleteEstadoEvent)="handleDeleteEstadoAction($event)"
+></app-estado-table>
+<p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>

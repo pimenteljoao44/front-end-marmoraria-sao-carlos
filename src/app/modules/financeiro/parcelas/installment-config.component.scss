@@ -1,0 +1,227 @@
+.installment-config {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8f9fa;
+  margin-bottom: 1rem;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  .form-check {
+    display: flex;
+    align-items: center;
+    
+    .form-check-label {
+      margin-left: 0.5rem;
+      font-size: 1.1rem;
+      color: #495057;
+    }
+  }
+  
+  .valor-total {
+    .label {
+      color: #6c757d;
+      margin-right: 0.5rem;
+    }
+    
+    .value {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #28a745;
+    }
+  }
+}
+
+.config-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  
+  label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .form-text {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  
+  .invalid-feedback {
+    display: block;
+    font-size: 0.75rem;
+    color: #dc3545;
+    margin-top: 0.25rem;
+  }
+}
+
+.parcelas-preview {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+  
+  .preview-title {
+    color: #495057;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    
+    i {
+      margin-right: 0.5rem;
+      color: #007bff;
+    }
+  }
+  
+  .preview-summary {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    
+    .summary-item {
+      .label {
+        color: #6c757d;
+        margin-right: 0.5rem;
+      }
+      
+      .value {
+        font-weight: 600;
+        color: #495057;
+      }
+    }
+  }
+  
+  .parcelas-table {
+    .table {
+      margin-bottom: 0;
+      
+      th {
+        background: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        border-top: none;
+        font-size: 0.875rem;
+      }
+      
+      td {
+        font-size: 0.875rem;
+        vertical-align: middle;
+      }
+    }
+    
+    .badge {
+      font-size: 0.75rem;
+      
+      &.badge-primary {
+        background-color: #007bff;
+      }
+    }
+  }
+}
+
+.single-payment-info {
+  .info-card {
+    display: flex;
+    align-items: center;
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 6px;
+    padding: 1rem;
+    
+    i {
+      font-size: 1.5rem;
+      color: #007bff;
+      margin-right: 1rem;
+    }
+    
+    .info-content {
+      strong {
+        color: #495057;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+      
+      p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Animações
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.config-form {
+  animation: slideDown 0.3s ease-out;
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .config-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .preview-summary {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .config-form {
+    padding: 1rem;
+    
+    .row > div {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// Customização do PrimeNG
+::ng-deep {
+  .p-inputnumber {
+    width: 100%;
+    
+    .p-inputnumber-input {
+      width: 100%;
+    }
+  }
+  
+  .p-calendar {
+    width: 100%;
+    
+    .p-inputtext {
+      width: 100%;
+    }
+  }
+  
+  .p-checkbox {
+    .p-checkbox-box {
+      border-color: #007bff;
+      
+      &.p-highlight {
+        background: #007bff;
+        border-color: #007bff;
+      }
+    }
+  }
+}
+

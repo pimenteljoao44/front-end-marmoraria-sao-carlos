@@ -1,0 +1,151 @@
+<div class="installment-config">
+  <div class="config-header">
+    <div class="form-check">
+      <p-checkbox
+        [(ngModel)]="isParcelado"
+        (onChange)="onParceladoChange()"
+        inputId="parcelado">
+      </p-checkbox>
+      <label for="parcelado" class="form-check-label">
+        <strong>Parcelar pagamento</strong>
+      </label>
+    </div>
+
+    <div class="valor-total" *ngIf="valorTotal > 0">
+      <span class="label">Valor Total:</span>
+      <span class="value">{{ formatCurrency(valorTotal) }}</span>
+    </div>
+  </div>
+
+  <div class="config-form" *ngIf="isParcelado" [@slideDown]>
+    <form [formGroup]="installmentForm">
+      <div class="row">
+        <div class="col-md-3">
+          <label for="numeroParcelas">Número de Parcelas *</label>
+          <p-inputNumber
+            id="numeroParcelas"
+            formControlName="numeroParcelas"
+            [min]="2"
+            [max]="24"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            styleClass="w-100">
+          </p-inputNumber>
+          <small class="form-text text-muted">Máximo 24 parcelas</small>
+          <div class="invalid-feedback" *ngIf="numeroParcelas?.invalid && numeroParcelas?.touched">
+            <div *ngIf="numeroParcelas?.errors?.['required']">Número de parcelas é obrigatório</div>
+            <div *ngIf="numeroParcelas?.errors?.['min']">Mínimo 2 parcelas</div>
+            <div *ngIf="numeroParcelas?.errors?.['max']">Máximo 24 parcelas</div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="intervaloDias">Intervalo (dias) *</label>
+          <p-inputNumber
+            id="intervaloDias"
+            formControlName="intervaloDias"
+            [min]="1"
+            [max]="365"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            styleClass="w-100">
+          </p-inputNumber>
+          <small class="form-text text-muted">Dias entre parcelas</small>
+          <div class="invalid-feedback" *ngIf="intervaloDias?.invalid && intervaloDias?.touched">
+            <div *ngIf="intervaloDias?.errors?.['required']">Intervalo é obrigatório</div>
+            <div *ngIf="intervaloDias?.errors?.['min']">Mínimo 1 dia</div>
+            <div *ngIf="intervaloDias?.errors?.['max']">Máximo 365 dias</div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="dataPrimeiroVencimento">Primeiro Vencimento *</label>
+          <p-calendar
+            id="dataPrimeiroVencimento"
+            formControlName="dataPrimeiroVencimento"
+            dateFormat="dd/mm/yy"
+            [minDate]="today"
+            placeholder="Selecione a data"
+            styleClass="w-100">
+          </p-calendar>
+          <div class="invalid-feedback" *ngIf="dataPrimeiroVencimento?.invalid && dataPrimeiroVencimento?.touched">
+            <div *ngIf="dataPrimeiroVencimento?.errors?.['required']">Data é obrigatória</div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="observacoes">Observações</label>
+          <textarea
+            id="observacoes"
+            formControlName="observacoes"
+            class="form-control"
+            rows="2"
+            placeholder="Observações sobre o parcelamento">
+          </textarea>
+        </div>
+      </div>
+    </form>
+
+    <!-- Preview das Parcelas -->
+    <div class="parcelas-preview" *ngIf="parcelas.length > 0">
+      <h5 class="preview-title">
+        <i class="pi pi-eye"></i>
+        Preview das Parcelas
+      </h5>
+
+      <div class="preview-summary">
+        <div class="summary-item">
+          <span class="label">Total de Parcelas:</span>
+          <span class="value">{{ parcelas.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Valor Total:</span>
+          <span class="value">{{ formatCurrency(getValorTotalParcelas()) }}</span>
+        </div>
+      </div>
+
+      <div class="parcelas-table">
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Parcela</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let parcela of parcelas">
+                <td>
+                  <span class="badge badge-primary">{{ parcela.descricao }}</span>
+                </td>
+                <td>
+                  <strong>{{ formatCurrency(parcela.valor) }}</strong>
+                </td>
+                <td>{{ formatDate(parcela.dataVencimento) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informação quando não parcelado -->
+  <div class="single-payment-info" *ngIf="!isParcelado && valorTotal > 0">
+    <div class="info-card">
+      <i class="pi pi-info-circle"></i>
+      <div class="info-content">
+        <strong>Pagamento à vista</strong>
+        <p>O valor de {{ formatCurrency(valorTotal) }} será pago em uma única parcela.</p>
+      </div>
+    </div>
+  </div>
+</div>
+

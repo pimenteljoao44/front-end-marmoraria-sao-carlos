@@ -1,0 +1,172 @@
+<div class="grid">
+  <div class="col-12">
+    <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Usuarios">
+      <p-table
+        #usersTable
+        [value]="usuarios"
+        [rows]="10"
+        [paginator]="true"
+        [responsive]="true"
+        [globalFilterFields]="['nome','login','nivelAcesso']"
+        [tableStyle]="{'min-width':'75rem'}"
+        [(selection)]="userSelected"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+        currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} usuários"
+      >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                ID
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="id"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="id"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="nome">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Nome
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="nome"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="nome"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="login">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Login
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="login"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="login"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="email">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Email
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="email"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="email"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="nivelAcesso">
+            <div class="flex justify-content-between align-itens-center">
+              <div class="flex justify-content-between align-itens-center">
+                Nivel de Acesso
+              </div>
+              <div class="flex justify-content-between align-itens-center">
+                <p-sortIcon field="nivelAcesso"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="nivelAcesso"
+                  display="menu"
+                  matchMode="contains"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th>
+            <div class="flex justify-content-center gap-2">
+              <p-button
+                styleClass="p-button-sm p-button-info"
+                icon="pi pi-plus"
+                pTooltip="Cadastrar novo usuário"
+                tooltipPosition="top"
+                (onClick)="handleUserEvent(createUserEvent)">
+              </p-button>
+
+              <p-button
+                styleClass="p-button-sm p-button-success"
+                icon="pi pi-file-pdf"
+                pTooltip="Exportar lista para PDF"
+                tooltipPosition="top"
+                (onClick)="exportPDF()">
+              </p-button>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user?.id }}</td>
+          <td>{{  user?.nome }}</td>
+          <td>{{  user?.login }}</td>
+          <td>{{ user?.email}}</td>
+          <td>{{ user?.nivelAcesso}}</td>
+          <td>
+            <div
+              class="flex justify-content-center gap-3 align-itens-center align-content-center"
+            >
+              <button
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-warning"
+                pTooltip="Editar Usuario"
+                tooltipPosition="top"
+                (click)="handleUserEvent(editUserEvent,user?.id)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger"
+                pTooltip="Excluir Usuario"
+                tooltipPosition="top"
+                (click)="handleDeleteUser(user?.id,user?.nome)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    </p-card>
+  </div>
+</div>

@@ -1,0 +1,343 @@
+<!-- FORMULÁRIO DE NOVO FORNECEDOR -->
+<div *ngIf="fornecedorAction.event.action === addFornecedorAction">
+  <form
+    [formGroup]="addFornecedorForm"
+    (ngSubmit)="handleSubmitAddFornecedor()"
+  >
+    <div class="card flex flex-column md:flex-column gap-3">
+      <div
+        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <label for="pessoaFisica" class="mr-3">Pessoa Física</label>
+        <p-radioButton
+          class="mr-5 p-radiobutton"
+          inputId="pessoaFisica"
+          name="tipoPessoa"
+          value="PESSOA_FISICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(addFornecedorForm)"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('tipoPessoa')?.invalid &&
+              addFornecedorForm.get('tipoPessoa')?.touched
+          }"
+        ></p-radioButton>
+        <label for="pessoaJuridica" class="mr-3">Pessoa Jurídica</label>
+        <p-radioButton
+          inputId="pessoaJuridica"
+          name="tipoPessoa"
+          class="p-radiobutton"
+          value="PESSOA_JURIDICA"
+          formControlName="tipoPessoa"
+          (onClick)="onTipoPessoaChange(addFornecedorForm)"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('tipoPessoa')?.invalid &&
+              addFornecedorForm.get('tipoPessoa')?.touched
+          }"
+        ></p-radioButton>
+      </div>
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            addFornecedorForm.get('nome')?.invalid &&
+            addFornecedorForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Telefone"
+        formControlName="telefone"
+        [ngClass]="{
+          'p-invalid':
+            addFornecedorForm.get('telefone')?.invalid &&
+            addFornecedorForm.get('telefone')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="CPF"
+        *ngIf="addFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="cpf"
+        (input)="formatarCPF($event, addFornecedorForm)"
+        (keyup)="formatarCPF($event, addFornecedorForm)"
+        (keydown)="formatarCPF($event, addFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            addFornecedorForm.get('cpf')?.invalid &&
+            addFornecedorForm.get('cpf')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="RG"
+        *ngIf="addFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="rg"
+        (input)="formatarRG($event, addFornecedorForm)"
+        (keyup)="formatarRG($event, addFornecedorForm)"
+        (keydown)="formatarRG($event, addFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            addFornecedorForm.get('rg')?.invalid &&
+            addFornecedorForm.get('rg')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="CNPJ"
+        *ngIf="addFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
+        formControlName="cnpj"
+        (input)="formatarCNPJ($event, addFornecedorForm)"
+        (keyup)="formatarCNPJ($event, addFornecedorForm)"
+        (keydown)="formatarCNPJ($event, addFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            addFornecedorForm.get('cnpj')?.invalid &&
+            addFornecedorForm.get('cnpj')?.touched
+        }"
+      />
+
+      <div formGroupName="endereco">
+        <input
+          pInputText
+          placeholder="Rua"
+          formControlName="rua"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('endereco.rua')?.invalid &&
+              addFornecedorForm.get('endereco.rua')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Número"
+          formControlName="numero"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('endereco.numero')?.invalid &&
+              addFornecedorForm.get('endereco.numero')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Complemento"
+          formControlName="complemento"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('endereco.complemento')?.invalid &&
+              addFornecedorForm.get('endereco.complemento')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Bairro"
+          formControlName="bairro"
+          [ngClass]="{
+            'p-invalid':
+              addFornecedorForm.get('endereco.bairro')?.invalid &&
+              addFornecedorForm.get('endereco.bairro')?.touched
+          }"
+        />
+        <div formGroupName="estado">
+          <p-autoComplete
+            [suggestions]="filteredEstados"
+            (completeMethod)="filterEstados($event)"
+            [dropdown]="true"
+            formControlName="nome"
+            field="nome"
+            optionLabel="nome"
+            styleClass="w-full"
+            placeholder="Selecione um estado"
+            (onSelect)="onEstadoChange($event, addFornecedorForm)"
+            [ngClass]="{
+              'p-invalid':
+                addFornecedorForm.get('endereco.estado.nome')?.invalid &&
+                addFornecedorForm.get('endereco.estado.nome')?.touched
+            }"
+          ></p-autoComplete>
+        </div>
+        <div formGroupName="cidade">
+          <p-autoComplete
+            formControlName="id"
+            [suggestions]="cidadesFiltradas"
+            (completeMethod)="searchCidades($event)"
+            field="nome"
+            styleClass="w-full"
+            placeholder="Selecione uma cidade"
+          ></p-autoComplete>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- FORMULÁRIO DE EDITAR FORNECEDOR -->
+<div *ngIf="fornecedorAction.event.action === editFornecedorAction">
+  <form
+    [formGroup]="editFornecedorForm"
+    (ngSubmit)="handleSubmitEditFornecedor()"
+  >
+    <div class="card flex flex-column md:flex-column gap-3">
+      <div
+        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+      </div>
+      <input
+        pInputText
+        placeholder="Nome"
+        formControlName="nome"
+        [ngClass]="{
+          'p-invalid':
+            editFornecedorForm.get('nome')?.invalid &&
+            editFornecedorForm.get('nome')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="Telefone"
+        formControlName="telefone"
+        [ngClass]="{
+          'p-invalid':
+            editFornecedorForm.get('telefone')?.invalid &&
+            editFornecedorForm.get('telefone')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="CPF"
+        *ngIf="editFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="cpf"
+        (input)="formatarCPF($event, editFornecedorForm)"
+        (keyup)="formatarCPF($event, editFornecedorForm)"
+        (keydown)="formatarCPF($event, editFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            editFornecedorForm.get('cpf')?.invalid &&
+            editFornecedorForm.get('cpf')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="RG"
+        *ngIf="editFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        formControlName="rg"
+        (input)="formatarRG($event, editFornecedorForm)"
+        (keyup)="formatarRG($event, editFornecedorForm)"
+        (keydown)="formatarRG($event, editFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            editFornecedorForm.get('rg')?.invalid &&
+            editFornecedorForm.get('rg')?.touched
+        }"
+      />
+      <input
+        pInputText
+        placeholder="CNPJ"
+        *ngIf="
+          editFornecedorForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'
+        "
+        formControlName="cnpj"
+        (input)="formatarCNPJ($event, editFornecedorForm)"
+        (keyup)="formatarCNPJ($event, editFornecedorForm)"
+        (keydown)="formatarCNPJ($event, editFornecedorForm)"
+        [ngClass]="{
+          'p-invalid':
+            editFornecedorForm.get('cnpj')?.invalid &&
+            editFornecedorForm.get('cnpj')?.touched
+        }"
+      />
+
+      <div formGroupName="endereco">
+        <input
+          pInputText
+          placeholder="Rua"
+          formControlName="rua"
+          [ngClass]="{
+            'p-invalid':
+              editFornecedorForm.get('endereco.rua')?.invalid &&
+              editFornecedorForm.get('endereco.rua')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Número"
+          formControlName="numero"
+          [ngClass]="{
+            'p-invalid':
+              editFornecedorForm.get('endereco.numero')?.invalid &&
+              editFornecedorForm.get('endereco.numero')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Complemento"
+          formControlName="complemento"
+          [ngClass]="{
+            'p-invalid':
+              editFornecedorForm.get('endereco.complemento')?.invalid &&
+              editFornecedorForm.get('endereco.complemento')?.touched
+          }"
+        />
+        <input
+          pInputText
+          placeholder="Bairro"
+          formControlName="bairro"
+          [ngClass]="{
+            'p-invalid':
+              editFornecedorForm.get('endereco.bairro')?.invalid &&
+              editFornecedorForm.get('endereco.bairro')?.touched
+          }"
+        />
+        <div formGroupName="estado">
+          <p-autoComplete
+            [suggestions]="filteredEstados"
+            (completeMethod)="filterEstados($event)"
+            [dropdown]="true"
+            formControlName="nome"
+            field="nome"
+            optionLabel="nome"
+            styleClass="w-full"
+            placeholder="Selecione um estado"
+            (onSelect)="onEstadoChange($event, editFornecedorForm)"
+            [ngClass]="{
+              'p-invalid':
+                editFornecedorForm.get('endereco.estado.nome')?.invalid &&
+                editFornecedorForm.get('endereco.estado.nome')?.touched
+            }"
+          ></p-autoComplete>
+        </div>
+        <div formGroupName="cidade">
+          <p-autoComplete
+            formControlName="nome"
+            [suggestions]="cidadesFiltradas"
+            (completeMethod)="searchCidades($event)"
+            (onSelect)="onCidadeSelect($event, editFornecedorForm)"
+            field="nome"
+            styleClass="w-full"
+            placeholder="Selecione uma cidade"
+            [ngClass]="{
+              'p-invalid':
+                editFornecedorForm.get('endereco.cidade.nome')?.invalid &&
+                editFornecedorForm.get('endereco.cidade.nome')?.touched
+            }"
+          ></p-autoComplete>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
+      >
+        <button type="submit" class="p-button">Concluir</button>
+      </div>
+    </div>
+  </form>
+</div>

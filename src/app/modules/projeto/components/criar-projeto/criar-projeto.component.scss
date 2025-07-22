@@ -1,0 +1,139 @@
+.projeto-tipo-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
+  }
+}
+
+.projeto-tipo-icon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.resumo-financeiro {
+  .p-card {
+    border-left: 4px solid;
+
+    &.materiais {
+      border-left-color: #2196F3;
+    }
+
+    &.mao-obra {
+      border-left-color: #4CAF50;
+    }
+
+    &.lucro {
+      border-left-color: #FF9800;
+    }
+
+    &.total {
+      border-left-color: #9C27B0;
+    }
+  }
+}
+
+.item-material {
+  border-left: 3px solid var(--primary-color);
+
+  .remove-item {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.materiais-sugeridos {
+  .material-card {
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.medidas-calculadas {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 8px;
+  padding: 1rem;
+
+  .calculo-item {
+    text-align: center;
+
+    .valor {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .label {
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .projeto-tipo-card {
+    margin-bottom: 1rem;
+  }
+
+  .resumo-financeiro .p-col-12 {
+    margin-bottom: 1rem;
+  }
+}
+
+// Loading states
+.loading-overlay {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+}
+
+// Form validation styles
+.ng-invalid.ng-touched {
+  border-color: #e74c3c !important;
+}
+
+.p-error {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+// Tab styles
+::ng-deep .p-tabview-nav li .p-tabview-nav-link {
+  font-weight: 500;
+}
+
+::ng-deep .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: var(--primary-color);
+}
