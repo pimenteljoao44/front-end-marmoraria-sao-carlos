@@ -71,7 +71,12 @@ const routes: Routes = [
     canActivate: [AuthGuardService]
   },
   {
-    path:'relatorio',
+    path: 'relatorios',
+    loadChildren: () => import('./modules/relatorios/relatorios.module').then((m) => m.RelatoriosModule),
+    canActivate: [AuthGuardService]
+  },
+  {
+    path:'relatorio-venda',
     loadChildren:() => import ('./modules/relatorioVenda/relatorio-venda.module').then((m) => m.RelatorioModule),
     canActivate: [AuthGuardService]
   },

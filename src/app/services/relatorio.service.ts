@@ -59,4 +59,48 @@ export class RelatorioService {
     );
   }
 
+  gerarRelatorioVendasPorClientePeriodo(filters: any): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/relatorios/vendas-por-cliente-periodo`,
+      filters,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
+  gerarRelatorioContasPagar(filters: any): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/relatorios/contas-pagar`,
+      filters,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
+  gerarRelatorioContasReceber(filters: any): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/relatorios/contas-receber`,
+      filters,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
+  gerarRelatorioComprasPorFornecedorPeriodo(filters: any): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/relatorios/compras-por-fornecedor-periodo`,
+      filters,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
 }

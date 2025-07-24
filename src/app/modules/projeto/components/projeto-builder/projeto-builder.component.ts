@@ -223,18 +223,31 @@ export class ProjetoBuilderComponent implements OnInit {
     });
   }
 
+  private validarFormularioParaCalculoBasico(): boolean {
+    const tipoProjeto = this.projetoForm.get('tipoProjeto')?.value;
+    const clienteId = this.projetoForm.get('clienteId')?.value;
+    const medidas = this.projetoForm.get('medidas')?.value;
+
+    return tipoProjeto != null &&
+      clienteId != null &&
+      medidas?.profundidade > 0 &&
+      medidas?.largura > 0 &&
+      this.itensFormArray.length > 0;
+  }
+
   private setupFormWatchers(): void {
     let isUpdating = false;
-
     this.projetoForm.get('tipoProjeto')?.valueChanges.pipe(
       takeUntil(this.destroy$),
-      debounceTime(300) // Debounce para evitar múltiplas chamadas rápidas
+      debounceTime(300)
     ).subscribe((tipo) => {
       if (tipo && !isUpdating) {
         isUpdating = true;
         this.carregarMateriaisSugeridos();
         this.updateStepCompletion('tipo', true);
-
+        if (this.validarFormularioParaCalculoBasico()) {
+          this.calcularOrcamentoAutomatico();
+        }
         setTimeout(() => {
           this.autoAdvanceStep();
           isUpdating = false;
@@ -249,7 +262,6 @@ export class ProjetoBuilderComponent implements OnInit {
       if (clienteId && !isUpdating) {
         isUpdating = true;
         this.updateStepCompletion('cliente', true);
-
         setTimeout(() => {
           this.autoAdvanceStep();
           isUpdating = false;
@@ -265,17 +277,14 @@ export class ProjetoBuilderComponent implements OnInit {
       })
     ).subscribe(() => {
       if (isUpdating) return;
-
       isUpdating = true;
-
       try {
         this.calcularArea();
 
-        setTimeout(() => {
-          if (!isUpdating) return;
+        if (this.validarFormularioParaCalculoBasico()) {
           this.calcularOrcamentoAutomatico();
-          isUpdating = false;
-        }, 100);
+        }
+        isUpdating = false;
       } catch (error) {
         console.error('Erro no watcher de medidas:', error);
         isUpdating = false;
@@ -288,10 +297,10 @@ export class ProjetoBuilderComponent implements OnInit {
     ).subscribe(() => {
       if (!isUpdating) {
         isUpdating = true;
-        setTimeout(() => {
-          this.calcularTotais();
-          isUpdating = false;
-        }, 50);
+        if (this.validarFormularioParaCalculoBasico()) {
+          this.calcularOrcamentoAutomatico();
+        }
+        isUpdating = false;
       }
     });
 
@@ -301,11 +310,15 @@ export class ProjetoBuilderComponent implements OnInit {
     ).subscribe(() => {
       if (!isUpdating) {
         isUpdating = true;
-        setTimeout(() => {
-          this.calcularTotais();
-          this.updateStepCompletion('materiais', this.itensFormArray.length > 0);
-          isUpdating = false;
-        }, 50);
+        this.valorMateriais = Math.max(0, this.itensFormArray.controls.reduce((total, control) => {
+          return total + (control.get('valorTotal')?.value || 0);
+        }, 0));
+
+        if (this.validarFormularioParaCalculoBasico()) {
+          this.calcularOrcamentoAutomatico();
+        }
+        this.updateStepCompletion('materiais', this.itensFormArray.length > 0);
+        isUpdating = false;
       }
     });
   }
@@ -769,14 +782,23 @@ export class ProjetoBuilderComponent implements OnInit {
 
   private atualizarValoresCalculados(resultado: any): void {
     this.valorMateriais = resultado.valorMateriais || 0;
-    this.valorMaoObra = resultado.valorMaoObra || 0;
-    this.valorTotal = resultado.valorTotal || 0;
+    this.valorMaoObra = resultado.valorMaoObra || 0; // Este virá correto do backend
+    this.valorTotal = resultado.valorTotal || 0;     // Este total virá correto do backend
+    if (resultado.margemLucro !== undefined) {
+      this.margemLucro = resultado.margemLucro;
+      this.projetoForm.get('margemLucro')?.setValue(this.margemLucro, {emitEvent: false});
+    }
+    this.updateStepCompletion('orcamento', this.valorTotal > 0);
   }
 
   private tratarErroCalculo(error: any): void {
-    this.calcularTotais(); // Fallback para cálculo local
+    console.warn('Erro ao calcular orçamento via backend:', error);
+    this.valorMateriais = 0;
+    this.valorMaoObra = 0;
+    this.valorTotal = 0;
+    this.updateStepCompletion('orcamento', false);
 
-    let errorMessage = 'Erro ao calcular orçamento';
+    let errorMessage = 'Erro ao calcular orçamento automaticamente.';
     if (error.error) {
       if (error.error.message) {
         errorMessage = error.error.message;
@@ -784,9 +806,7 @@ export class ProjetoBuilderComponent implements OnInit {
         errorMessage = error.error.errors.map((e: any) => e.message).join(', ');
       }
     }
-
     this.showToast('error', 'Erro no cálculo', errorMessage);
-    console.error('Erro detalhado:', error);
   }
 
   private showToast(severity: string, summary: string, detail: string): void {
@@ -795,10 +815,13 @@ export class ProjetoBuilderComponent implements OnInit {
   }
 
   salvar(): void {
-    this.calcularTotais();
+    if (!this.projetoForm.valid) {
+      this.showToast('error', 'Dados inválidos', 'Verifique os campos obrigatórios.');
+      return;
+    }
 
-    if (!this.projetoForm.valid || this.valorTotal <= 0) {
-      this.showToast('error', 'Dados inválidos', 'Verifique os campos obrigatórios e valores calculados');
+    if (this.valorTotal <= 0) {
+      this.showToast('error', 'Dados inválidos', 'Valor total não calculado. Verifique os dados e tente novamente.');
       return;
     }
 
@@ -828,7 +851,7 @@ export class ProjetoBuilderComponent implements OnInit {
         this.router.navigate(['/projetos']);
       },
       error: (error) => {
-        console.error('Erro completo:', error); // DEBUG
+        console.error('Erro completo ao salvar:', error);
         const errorMsg = error.error?.message ||
           error.error?.error ||
           `Erro ao ${this.isEditMode ? 'atualizar' : 'criar'} projeto`;
