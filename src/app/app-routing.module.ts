@@ -86,11 +86,6 @@ const routes: Routes = [
     canActivate: [AuthGuardService]
   },
   {
-    path:'ordem-de-servico',
-    loadChildren:() => import ('./modules/odem-de-servico/odem-de-servico.module').then((m) => m.OdemDeServicoModule),
-    canActivate: [AuthGuardService]
-  },
-  {
     path: 'projetos',
     loadChildren: () => import('./modules/projeto/projeto.module').then((m) => m.ProjetosModule),
     canActivate: [AuthGuardService]

@@ -6,7 +6,7 @@ export interface Projeto {
   nome: string;
   descricao?: string;
   clienteId: number;
-  cliente?: any; // Reusing existing Cliente entity
+  clienteNome?: string;
   tipoProjeto: TipoProjeto;
   status: StatusProjeto;
   dataInicio?: Date;

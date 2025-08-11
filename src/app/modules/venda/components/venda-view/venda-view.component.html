@@ -13,6 +13,7 @@
   </div>
   <div class="p-col">
     <strong>Tipo da venda:</strong> {{ getDescricaoVendaTipo(venda.vendaTipo) }}
+
   </div>
   <div class="p-col">
     <strong>Cliente:</strong> {{ venda.clienteNome }}
@@ -24,7 +25,7 @@
   <!-- Tabela dos Itens da Venda -->
   <div class="p-col">
     <strong>Itens da Venda:</strong>
-    <p-table *ngIf="venda.itensVenda" [value]="venda.itensVenda" [paginator]="true" [rows]="10" [responsive]="true" [stripedRows]="true">
+    <p-table *ngIf="venda.itensVenda" [value]="venda.itensVenda" [paginator]="true" [rows]="10" [responsive]="true">
       <ng-template pTemplate="header">
         <tr>
           <th>Produto</th>

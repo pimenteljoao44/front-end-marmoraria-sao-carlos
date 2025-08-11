@@ -111,5 +111,10 @@ export class ProjetoService {
       responseType: 'blob'
     });
   }
+  listarProjetosAprovadosPorCliente(clienteId: number): Observable<Projeto[]> {
+    console.log('ProjetoService: Buscando projetos aprovados para cliente', clienteId);
+
+    return this.httpClient.get<Projeto[]>(`${this.baseUrl}/cliente/${clienteId}`);
+  }
 
 }

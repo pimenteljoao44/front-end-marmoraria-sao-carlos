@@ -1,135 +1,231 @@
-.status-info {
-  background: #e3f2fd;
-  color: #1976d2;
+/* lista-projetos.component.scss */
+
+/* Estilos base */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+
+    h3 {
+      font-weight: 600;
+      color: #343a40;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+
+    &.border-bottom {
+      border-bottom: 1px solid #e9ecef;
+      background-color: #f8f9fa;
+    }
+  }
 }
 
-.status-success {
-  background: #e8f5e8;
-  color: #388e3c;
-}
-
-.status-warning {
-  background: #fff3e0;
-  color: #f57c00;
-}
-
-.status-help {
-  background: #f3e5f5;
-  color: #7b1fa2;
-}
-
-.status-danger {
-  background: #ffebee;
-  color: #d32f2f;
-}
-
-::ng-deep .p-datatable {
+/* Tabela */
+.p-datatable {
   .p-datatable-thead > tr > th {
     background: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
     font-weight: 600;
     color: #495057;
+    padding: 0.75rem 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
   }
 
-  .p-datatable-tbody > tr:hover {
-    background: #f8f9fa;
-  }
-
-  .p-rowgroup-header {
-    background: #e9ecef;
-  }
-}
-
-::ng-deep .p-chip {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.projeto-actions {
-  .p-button {
-    margin-right: 0.25rem;
-  }
-}
-
-.medidas-grid {
-  .medida-card {
-    transition: transform 0.2s ease;
+  .p-datatable-tbody > tr {
+    transition: background-color 0.2s;
 
     &:hover {
-      transform: translateY(-2px);
+      background-color: #f8f9fa !important;
+    }
+
+    > td {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+  }
+
+  .p-datatable-tbody > tr:nth-child(even) {
+    background-color: #fcfcfc;
+  }
+}
+
+/* Status Tags */
+.p-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+
+  &.p-tag-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.p-tag-info {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.p-tag-warning {
+    background: #fff3e0;
+    color: #ef6c00;
+  }
+
+  &.p-tag-danger {
+    background: #ffebee;
+    color: #c62828;
+  }
+}
+
+/* Botões de ação */
+.p-button.p-button-sm {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+
+  &.p-button-text {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
     }
   }
 }
 
-.financeiro-grid {
-  .valor-card {
-    border-left: 4px solid;
+/* Abas no expanded row */
+.p-tabview {
+  .p-tabview-nav {
+    border: none;
+    background: transparent;
 
-    &.materiais {
-      border-left-color: #2196F3;
+    .p-tabview-nav-link {
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      font-weight: 500;
+
+      &:hover {
+        color: #495057;
+      }
+
+      .pi {
+        font-size: 0.875rem;
+      }
     }
 
-    &.mao-obra {
-      border-left-color: #4CAF50;
+    .p-tabview-selected .p-tabview-nav-link {
+      color: #3b82f6;
+      border-bottom: 2px solid #3b82f6;
     }
+  }
 
-    &.margem {
-      border-left-color: #FF9800;
-    }
-
-    &.total {
-      border-left-color: #9C27B0;
-    }
+  .p-tabview-panels {
+    background: transparent;
+    padding: 1rem 0;
   }
 }
 
-// Responsive
+/* Cards de medidas e valores */
+.surface-card {
+  background: white;
+  border-radius: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
-  .projeto-actions {
-    display: flex;
+  .card-header {
     flex-direction: column;
+    align-items: flex-start;
 
-    .p-button {
-      margin-bottom: 0.25rem;
-      margin-right: 0;
+    > div:last-child {
+      margin-top: 1rem;
+      width: 100%;
+      justify-content: flex-end;
     }
   }
 
-  .financeiro-grid .p-col-12 {
+  .p-field {
     margin-bottom: 1rem;
   }
-}
 
-// Loading states
-.p-datatable-loading-overlay {
-  background: rgba(255, 255, 255, 0.9);
-}
+  .p-datatable {
+    .p-datatable-thead {
+      display: none;
+    }
 
-::ng-deep .p-progress-spinner {
-  width: 50px;
-  height: 50px;
-}
+    .p-datatable-tbody > tr > td {
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem;
+      border: none;
 
-// Custom scrollbar for expanded content
-.p-tabview-panels {
-  max-height: 400px;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-
-    &:hover {
-      background: #a8a8a8;
+      &:before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+      }
     }
   }
+}
+
+/* Utilitários */
+.text-900 { color: #212529; }
+.text-800 { color: #343a40; }
+.text-700 { color: #495057; }
+.text-600 { color: #6c757d; }
+.text-500 { color: #adb5bd; }
+
+.shadow-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hover\:text-primary:hover {
+  color: #3b82f6 !important;
+}
+
+.hover\:text-green-500:hover {
+  color: #22c55e !important;
+}
+
+.hover\:text-red-500:hover {
+  color: #ef4444 !important;
+}
+
+/* Adicione ao seu arquivo SCSS */
+.p-datatable .p-row-toggler {
+  transition: transform 0.2s;
+}
+
+.p-datatable .p-row-toggler.pi-chevron-down {
+  transform: rotate(90deg);
+}
+
+.p-datatable-expanded-row > td {
+  background: #f8f9fa !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border: none !important;
 }

@@ -1,137 +1,99 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { InstallmentRequestDTO } from '../../../services/parcela.service';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-installment-config',
   templateUrl: './installment-config.component.html',
   styleUrls: ['./installment-config.component.scss']
 })
-export class InstallmentConfigComponent implements OnInit {
+export class InstallmentConfigComponent implements OnInit, OnChanges {
+
   @Input() valorTotal: number = 0;
-  @Input() enabled: boolean = true;
-  @Input() initialConfig?: InstallmentRequestDTO;
-  @Output() configChange = new EventEmitter<InstallmentRequestDTO>();
+  @Input() enabled: boolean = false;
+  @Output() configChange = new EventEmitter<any>();
   @Output() enabledChange = new EventEmitter<boolean>();
 
-
-  installmentForm: FormGroup;
-  isParcelado = false;
-  parcelas: ParcelaPreview[] = [];
-  today: Date = new Date();
-
-  constructor(private fb: FormBuilder) {
-    this.installmentForm = this.fb.group({
-      numeroParcelas: [1, [Validators.required, Validators.min(1), Validators.max(24)]],
-      intervaloDias: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
-      dataPrimeiroVencimento: [this.getDefaultFirstDueDate(), Validators.required],
-      observacoes: ['']
-    });
-  }
+  installmentEnabled: boolean = false;
+  numeroParcelas: number = 1;
+  dataVencimento: Date = new Date();
+  minDate: Date = new Date();
+  parcelas: any[] = [];
 
   ngOnInit(): void {
-    if (this.initialConfig) {
-      this.installmentForm.patchValue(this.initialConfig);
-      this.isParcelado = this.initialConfig.numeroParcelas > 1;
-    }
-
-    // Observar mudanças no formulário
-    this.installmentForm.valueChanges.subscribe(() => {
-      this.calculateParcelas();
-      this.emitConfig();
-    });
-
-    // Calcular parcelas iniciais
-    this.calculateParcelas();
+    this.installmentEnabled = this.enabled;
+    this.minDate = new Date();
+    this.dataVencimento = new Date();
+    this.dataVencimento.setMonth(this.dataVencimento.getMonth() + 1);
   }
 
-  onParceladoChange(): void {
-    if (!this.isParcelado) {
-      this.installmentForm.patchValue({ numeroParcelas: 1 });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['valorTotal'] && this.installmentEnabled) {
+      this.calcularParcelas();
+    }
+    if (changes['enabled']) {
+      this.installmentEnabled = this.enabled;
+    }
+  }
+
+  onEnabledChange(): void {
+    this.enabledChange.emit(this.installmentEnabled);
+    if (this.installmentEnabled) {
+      this.calcularParcelas();
     } else {
-      this.installmentForm.patchValue({ numeroParcelas: 2 });
-    }
-    this.enabledChange.emit(this.isParcelado);
-  }
-
-  private getDefaultFirstDueDate(): string {
-    const date = new Date();
-    date.setDate(date.getDate() + 30);
-    return date.toISOString().split('T')[0];
-  }
-
-  calculateParcelas(): void {
-    if (!this.valorTotal || this.valorTotal <= 0) {
       this.parcelas = [];
+      this.emitConfig();
+    }
+  }
+
+  onParcelasChange(): void {
+    if (this.numeroParcelas < 1) {
+      this.numeroParcelas = 1;
+    }
+    if (this.numeroParcelas > 12) {
+      this.numeroParcelas = 12;
+    }
+    this.calcularParcelas();
+  }
+
+  onDataVencimentoChange(): void {
+    this.calcularParcelas();
+  }
+
+  calcularParcelas(): void {
+    if (!this.installmentEnabled || !this.valorTotal || this.numeroParcelas < 1) {
+      this.parcelas = [];
+      this.emitConfig();
       return;
     }
 
-    const formValue = this.installmentForm.value;
-    const numeroParcelas = formValue.numeroParcelas || 1;
-    const intervaloDias = formValue.intervaloDias || 30;
-    const dataPrimeiroVencimento = new Date(formValue.dataPrimeiroVencimento || this.getDefaultFirstDueDate());
-
     this.parcelas = [];
-    const valorParcela = this.valorTotal / numeroParcelas;
+    const valorParcela = this.valorTotal / this.numeroParcelas;
 
-    for (let i = 1; i <= numeroParcelas; i++) {
-      const dataVencimento = new Date(dataPrimeiroVencimento);
-      dataVencimento.setDate(dataVencimento.getDate() + (i - 1) * intervaloDias);
+    for (let i = 0; i < this.numeroParcelas; i++) {
+      const dataVencimentoParcela = new Date(this.dataVencimento);
+      dataVencimentoParcela.setMonth(dataVencimentoParcela.getMonth() + i);
 
-      // Ajustar a última parcela para compensar arredondamentos
-      let valor = valorParcela;
-      if (i === numeroParcelas) {
-        const totalParcelasAnteriores = valorParcela * (numeroParcelas - 1);
-        valor = this.valorTotal - totalParcelasAnteriores;
-      }
+      // Ajustar valor da última parcela para compensar arredondamentos
+      const valor = i === this.numeroParcelas - 1
+        ? this.valorTotal - (valorParcela * (this.numeroParcelas - 1))
+        : valorParcela;
 
       this.parcelas.push({
-        numero: i,
-        total: numeroParcelas,
-        valor: valor,
-        dataVencimento: dataVencimento,
-        descricao: `${i}/${numeroParcelas}`
+        numero: i + 1,
+        valor: Number(valor.toFixed(2)),
+        dataVencimento: dataVencimentoParcela
       });
     }
+
+    this.emitConfig();
   }
 
   private emitConfig(): void {
-    if (this.installmentForm.valid) {
-      const config: InstallmentRequestDTO = {
-        ...this.installmentForm.value,
-        valorTotal: this.valorTotal
-      };
-      this.configChange.emit(config);
-    }
-  }
+    const config = this.installmentEnabled ? {
+      numeroParcelas: this.numeroParcelas,
+      dataVencimento: this.dataVencimento,
+      parcelas: this.parcelas
+    } : null;
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+    this.configChange.emit(config);
   }
-
-  formatDate(date: Date): string {
-    return date.toLocaleDateString('pt-BR');
-  }
-
-  getValorTotalParcelas(): number {
-    return this.parcelas.reduce((total, parcela) => total + parcela.valor, 0);
-  }
-
-  // Validadores customizados
-  get numeroParcelas() { return this.installmentForm.get('numeroParcelas'); }
-  get intervaloDias() { return this.installmentForm.get('intervaloDias'); }
-  get dataPrimeiroVencimento() { return this.installmentForm.get('dataPrimeiroVencimento'); }
-  get observacoes() { return this.installmentForm.get('observacoes'); }
 }
-
-interface ParcelaPreview {
-  numero: number;
-  total: number;
-  valor: number;
-  dataVencimento: Date;
-  descricao: string;
-}
-

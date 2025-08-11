@@ -42,6 +42,7 @@ import {DividerModule} from "primeng/divider";
 import {ChipModule} from "primeng/chip";
 import {BadgeModule} from "primeng/badge";
 import {ProjetoService} from "../../services/projeto/projeto.service";
+import {AutoCompleteModule} from "primeng/autocomplete";
 
 @NgModule({
   declarations: [
@@ -76,7 +77,9 @@ import {ProjetoService} from "../../services/projeto/projeto.service";
     DividerModule,
     ProgressBarModule,
     ChipModule,
-    BadgeModule
+    BadgeModule,
+    AutoCompleteModule,
+    TagModule
   ],
   providers: [
     ProjetoService

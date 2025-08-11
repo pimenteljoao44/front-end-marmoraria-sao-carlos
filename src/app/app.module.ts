@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HttpClientModule} from '@angular/common/http';
@@ -15,6 +15,10 @@ import { MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
 import { GruposModule } from './modules/grupos/grupos.module';
 import {DialogModule} from 'primeng/dialog';
+import localePt from '@angular/common/locales/pt';
+import { registerLocaleData } from '@angular/common';
+
+registerLocaleData(localePt);
 
 @NgModule({
   declarations: [
@@ -34,7 +38,10 @@ import {DialogModule} from 'primeng/dialog';
     GruposModule,
     DialogModule
   ],
-  providers: [MessageService,CookieService],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+    MessageService,CookieService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -554,7 +554,6 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         produto: item.produto.id,
       })),
     };
-     console.log(compraData);
 
     this.compraService
       .create(compraData)

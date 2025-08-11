@@ -1,39 +1,53 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import {CUSTOM_ELEMENTS_SCHEMA, LOCALE_ID, NgModule} from '@angular/core';
+import {CommonModule, CurrencyPipe, DatePipe} from '@angular/common';
+
 import { VendaHomeComponent } from './page/venda-home/venda-home.component';
 import { VendaFormComponent } from './components/venda-form/venda-form.component';
-import { VendaTableComponent } from './components/venda-table/venda-table.component';
-import { VendaViewComponent } from './components/venda-view/venda-view.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { VENDA_ROUTES } from './venda.routing';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { HttpClientModule } from '@angular/common/http';
-import { CardModule } from 'primeng/card';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { TableModule } from 'primeng/table';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { TooltipModule } from 'primeng/tooltip';
-import { PanelModule } from 'primeng/panel';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ConfirmationService } from 'primeng/api';
+
+// PrimeNG
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {DialogService, DynamicDialogModule} from 'primeng/dynamicdialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TagModule } from 'primeng/tag';
+import { ToolbarModule } from 'primeng/toolbar';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import {VendaTableComponent} from "../projeto/components/venda-table/venda-table.component";
+import {VendaViewComponent} from "./components/venda-view/venda-view.component";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {RouterModule} from "@angular/router";
+import {VENDA_ROUTES} from "./venda.routing";
+import {SharedModule} from "../../shared/shared.module";
+import {HttpClientModule} from "@angular/common/http";
+import {RadioButtonModule} from "primeng/radiobutton";
+import {InputMaskModule} from "primeng/inputmask";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {ConfirmationService} from "primeng/api";
+import {PanelModule} from "primeng/panel";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {ToastModule} from "primeng/toast";
+import {ProgressBarModule} from "primeng/progressbar";
+import {VendaItensComponent} from "./components/venda-itens/venda-itens.component";
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
 
-
+registerLocaleData(localePt, 'pt-BR');
 
 @NgModule({
   declarations: [
     VendaHomeComponent,
     VendaFormComponent,
     VendaTableComponent,
-    VendaViewComponent
+    VendaViewComponent,
+    VendaItensComponent
   ],
   imports: [
     CommonModule,
@@ -56,9 +70,13 @@ import { ButtonModule } from 'primeng/button';
     ConfirmDialogModule,
     TooltipModule,
     PanelModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    ProgressSpinnerModule,
+    ToastModule,
+    ProgressBarModule,
   ],
-  providers: [DialogService, ConfirmationService, DatePipe],
+  providers: [DialogService, ConfirmationService, DatePipe,CurrencyPipe,
+    { provide: LOCALE_ID, useValue: 'pt-BR' } ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class VendaModule { }

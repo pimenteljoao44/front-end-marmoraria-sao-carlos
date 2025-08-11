@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import {OrcamentoPDFData} from "../../models/interfaces/OrcamentoPDFData";
 
 @Injectable({
   providedIn: 'root',
@@ -103,4 +104,54 @@ export class RelatorioService {
     );
   }
 
+  gerarOrcamentoPDF(orcamento: OrcamentoPDFData): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/relatorios/orcamento-pdf`,
+      orcamento,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
+   * Método genérico para gerar PDF de projetos
+   * @param projetoData - Dados do projeto no formato DTO
+   * @returns Observable<Blob> - PDF gerado como blob
+   */
+  gerarPDF(projetoData: any): Observable<Blob> {
+    return this.httpClient.post(
+      `${this.baseUrl}/projetos-personalizados/orcamento-pdf`,
+      projetoData,
+      {
+        headers: this.httpOptions.headers,
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
+   * Método para baixar o PDF gerado
+   * @param blob - Blob do PDF
+   * @param filename - Nome do arquivo (opcional)
+   */
+  downloadPDF(blob: Blob, filename: string = 'orcamento.pdf'): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Método para visualizar o PDF em nova aba
+   * @param blob - Blob do PDF
+   */
+  viewPDF(blob: Blob): void {
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    window.URL.revokeObjectURL(url);
+  }
 }

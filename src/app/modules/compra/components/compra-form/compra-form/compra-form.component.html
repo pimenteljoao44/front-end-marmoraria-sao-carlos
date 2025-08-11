@@ -50,13 +50,13 @@
         <div class="p-field">
           <label for="formaPagamento">Forma de Pagamento</label>
           <p-dropdown
-          styleClass="w-full"
-          [options]="allFormasPagamento"
-          placeholder="Selecione a forma de pagamento"
-          formControlName="formaPagamento"
-          optionLabel="label"
-          optionValue="value"
-        ></p-dropdown>
+            styleClass="w-full"
+            [options]="allFormasPagamento"
+            placeholder="Selecione a forma de pagamento"
+            formControlName="formaPagamento"
+            optionLabel="label"
+            optionValue="value"
+          ></p-dropdown>
 
         </div>
 
@@ -182,17 +182,17 @@
         </ng-template>
       </p-table>
     </p-card>
-  <!-- Configuração de Parcelamento -->
-  <p-card>
-    <p-card header="Configuração de Parcelamento" class="installment-card">
-      <app-installment-config
-        [valorTotal]="valorTotalCompra"
-        [enabled]="installmentEnabled"
-        (configChange)="onInstallmentConfigChange($event)"
-        (enabledChange)="onInstallmentEnabledChange($event)">
-      </app-installment-config>
+    <!-- Configuração de Parcelamento -->
+    <p-card>
+      <p-card header="Configuração de Parcelamento" class="installment-card">
+        <app-installment-config
+          [valorTotal]="valorTotalCompra"
+          [enabled]="installmentEnabled"
+          (configChange)="onInstallmentConfigChange($event)"
+          >
+        </app-installment-config>
+      </p-card>
     </p-card>
-  </p-card>
 
   </p-card>
 
@@ -262,13 +262,13 @@
         <div class="p-field">
           <label for="formaPagamento">Forma de Pagamento</label>
           <p-dropdown
-          styleClass="w-full"
-          [options]="allFormasPagamento"
-          placeholder="Selecione a forma de pagamento"
-          formControlName="formaPagamento"
-          optionLabel="label"
-          optionValue="value"
-        ></p-dropdown>
+            styleClass="w-full"
+            [options]="allFormasPagamento"
+            placeholder="Selecione a forma de pagamento"
+            formControlName="formaPagamento"
+            optionLabel="label"
+            optionValue="value"
+          ></p-dropdown>
         </div>
 
         <!-- Observações -->

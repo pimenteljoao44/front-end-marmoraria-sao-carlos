@@ -10,6 +10,8 @@ import { StatusProjeto } from "../../../../../models/enums/projeto/StatusProjeto
 import {ClientesService} from "../../../../services/clientes/clientes.service";
 import {ProdutoService} from "../../../../services/produto/produto.service";
 import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from "rxjs";
+import {RelatorioService} from "../../../../services/relatorio.service";
+import {ItemOrcamentoPDFDTO, OrcamentoPDFData} from "../../../../../models/interfaces/OrcamentoPDFData";
 
 interface ProjetoStep {
   id: string;
@@ -43,6 +45,7 @@ export class ProjetoBuilderComponent implements OnInit {
   projetoId!: number;
   loading = false;
   calculandoOrcamento = false;
+  sidebarVisible = false;
 
   // Wizard Steps
   currentStep = 0;
@@ -170,6 +173,7 @@ export class ProjetoBuilderComponent implements OnInit {
 
   // UI State
   showMaterialSearch = false;
+  gerandoPDF = false;
   materialSearchTerm = '';
   selectedMaterialCategory = '';
   materialCategories = ['Todos', 'Mármore', 'Granito', 'Quartzo', 'Acessórios'];
@@ -183,7 +187,8 @@ export class ProjetoBuilderComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private clienteService: ClientesService,
-    private produtoService: ProdutoService
+    private produtoService: ProdutoService,
+    private relatorioService: RelatorioService
   ) {
     this.initializeForm();
   }
@@ -233,6 +238,204 @@ export class ProjetoBuilderComponent implements OnInit {
       medidas?.profundidade > 0 &&
       medidas?.largura > 0 &&
       this.itensFormArray.length > 0;
+  }
+
+  private prepararDadosParaPDF(): any {
+
+    const formValue = this.projetoForm.value;
+    const cliente = this.clientes.find(c => c.id === formValue.clienteId);
+    const medidas = formValue.medidas;
+
+    const itens = this.itensFormArray.controls.map(control => {
+      const itemValue = control.value;
+      const material = this.getMaterialById(itemValue.produtoId);
+
+      return {
+        nome: material?.nome || 'Material não encontrado',
+        descricao: material?.categoria || '',
+        quantidade: Number(itemValue.quantidade) || 0,
+        unidade: material?.unidade || 'm²',
+        valorUnitario: Number(itemValue.valorUnitario) || 0,
+        valorTotal: Number(itemValue.valorTotal) || 0
+      };
+    });
+
+    // Format address as string (CRITICAL FIX)
+    let clienteEndereco = '';
+    if (cliente?.endereco) {
+      if (typeof cliente.endereco === 'string') {
+        clienteEndereco = cliente.endereco;
+      } else {
+        // Handle object endereco
+        const endereco = cliente.endereco;
+        const partes = [];
+        if (endereco.rua) partes.push(endereco.rua);
+        if (endereco.numero) partes.push(`nº ${endereco.numero}`);
+        if (endereco.complemento) partes.push(endereco.complemento);
+        if (endereco.bairro) partes.push(endereco.bairro);
+        if (endereco.cidade?.nome) partes.push(endereco.cidade.nome);
+        if (endereco.estado?.sigla) partes.push(endereco.estado.sigla);
+        clienteEndereco = partes.join(', ');
+      }
+    }
+
+    return {
+      projetoId: this.projetoId || null,
+      clienteNome: cliente?.nome || '',
+      clienteEmail: cliente?.email || '',
+      clienteTelefone: cliente?.telefone || '',
+      clienteEndereco: clienteEndereco, // FIXED: Always string
+      projetoNome: formValue.nome || '',
+      projetoDescricao: formValue.descricao || '',
+      dataOrcamento: new Date().toISOString().split('T')[0],
+      dataValidade: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      largura: Number(medidas.largura) || 0,
+      comprimento: Number(medidas.profundidade) || 0,
+      area: Number(medidas.largura * medidas.profundidade) || 0,
+      espessura: Number(medidas.altura) || 0,
+      valorMateriais: Number(this.valorMateriais) || 0,
+      valorMaoObra: Number(this.valorMaoObra) || 0,
+      margemLucro: Number(formValue.margemLucro) || 0,
+      valorTotal: Number(this.valorTotal) || 0,
+      observacoes: formValue.observacoes || '',
+      itens: itens
+    };
+  }
+
+  private formatarEnderecoCliente(cliente: any): string {
+    if (!cliente) {
+      return '';
+    }
+
+    let endereco = cliente.endereco;
+
+    if (typeof endereco === 'string') {
+      return endereco;
+    }
+
+    if (!endereco && cliente.enderecos && cliente.enderecos.length > 0) {
+      endereco = cliente.enderecos[0];
+    }
+
+    if (!endereco) {
+      return '';
+    }
+
+    // Format object endereco as string
+    const partes = [];
+
+    if (endereco.rua) partes.push(endereco.rua);
+    if (endereco.numero) partes.push(`nº ${endereco.numero}`);
+    if (endereco.complemento) partes.push(endereco.complemento);
+    if (endereco.bairro) partes.push(endereco.bairro);
+
+    if (endereco.cidade) {
+      if (typeof endereco.cidade === 'string') {
+        partes.push(endereco.cidade);
+      } else if (endereco.cidade.nome) {
+        partes.push(endereco.cidade.nome);
+      }
+    }
+
+    if (endereco.estado) {
+      if (typeof endereco.estado === 'string') {
+        partes.push(endereco.estado);
+      } else if (endereco.estado.sigla) {
+        partes.push(endereco.estado.sigla);
+      } else if (endereco.estado.nome) {
+        partes.push(endereco.estado.nome);
+      }
+    }
+
+    return partes.join(', ');
+  }
+
+  gerarPDF(): void {
+    if (!this.validarFormularioParaCalculoBasico()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Preencha todos os campos obrigatórios antes de gerar o PDF.',
+        life: 5000
+      });
+      return;
+    }
+
+    this.gerandoPDF = true;
+    const dadosPDF = this.prepararDadosParaPDF();
+
+    console.log('Dados enviados para PDF:', dadosPDF); // Para debug
+
+    this.relatorioService.gerarPDF(dadosPDF)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.gerandoPDF = false)
+      )
+      .subscribe({
+        next: (blob: Blob) => {
+          const nomeArquivo = `Orcamento_${dadosPDF.projetoNome?.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+          this.relatorioService.downloadPDF(blob, nomeArquivo);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'PDF do orçamento gerado com sucesso!',
+            life: 3000
+          });
+        },
+        error: (error) => {
+          console.error('Erro ao gerar PDF:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao gerar o PDF do orçamento. Tente novamente.',
+            life: 5000
+          });
+        }
+      });
+  }
+
+
+  visualizarPDF(): void {
+    if (!this.validarFormularioParaCalculoBasico()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Preencha todos os campos obrigatórios antes de visualizar o PDF.',
+        life: 5000
+      });
+      return;
+    }
+
+    this.gerandoPDF = true;
+    const dadosPDF = this.prepararDadosParaPDF();
+
+    this.relatorioService.gerarPDF(dadosPDF)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.gerandoPDF = false)
+      )
+      .subscribe({
+        next: (blob: Blob) => {
+          this.relatorioService.viewPDF(blob);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'PDF aberto em nova aba!',
+            life: 3000
+          });
+        },
+        error: (error) => {
+          console.error('Erro ao visualizar PDF:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro ao visualizar o PDF do orçamento. Tente novamente.',
+            life: 5000
+          });
+        }
+      });
   }
 
   private setupFormWatchers(): void {
@@ -895,13 +1098,8 @@ export class ProjetoBuilderComponent implements OnInit {
     this.router.navigate(['/clientes']);
   }
 
-  gerarPDF() {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'PDF',
-      detail: 'Gerando PDF do orçamento...'
-    });
-    // Implement PDF generation logic
+  handleOpenSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
   }
 
   ngOnDestroy(): void {

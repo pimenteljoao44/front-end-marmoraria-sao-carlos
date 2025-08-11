@@ -1,104 +1,116 @@
 <div class="container-fluid">
   <div class="card">
-
     <!-- Header -->
     <div class="card-header">
-      <div class="flex justify-content-between align-items-center">
+      <div class="flex justify-content-between align-items-center flex-wrap">
         <h3 class="mb-0">
-          <i class="pi pi-briefcase mr-2"></i>
-          Projetos
+          <i class="pi pi-briefcase mr-2 text-primary"></i>
+          <span class="text-900">Projetos</span>
         </h3>
-        <div>
-          <p-button
-            label="Exportar"
-            icon="pi pi-download"
-            styleClass="p-button-outlined mr-2"
-            (onClick)="exportarRelatorio()">
-          </p-button>
+        <div class="mt-2 md:mt-0">
           <p-button
             label="Novo Projeto"
             icon="pi pi-plus"
+            styleClass="p-button-raised"
             (onClick)="novoProjeto()">
           </p-button>
         </div>
       </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="card-body border-bottom">
+    <div class="card-body border-bottom surface-50">
       <div class="p-fluid p-formgrid p-grid">
-
         <!-- Nome -->
         <div class="p-field p-col-12 p-md-3">
-          <label for="filtroNome">Nome do Projeto</label>
-          <input
-            pInputText
-            id="filtroNome"
-            [(ngModel)]="filtros.nome"
-            placeholder="Buscar por nome"
-            (keyup.enter)="aplicarFiltros()">
+          <label for="filtroNome" class="block mb-2 text-600 font-medium">Nome do Projeto</label>
+          <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          id="filtroNome"
+          [(ngModel)]="filtros.nome"
+          placeholder="Buscar por nome"
+          class="w-full"
+          (keyup.enter)="aplicarFiltros()">
+      </span>
         </div>
 
         <!-- Status -->
         <div class="p-field p-col-12 p-md-2">
-          <label for="filtroStatus">Status</label>
+          <label for="filtroStatus" class="block mb-2 text-600 font-medium">Status</label>
           <p-dropdown
             inputId="filtroStatus"
             [(ngModel)]="filtros.status"
             [options]="statusOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Todos">
+            placeholder="Todos"
+            appendTo="body"
+            [style]="{'width':'100%'}"
+            [showClear]="true">
+            <ng-template pTemplate="dropdownicon">
+              <i class="pi pi-filter"></i>
+            </ng-template>
           </p-dropdown>
         </div>
 
         <!-- Tipo de Projeto -->
         <div class="p-field p-col-12 p-md-2">
-          <label for="filtroTipo">Tipo</label>
+          <label for="filtroTipo" class="block mb-2 text-600 font-medium">Tipo</label>
           <p-dropdown
             inputId="filtroTipo"
             [(ngModel)]="filtros.tipoProjeto"
             [options]="tipoProjetoOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Todos">
+            placeholder="Todos"
+            appendTo="body"
+            [style]="{'width':'100%'}"
+            [showClear]="true">
+            <ng-template pTemplate="dropdownicon">
+              <i class="pi pi-tags"></i>
+            </ng-template>
           </p-dropdown>
         </div>
 
         <!-- Cliente -->
         <div class="p-field p-col-12 p-md-3">
-          <label for="filtroCliente">Cliente</label>
-          <p-dropdown
-            inputId="filtroCliente"
-            [(ngModel)]="filtros.clienteId"
-            [options]="clientes"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Todos">
-          </p-dropdown>
+          <label for="filtroCliente" class="block mb-2 text-600 font-medium">Cliente</label>
+          <span class="p-input-icon-left w-full">
+        <i class="pi pi-users"></i>
+        <p-autoComplete
+          id="cliente"
+          [(ngModel)]="filtros.clienteId"
+          [suggestions]="clientes"
+          (completeMethod)="searchClientes($event)"
+          field="nome"
+          placeholder="Buscar cliente"
+          [style]="{ width: '100%' }"
+          [dropdown]="true">
+        </p-autoComplete>
+      </span>
         </div>
 
         <!-- Ações dos Filtros -->
-        <div class="p-field p-col-12 p-md-2 flex align-items-end">
+        <div class="p-field p-col-12 p-md-2 flex align-items-end gap-3">
           <p-button
             label="Filtrar"
-            icon="pi pi-search"
-            styleClass="p-button-sm mr-2"
+            icon="pi pi-filter"
+            styleClass="p-button-sm p-button-outlined p-button-primary"
             (onClick)="aplicarFiltros()">
           </p-button>
           <p-button
+            label="Limpar"
             icon="pi pi-times"
-            styleClass="p-button-sm p-button-outlined"
-            (onClick)="limparFiltros()"
-            pTooltip="Limpar filtros">
+            styleClass="p-button-sm p-button-text p-button-secondary"
+            (onClick)="limparFiltros()">
           </p-button>
         </div>
-
       </div>
     </div>
 
     <!-- Tabela -->
-    <div class="card-body">
+    <div class="card-body p-0">
       <p-table
         [value]="projetos"
         [loading]="loading"
@@ -107,304 +119,332 @@
         [totalRecords]="totalRecords"
         [lazy]="true"
         (onLazyLoad)="carregarProjetos($event)"
+        (onRowExpand)="onRowExpand($event)"
         [first]="first"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} projetos"
         [rowsPerPageOptions]="[10, 25, 50]"
-        styleClass="p-datatable-striped p-datatable-gridlines">
-
-        <!-- Loading Template -->
-        <ng-template pTemplate="emptymessage">
+        styleClass="p-datatable-sm p-datatable-striped"
+        dataKey="id"
+        [scrollable]="true"
+        scrollHeight="flex"
+      >
+        <ng-template pTemplate="loadingbody">
           <tr>
-            <td colspan="8" class="text-center py-4">
-              <i class="pi pi-info-circle text-4xl text-muted"></i>
-              <div class="mt-2 text-muted">Nenhum projeto encontrado</div>
+            <td colspan="8">
+              <div class="flex justify-content-center p-4">
+                <p-progressSpinner strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+              </div>
             </td>
           </tr>
         </ng-template>
-
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <i class="pi pi-search text-4xl text-400 mb-3"></i>
+              <div class="text-600">Nenhum projeto encontrado</div>
+              <p-button label="Criar novo projeto" icon="pi pi-plus" styleClass="p-button-text mt-3"
+                        (onClick)="novoProjeto()"></p-button>
+            </td>
+          </tr>
+        </ng-template>
         <!-- Header -->
         <ng-template pTemplate="header">
           <tr>
-            <th style="width: 3rem"></th>
-            <th pSortableColumn="nome">
-              Nome
-              <p-sortIcon field="nome"></p-sortIcon>
+            <th style="width: 3rem"></th> <!-- Expand Column -->
+            <th pSortableColumn="nome" style="min-width: 200px">
+              <div class="flex align-items-center">
+                <span>Nome</span>
+                <p-sortIcon field="nome" class="ml-2"></p-sortIcon>
+              </div>
             </th>
-            <th pSortableColumn="cliente.nome">
-              Cliente
-              <p-sortIcon field="cliente.nome"></p-sortIcon>
+            <th pSortableColumn="cliente.nome" style="min-width: 150px">
+              <div class="flex align-items-center">
+                <span>Cliente</span>
+                <p-sortIcon field="cliente.nome" class="ml-2"></p-sortIcon>
+              </div>
             </th>
-            <th>Tipo</th>
-            <th pSortableColumn="status">
-              Status
-              <p-sortIcon field="status"></p-sortIcon>
+            <th style="min-width: 120px">Tipo</th>
+            <th pSortableColumn="status" style="min-width: 120px">
+              <div class="flex align-items-center">
+                <span>Status</span>
+                <p-sortIcon field="status" class="ml-2"></p-sortIcon>
+              </div>
             </th>
-            <th pSortableColumn="valorTotal">
-              Valor Total
-              <p-sortIcon field="valorTotal"></p-sortIcon>
+            <th pSortableColumn="valorTotal" style="min-width: 150px" class="text-right">
+              <div class="flex align-items-center justify-content-end">
+                <span>Valor Total</span>
+                <p-sortIcon field="valorTotal" class="ml-2"></p-sortIcon>
+              </div>
             </th>
-            <th pSortableColumn="dataCriacao">
-              Data Criação
-              <p-sortIcon field="dataCriacao"></p-sortIcon>
+            <th pSortableColumn="dataCriacao" style="min-width: 120px">
+              <div class="flex align-items-center">
+                <span>Data Criação</span>
+                <p-sortIcon field="dataCriacao" class="ml-2"></p-sortIcon>
+              </div>
             </th>
-            <th style="width: 12rem">Ações</th>
+            <th style="width: 140px">Ações</th>
           </tr>
         </ng-template>
-
         <!-- Body -->
         <ng-template pTemplate="body" let-projeto let-rowIndex="rowIndex">
           <tr>
-
             <!-- Expandir -->
             <td>
-              <p-button
+              <button
                 type="button"
+                pButton
                 pRipple
-                [pRowToggler]="projeto"
-                styleClass="p-button-text p-button-rounded p-button-plain"
-                [icon]="projeto.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-              </p-button>
+                pRowToggler
+                icon="pi pi-chevron-right"
+                class="p-button-text p-button-rounded p-button-plain p-1"
+                [pRowToggler]="projeto">
+              </button>
             </td>
-
             <!-- Nome -->
             <td>
-              <div class="font-semibold">{{ projeto.nome }}</div>
-              <div class="text-sm text-muted" *ngIf="projeto.descricao">
+              <div class="font-medium text-900">{{ projeto.nome }}</div>
+              <div class="text-sm text-500 mt-1" *ngIf="projeto.descricao">
                 {{ projeto.descricao | slice:0:50 }}{{ projeto.descricao.length > 50 ? '...' : '' }}
               </div>
             </td>
-
             <!-- Cliente -->
             <td>
-              <div class="font-medium">{{ projeto.cliente?.nome || 'N/A' }}</div>
+              <div class="text-900">{{ projeto.clienteNome || '-' }}</div>
             </td>
-
             <!-- Tipo -->
             <td>
-              <div class="flex align-items-center">
-                <i [class]="getTipoProjetoIcon(projeto.tipoProjeto) + ' mr-2'"></i>
-                {{ getTipoProjetoLabel(projeto.tipoProjeto) }}
+              <div class="flex align-items-center gap-2">
+                <i [class]="getTipoProjetoIcon(projeto.tipoProjeto) + ' text-500'"></i>
+                <span class="text-900">{{ getTipoProjetoLabel(projeto.tipoProjeto) }}</span>
               </div>
             </td>
-
             <!-- Status -->
             <td>
-              <p-chip
-                [label]="getStatusLabel(projeto.status)"
-                [styleClass]="'status-' + getStatusSeverity(projeto.status)">
-              </p-chip>
+              <p-tag
+                [value]="getStatusLabel(projeto.status)"
+                [severity]="getStatusSeverity(projeto.status)"
+                styleClass="text-sm">
+              </p-tag>
             </td>
-
             <!-- Valor Total -->
-            <td>
-              <div class="font-bold text-lg">
-                {{ projeto.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            <td class="text-right">
+              <div class="font-semibold text-900">
+                {{ projeto.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
               </div>
             </td>
-
             <!-- Data Criação -->
             <td>
-              {{ projeto.dataCriacao | date:'dd/MM/yyyy' }}
+              <span class="text-900">{{ projeto.dataCriacao | date:'dd/MM/yyyy' }}</span>
             </td>
-
             <!-- Ações -->
             <td>
-              <div class="flex">
-                <p-button
-                  icon="pi pi-eye"
-                  styleClass="p-button-rounded p-button-text p-button-sm mr-1"
-                  (onClick)="visualizarProjeto(projeto)"
-                  pTooltip="Visualizar">
-                </p-button>
-
-                <p-button
+              <div class="flex gap-1">
+                <button
+                  pButton
+                  pRipple
                   icon="pi pi-pencil"
-                  styleClass="p-button-rounded p-button-text p-button-sm mr-1"
-                  (onClick)="editarProjeto(projeto)"
-                  pTooltip="Editar">
-                </p-button>
-
-                <p-button
+                  class="p-button-sm p-button-text p-button-rounded text-500 hover:text-primary"
+                  (click)="editarProjeto(projeto)"
+                  pTooltip="Editar" tooltipPosition="top">
+                </button>
+                <button
                   *ngIf="projeto.status === 'ORCAMENTO' || projeto.status === 'APROVADO'"
-                  icon="pi pi-file-export"
-                  styleClass="p-button-rounded p-button-text p-button-sm mr-1 p-button-success"
-                  (onClick)="gerarOrdemServico(projeto)"
-                  pTooltip="Gerar O.S.">
-                </p-button>
-
-                <p-button
+                  pButton
+                  pRipple
+                  icon="pi pi-building"
+                  class="p-button-sm p-button-rounded p-button-text text-green-500 hover:bg-green-100"
+                  (click)="gerarOrdemServico(projeto)"
+                  pTooltip="Gerar Ordem de Serviço"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  pRipple
                   icon="pi pi-trash"
-                  styleClass="p-button-rounded p-button-text p-button-sm p-button-danger"
-                  (onClick)="excluirProjeto(projeto)"
-                  pTooltip="Excluir">
-                </p-button>
+                  class="p-button-sm p-button-text p-button-rounded text-500 hover:text-red-500"
+                  (click)="excluirProjeto(projeto)"
+                  pTooltip="Excluir" tooltipPosition="top">
+                </button>
               </div>
             </td>
-
           </tr>
         </ng-template>
-
         <!-- Row Expansion -->
         <ng-template pTemplate="rowexpansion" let-projeto>
           <tr>
             <td colspan="8">
-              <div class="p-3">
+              <div class="p-3 surface-50">
                 <p-tabView>
-
                   <!-- Detalhes -->
-                  <p-tabPanel header="Detalhes" leftIcon="pi pi-info-circle">
-                    <div class="p-grid">
-
-                      <div class="p-col-12 p-md-6">
-                        <h6>Informações Gerais</h6>
-                        <div class="p-2">
-                          <div class="mb-2">
-                            <strong>Descrição:</strong><br>
-                            {{ projeto.descricao || 'Sem descrição' }}
-                          </div>
-                          <div class="mb-2">
-                            <strong>Data Prevista:</strong><br>
-                            {{ projeto.dataPrevista | date:'dd/MM/yyyy' || 'Não definida' }}
-                          </div>
-                          <div class="mb-2">
-                            <strong>Observações:</strong><br>
-                            {{ projeto.observacoes || 'Sem observações' }}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="p-col-12 p-md-6">
-                        <h6>Medidas</h6>
-                        <div class="p-2" *ngIf="projeto.medidas">
-                          <div class="p-grid">
-                            <div class="p-col-4">
-                              <div class="text-center p-2 border-round bg-blue-50">
-                                <div class="font-bold text-blue-800">{{ projeto.medidas.profundidade }}m</div>
-                                <small class="text-blue-600">Profundidade</small>
-                              </div>
+                  <p-tabPanel header="Detalhes" leftIcon="pi pi-info-circle mr-2">
+                    <div class="grid">
+                      <div class="col-12 md:col-6">
+                        <div class="surface-card p-3 border-round shadow-1">
+                          <h5 class="mt-0 mb-3 text-900">Informações Gerais</h5>
+                          <div class="grid">
+                            <div class="col-12 mb-3">
+                              <label class="block text-600 text-sm mb-1">Descrição</label>
+                              <div class="text-900">{{ projeto.descricao || '-' }}</div>
                             </div>
-                            <div class="p-col-4">
-                              <div class="text-center p-2 border-round bg-green-50">
-                                <div class="font-bold text-green-800">{{ projeto.medidas.largura }}m</div>
-                                <small class="text-green-600">Largura</small>
-                              </div>
+                            <div class="col-12 sm:col-6 mb-3">
+                              <label class="block text-600 text-sm mb-1">Data Prevista</label>
+                              <div class="text-900">{{ projeto.dataPrevista | date:'dd/MM/yyyy' || '-' }}</div>
                             </div>
-                            <div class="p-col-4">
-                              <div class="text-center p-2 border-round bg-orange-50">
-                                <div class="font-bold text-orange-800">{{ projeto.medidas.altura }}m</div>
-                                <small class="text-orange-600">Altura</small>
-                              </div>
+                            <div class="col-12 sm:col-6 mb-3">
+                              <label class="block text-600 text-sm mb-1">Data Criação</label>
+                              <div class="text-900">{{ projeto.dataCriacao | date:'dd/MM/yyyy' }}</div>
                             </div>
-                          </div>
-                          <div class="mt-2 p-grid">
-                            <div class="p-col-6">
-                              <div class="text-center p-2 border-round bg-purple-50">
-                                <div class="font-bold text-purple-800">{{ projeto.medidas.area?.toFixed(2) }}m²</div>
-                                <small class="text-purple-600">Área</small>
-                              </div>
-                            </div>
-                            <div class="p-col-6">
-                              <div class="text-center p-2 border-round bg-cyan-50">
-                                <div class="font-bold text-cyan-800">{{ projeto.medidas.perimetro?.toFixed(2) }}m</div>
-                                <small class="text-cyan-600">Perímetro</small>
-                              </div>
+                            <div class="col-12">
+                              <label class="block text-600 text-sm mb-1">Observações</label>
+                              <div class="text-900">{{ projeto.observacoes || '-' }}</div>
                             </div>
                           </div>
                         </div>
                       </div>
-
+                      <div class="col-12 md:col-6">
+                        <div class="surface-card p-3 border-round shadow-1 h-full">
+                          <h5 class="mt-0 mb-3 text-900">Medidas</h5>
+                          <div *ngIf="projeto.medidas; else noMeasurements">
+                            <div class="grid">
+                              <div class="col-4">
+                                <div class="p-3 text-center border-round surface-100">
+                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.profundidade || 0 }}m</div>
+                                  <small class="text-600">Profundidade</small>
+                                </div>
+                              </div>
+                              <div class="col-4">
+                                <div class="p-3 text-center border-round surface-100">
+                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.largura || 0 }}m</div>
+                                  <small class="text-600">Largura</small>
+                                </div>
+                              </div>
+                              <div class="col-4">
+                                <div class="p-3 text-center border-round surface-100">
+                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.altura || 0 }}m</div>
+                                  <small class="text-600">Altura</small>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="grid mt-2">
+                              <div class="col-6">
+                                <div class="p-3 text-center border-round surface-100">
+                                  <div class="text-2xl font-bold text-primary">{{ (projeto.medidas.area || 0) | number:'1.2-2' }}m²</div>
+                                  <small class="text-600">Área</small>
+                                </div>
+                              </div>
+                              <div class="col-6">
+                                <div class="p-3 text-center border-round surface-100">
+                                  <div class="text-2xl font-bold text-primary">{{ (projeto.medidas.perimetro || 0) | number:'1.2-2' }}m</div>
+                                  <small class="text-600">Perímetro</small>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <ng-template #noMeasurements>
+                            <div class="text-center p-4 text-600">
+                              Nenhuma medida registrada
+                            </div>
+                          </ng-template>
+                        </div>
+                      </div>
                     </div>
                   </p-tabPanel>
-
                   <!-- Materiais -->
-                  <p-tabPanel header="Materiais" leftIcon="pi pi-box">
-                    <p-table
-                      [value]="projeto.itens"
-                      styleClass="p-datatable-sm">
-
-                      <ng-template pTemplate="header">
-                        <tr>
-                          <th>Produto</th>
-                          <th>Quantidade</th>
-                          <th>Valor Unit.</th>
-                          <th>Valor Total</th>
-                          <th>Observações</th>
-                        </tr>
-                      </ng-template>
-
-                      <ng-template pTemplate="body" let-item>
-                        <tr>
-                          <td>{{ item.produto?.nome || 'Produto não encontrado' }}</td>
-                          <td>{{ item.quantidade }}</td>
-                          <td>{{ item.valorUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
-                          <td>{{ item.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
-                          <td>{{ item.observacoes || '-' }}</td>
-                        </tr>
-                      </ng-template>
-
-                      <ng-template pTemplate="emptymessage">
-                        <tr>
-                          <td colspan="5" class="text-center text-muted py-3">
-                            Nenhum material adicionado
-                          </td>
-                        </tr>
-                      </ng-template>
-
-                    </p-table>
-                  </p-tabPanel>
-
-                  <!-- Financeiro -->
-                  <p-tabPanel header="Financeiro" leftIcon="pi pi-calculator">
-                    <div class="p-grid">
-
-                      <div class="p-col-12 p-md-3">
-                        <div class="text-center p-3 border-round bg-blue-50">
-                          <div class="text-2xl font-bold text-blue-800">
-                            {{ projeto.valorTotal - projeto.valorMaoObra | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                          </div>
-                          <div class="text-blue-600 font-medium">Materiais</div>
-                        </div>
-                      </div>
-
-                      <div class="p-col-12 p-md-3">
-                        <div class="text-center p-3 border-round bg-green-50">
-                          <div class="text-2xl font-bold text-green-800">
-                            {{ projeto.valorMaoObra | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                          </div>
-                          <div class="text-green-600 font-medium">Mão de Obra</div>
-                        </div>
-                      </div>
-
-                      <div class="p-col-12 p-md-3">
-                        <div class="text-center p-3 border-round bg-orange-50">
-                          <div class="text-2xl font-bold text-orange-800">
-                            {{ projeto.margemLucro }}%
-                          </div>
-                          <div class="text-orange-600 font-medium">Margem Lucro</div>
-                        </div>
-                      </div>
-
-                      <div class="p-col-12 p-md-3">
-                        <div class="text-center p-3 border-round bg-purple-50">
-                          <div class="text-3xl font-bold text-purple-800">
-                            {{ projeto.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                          </div>
-                          <div class="text-purple-600 font-medium">Total</div>
-                        </div>
-                      </div>
-
+                  <p-tabPanel header="Materiais" leftIcon="pi pi-box mr-2">
+                    <div class="surface-card p-3 border-round shadow-1">
+                      <p-table
+                        [value]="projeto.itens || []"
+                        styleClass="p-datatable-sm"
+                      >
+                        <ng-template pTemplate="header">
+                          <tr>
+                            <th>Produto</th>
+                            <th class="text-right">Quantidade</th>
+                            <th class="text-right">Valor Unit.</th>
+                            <th class="text-right">Valor Total</th>
+                            <th>Observações</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item>
+                          <tr>
+                            <td>{{ item.produtoNome || '-' }}</td>
+                            <td class="text-right">{{ item.quantidade }}</td>
+                            <td class="text-right">{{ item.valorUnitario | currency:'BRL':'symbol':'1.2-2'  }}</td>
+                            <td class="text-right">{{ item.valorTotal | currency:'BRL':'symbol':'1.2-2'  }}</td>
+                            <td>{{ item.observacoes || '-' }}</td>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                          <tr>
+                            <td colspan="5" class="text-center p-4 text-600">
+                              Nenhum material adicionado
+                            </td>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="footer" *ngIf="projeto.itens?.length">
+                          <tr>
+                            <td colspan="3" class="text-right font-bold">Total:</td>
+                            <td class="text-right font-bold">
+                              {{ getTotalMateriais(projeto.itens) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                            </td>
+                            <td></td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
                     </div>
                   </p-tabPanel>
-
+                  <!-- Financeiro -->
+                  <p-tabPanel header="Financeiro" leftIcon="pi pi-calculator mr-2">
+                    <div class="grid">
+                      <div class="col-12 md:col-3">
+                        <div class="p-3 border-round surface-card shadow-1 h-full">
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">
+                              {{ (projeto.valorTotal - projeto.valorMaoObra) |currency:'BRL':'symbol':'1.2-2'  }}
+                            </div>
+                            <div class="text-600">Materiais</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 md:col-3">
+                        <div class="p-3 border-round surface-card shadow-1 h-full">
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">
+                              {{ projeto.valorMaoObra | currency:'BRL':'symbol':'1.2-2'  }}
+                            </div>
+                            <div class="text-600">Mão de Obra</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 md:col-3">
+                        <div class="p-3 border-round surface-card shadow-1 h-full">
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600">
+                              {{ projeto.margemLucro || 0 }}%
+                            </div>
+                            <div class="text-600">Margem Lucro</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 md:col-3">
+                        <div class="p-3 border-round surface-card shadow-1 bg-primary-100 h-full">
+                          <div class="text-center">
+                            <div class="text-3xl font-bold text-primary">
+                              {{ projeto.valorTotal | currency:'BRL':'symbol':'1.2-2'  }}
+                            </div>
+                            <div class="text-primary-600 font-medium">Total</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </p-tabPanel>
                 </p-tabView>
               </div>
             </td>
           </tr>
         </ng-template>
-
       </p-table>
     </div>
-
   </div>
 </div>

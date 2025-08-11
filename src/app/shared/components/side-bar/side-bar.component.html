@@ -11,7 +11,7 @@
         >
           <i class="pi pi-home mr-2 font-semibold text-2xl text-primary"></i>
           <span class="font-semibold text-2xl text-primary"
-            >Marmoraria São Carlos</span
+          >Marmoraria São Carlos</span
           >
         </span>
         <span>
@@ -36,16 +36,6 @@
             </a>
           </li>
           <li>
-            <a
-              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
-              routerLink="/projetos"
-              routerLinkActive="exact_route"
-            >
-              <i class="pi pi-briefcase"></i>
-              <span class="font-medium">Projetos</span>
-            </a>
-          </li>
-          <li>
             <div
               (click)="toggleCadastros()"
               [ngClass]="{ 'menu-item': true, open: cadatrosOpen }"
@@ -60,6 +50,16 @@
               ></i>
             </div>
             <ul *ngIf="cadatrosOpen" class="list-none p-0 m-0 overflow-hidden">
+              <li>
+                <a
+                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
+                  routerLink="/projetos"
+                  routerLinkActive="exact_route"
+                >
+                  <i class="pi pi-briefcase"></i>
+                  <span class="font-medium">Projetos</span>
+                </a>
+              </li>
               <li routerLink="/usuarios" routerLinkActive="exact_route">
                 <a
                   class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
@@ -143,14 +143,12 @@
               ></i>
             </div>
             <ul *ngIf="expedientOpen" class="list-none p-0 m-0 overflow-hidden">
-              <!--
-                   <li routerLink="/ordem-de-servico" routerLinkActive="exact_route">
+              <li routerLink="/ordem-de-servico" routerLinkActive="exact_route">
                 <a class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
                   <i class="pi pi-bolt mr-2"></i>
                   <span class="font-medium">Ordens de Serviço</span>
                 </a>
               </li>
-            -->
               <li routerLink="/venda" routerLinkActive="exact_route">
                 <a
                   class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors"
@@ -169,7 +167,7 @@
               </li>
             </ul>
           </li>
-<li>
+          <li>
           <li>
             <div (click)="toggleFinanceiro()" [ngClass]="{'menu-item': true, 'open': financeiroOpen}" class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer">
               <span class="font-medium">FINANCEIRO</span>

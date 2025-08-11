@@ -1,69 +1,386 @@
-/* Estilo para o cartão principal */
-.form-card {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 2rem auto;
-  padding: 2rem;
+.venda-unificada-container {
+  padding: 1rem;
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+
+    .title-section {
+      h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+
+      p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+      }
+    }
+
+    .actions-section {
+      ::ng-deep .p-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+
+  .filter-card {
+    margin-bottom: 1.5rem;
+
+    .filter-form {
+      .p-grid {
+        margin: 0;
+
+        .p-col-12 {
+          padding: 0.5rem;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+          }
+        }
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: end;
+        height: 100%;
+        padding-top: 1.5rem;
+
+        ::ng-deep .p-button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .vendas-card {
+    ::ng-deep .p-datatable {
+      .p-datatable-header {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 1rem;
+        font-weight: 600;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+
+        .action-buttons {
+          display: flex;
+          gap: 0.25rem;
+          justify-content: center;
+
+          ::ng-deep .p-button {
+            width: 2rem;
+            height: 2rem;
+          }
+        }
+      }
+
+      .p-datatable-tbody > tr:hover {
+        background: #f8f9fa;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #6c757d;
+
+      p {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  ::ng-deep .p-dialog {
+    .p-dialog-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 6px 6px 0 0;
+
+      .p-dialog-title {
+        font-weight: 600;
+      }
+
+      .p-dialog-header-icon {
+        color: white;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+
+    .p-dialog-content {
+      padding: 0;
+    }
+  }
+
+  .venda-form {
+    padding: 1.5rem;
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      background: #f8f9fa;
+
+      h4 {
+        margin: 0 0 1rem 0;
+        color: #495057;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+
+        i {
+          margin-right: 0.5rem;
+          color: #6c757d;
+        }
+      }
+
+      .p-grid {
+        margin: 0;
+
+        .p-col-12 {
+          padding: 0.5rem;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+
+            &::after {
+              content: " *";
+              color: #dc3545;
+              display: none;
+            }
+
+            &[for$="cliente"]::after,
+            &[for$="tipoVenda"]::after,
+            &[for$="projeto"]::after,
+            &[for$="formaPagamento"]::after {
+              display: inline;
+            }
+          }
+
+          .p-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+          }
+        }
+      }
+
+      .projeto-item,
+      .produto-item {
+        display: flex;
+        flex-direction: column;
+
+        small {
+          color: #6c757d;
+          margin-top: 0.25rem;
+        }
+      }
+
+      .item-row {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: white;
+
+        .subtotal-display {
+          padding: 0.5rem;
+          background: #e9ecef;
+          border-radius: 4px;
+          text-align: center;
+          font-weight: 600;
+          color: #495057;
+          margin-top: 1.5rem;
+        }
+
+        .item-actions {
+          display: flex;
+          justify-content: center;
+          align-items: end;
+          height: 100%;
+          padding-top: 1.5rem;
+        }
+      }
+
+      .add-item-section {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .valores-resumo {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+
+        .valor-linha {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid #f1f3f4;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          &.total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #28a745;
+            border-top: 2px solid #dee2e6;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+          }
+
+          .valor {
+            font-weight: 500;
+
+            &.desconto {
+              color: #dc3545;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+  }
 }
 
-/* Estilo para os cartões de informações e itens */
-.info-card,
-.items-card,
-.submit-card {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
+// Responsividade
+@media (max-width: 768px) {
+  .venda-unificada-container {
+    padding: 0.5rem;
+
+    .header-section {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .venda-form {
+      padding: 1rem;
+
+      .form-section {
+        padding: 1rem;
+
+        .item-row {
+          .p-grid {
+            .p-col-12 {
+              padding: 0.25rem;
+            }
+          }
+
+          .subtotal-display,
+          .item-actions {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+          }
+        }
+      }
+    }
+
+    ::ng-deep .p-dialog {
+      width: 95vw !important;
+      margin: 1rem;
+    }
+  }
 }
 
-/* Estilo para campos de entrada e dropdowns */
-.p-field {
-  margin-bottom: 1rem;
+// Animações
+.venda-unificada-container {
+  animation: fadeIn 0.3s ease-in;
 }
 
-textarea {
-  resize: vertical;
-  border-radius: 6px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.p-dropdown {
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+// Estados de loading
+::ng-deep .p-datatable-loading-overlay {
+  background: rgba(255, 255, 255, 0.8);
+
+  .p-datatable-loading-icon {
+    font-size: 2rem;
+    color: #667eea;
+  }
 }
 
-.p-button-success {
-  margin-right: 0.5rem;
+// Customização de tags
+::ng-deep .p-tag {
+  font-weight: 500;
+
+  &.p-tag-success {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.p-tag-info {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  &.p-tag-warning {
+    background: #fff3cd;
+    color: #856404;
+  }
 }
 
-.p-button-danger {
-  margin-right: 0.5rem;
-}
-
-.p-button-primary {
-  width: 100%;
-  border-radius: 6px;
-}
-
-/* Estilo para a tabela */
-.p-table {
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.p-table thead {
-  background-color: #f4f4f4;
-}
-
-/* Estilo para o botão adicionar item */
-.p-button-success {
-  border-radius: 6px;
-}
-
-/* Estilo para o botão de excluir item */
-.p-button-danger {
-  border-radius: 6px;
-}
-
-.p-invalid {
-  border: 1px solid red !important;
-}

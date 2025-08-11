@@ -2,29 +2,29 @@
   <div class="col-12">
     <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Vendas">
       <p-table
-        #comprasTable
+        #vendasTable
         [value]="vendas"
         [rows]="10"
         [paginator]="true"
         [responsive]="true"
-        [globalFilterFields]="['venId', 'dataAbertura', 'dataFechamento', 'desconto', 'vendaTipo', 'cliente', 'formaPagamento']"
+        [globalFilterFields]="['vendaId', 'observacoes', 'valorTotal', 'dataVenda', 'cliente', 'funcionario', 'formaPagamento', 'vendaTipo']"
         [tableStyle]="{ 'min-width': '75rem' }"
         [(selection)]="vendaSelected"
         [rowHover]="true"
         [showCurrentPageReport]="true"
-        dataKey="comprId"
+        dataKey="vendaId"
         currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} Vendas"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="venId">
+            <th pSortableColumn="vendaId">
               <div class="flex justify-content-between align-items-center">
                 <div>ID</div>
                 <div>
-                  <p-sortIcon field="venId"></p-sortIcon>
+                  <p-sortIcon field="vendaId"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="venId"
+                    field="vendaId"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -34,65 +34,14 @@
                 </div>
               </div>
             </th>
-            <th pSortableColumn="dataAbertura">
+            <th pSortableColumn="dataVenda">
               <div class="flex justify-content-between align-items-center">
-                <div>Date Abertura</div>
+                <div>Data da Venda</div>
                 <div>
-                  <p-sortIcon field="dataAbertura"></p-sortIcon>
+                  <p-sortIcon field="dataVenda"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="dataAbertura"
-                    display="menu"
-                    matchMode="contains"
-                    [showMatchModes]="false"
-                    [showOperator]="false"
-                    [showAddButton]="false"
-                  ></p-columnFilter>
-                </div>
-              </div>
-            </th>
-            <th pSortableColumn="dataFechamento">
-              <div class="flex justify-content-between align-items-center">
-                <div>Valor total</div>
-                <div>
-                  <p-sortIcon field="total"></p-sortIcon>
-                  <p-columnFilter
-                    type="text"
-                    field="total"
-                    display="menu"
-                    matchMode="contains"
-                    [showMatchModes]="false"
-                    [showOperator]="false"
-                    [showAddButton]="false"
-                  ></p-columnFilter>
-                </div>
-              </div>
-            </th>
-            <th pSortableColumn="desconto">
-              <div class="flex justify-content-between align-items-center">
-                <div>Desconto</div>
-                <div>
-                  <p-sortIcon field="desconto"></p-sortIcon>
-                  <p-columnFilter
-                    type="text"
-                    field="desconto"
-                    display="menu"
-                    matchMode="contains"
-                    [showMatchModes]="false"
-                    [showOperator]="false"
-                    [showAddButton]="false"
-                  ></p-columnFilter>
-                </div>
-              </div>
-            </th>
-            <th pSortableColumn="vendaTipo">
-              <div class="flex justify-content-between align-items-center">
-                <div>Tipo da venda</div>
-                <div>
-                  <p-sortIcon field="vendaTipo"></p-sortIcon>
-                  <p-columnFilter
-                    type="text"
-                    field="vendaTipo"
+                    field="dataVenda"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -109,7 +58,41 @@
                   <p-sortIcon field="cliente"></p-sortIcon>
                   <p-columnFilter
                     type="text"
-                    field="cliente"
+                    field="clienteNome"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="vendaTipo">
+              <div class="flex justify-content-between align-items-center">
+                <div>Tipo</div>
+                <div>
+                  <p-sortIcon field="vendaTipo"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="vendaTipo"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="valorTotal">
+              <div class="flex justify-content-between align-items-center">
+                <div>Valor Total</div>
+                <div>
+                  <p-sortIcon field="valorTotal"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="valorTotal"
                     display="menu"
                     matchMode="contains"
                     [showMatchModes]="false"
@@ -136,6 +119,40 @@
                 </div>
               </div>
             </th>
+            <th pSortableColumn="status">
+              <div class="flex justify-content-between align-items-center">
+                <div>Status</div>
+                <div>
+                  <p-sortIcon field="status"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="status"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
+            <th pSortableColumn="observacoes">
+              <div class="flex justify-content-between align-items-center">
+                <div>Observações</div>
+                <div>
+                  <p-sortIcon field="observacoes"></p-sortIcon>
+                  <p-columnFilter
+                    type="text"
+                    field="observacoes"
+                    display="menu"
+                    matchMode="contains"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                  ></p-columnFilter>
+                </div>
+              </div>
+            </th>
             <th>
               <div class="flex justify-content-center">
                 <p-button
@@ -152,13 +169,24 @@
         </ng-template>
         <ng-template pTemplate="body" let-venda>
           <tr>
-            <td>{{ venda.id }}</td>
-            <td>{{ venda.dataAbertura | date:'dd/MM/yyyy':'pt-BR' }}</td>
-            <td>{{ venda.total | currency }}</td>
-            <td>{{ venda.desconto | currency }}</td>
-            <td>{{ getDescricaoVendaTipo(venda.vendaTipo) }}</td>
-            <td>{{ venda.clienteNome }}</td>
-            <td>{{ getDescricaoFormaPagamento(venda.formaPagamento) }}</td>
+            <td>{{ venda?.vendaId }}</td>
+            <td>{{ venda?.dataVenda | date:'dd/MM/yyyy':'pt-BR' }}</td>
+            <td>{{ venda?.clienteNome }}</td>
+            <td>
+              <p-tag
+                [value]="getTipoVendaLabel(venda?.vendaTipo)"
+                [severity]="venda?.vendaTipo === 'ORCAMENTO' ? 'info' : 'success'">
+              </p-tag>
+            </td>
+            <td>{{ venda?.valorTotal | currency }}</td>
+            <td>{{ getDescricaoFormaPagamento(venda?.formaPagamento) }}</td>
+            <td>
+              <p-tag
+                [value]="getStatusLabel(venda)"
+                [severity]="getStatusClass(venda)">
+              </p-tag>
+            </td>
+            <td>{{ venda?.observacoes }}</td>
             <td>
               <div class="flex justify-content-center gap-3 align-items-center align-content-center">
                 <button
@@ -168,7 +196,8 @@
                   class="p-button-rounded p-button-warning"
                   pTooltip="Editar Venda"
                   tooltipPosition="top"
-                  (click)="handleVendaEvent(editVendaEvent, venda?.id)"
+                  [disabled]="!podeEditar(venda)"
+                  (click)="handleVendaEvent(editVendaEvent, venda?.vendaId)"
                 ></button>
                 <button
                   pButton
@@ -177,7 +206,37 @@
                   class="p-button-rounded p-button-success"
                   pTooltip="Visualizar Venda"
                   tooltipPosition="top"
-                  (click)="handleVendaEvent(viewVendaEvent, venda?.id)"
+                  (click)="handleVendaEvent(viewVendaEvent, venda?.vendaId)"
+                ></button>
+                <button
+                  *ngIf="podeEfetivar(venda)"
+                  pButton
+                  pRipple
+                  icon="pi pi-check"
+                  class="p-button-rounded p-button-info"
+                  pTooltip="Efetivar Venda"
+                  tooltipPosition="top"
+                  (click)="handleVendaEvent(efetivateVendaEvent, venda?.vendaId)"
+                ></button>
+                <button
+                  *ngIf="podeGerarContaReceber(venda)"
+                  pButton
+                  pRipple
+                  icon="pi pi-money-bill"
+                  class="p-button-rounded p-button-help"
+                  pTooltip="Gerar Conta a Receber"
+                  tooltipPosition="top"
+                  (click)="handleVendaEvent(gerarContaReceberEvent, venda?.vendaId)"
+                ></button>
+                <button
+                  *ngIf="podeGerarOrdemServico(venda)"
+                  pButton
+                  pRipple
+                  icon="pi pi-cog"
+                  class="p-button-rounded p-button-secondary"
+                  pTooltip="Gerar Ordem de Serviço"
+                  tooltipPosition="top"
+                  (click)="handleVendaEvent(gerarOrdemServicoEvent, venda?.vendaId)"
                 ></button>
               </div>
             </td>
