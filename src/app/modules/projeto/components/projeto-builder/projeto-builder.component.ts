@@ -40,6 +40,7 @@ interface MaterialTemplate {
 })
 export class ProjetoBuilderComponent implements OnInit {
   private readonly destroy$: Subject<void> = new Subject();
+  private isInitializing = false;
   projetoForm!: FormGroup;
   isEditMode = false;
   projetoId!: number;
@@ -247,7 +248,7 @@ export class ProjetoBuilderComponent implements OnInit {
     const medidas = formValue.medidas;
 
     const itens = this.itensFormArray.controls.map(control => {
-      const itemValue = control.value;
+      const itemValue = control.getRawValue();
       const material = this.getMaterialById(itemValue.produtoId);
 
       return {
@@ -444,6 +445,7 @@ export class ProjetoBuilderComponent implements OnInit {
       takeUntil(this.destroy$),
       debounceTime(300)
     ).subscribe((tipo) => {
+      if (this.isInitializing) return;
       if (tipo && !isUpdating) {
         isUpdating = true;
         this.carregarMateriaisSugeridos();
@@ -462,6 +464,7 @@ export class ProjetoBuilderComponent implements OnInit {
       takeUntil(this.destroy$),
       debounceTime(300)
     ).subscribe((clienteId) => {
+      if (this.isInitializing) return;
       if (clienteId && !isUpdating) {
         isUpdating = true;
         this.updateStepCompletion('cliente', true);
@@ -479,6 +482,7 @@ export class ProjetoBuilderComponent implements OnInit {
         return JSON.stringify(prev) === JSON.stringify(curr);
       })
     ).subscribe(() => {
+      if (this.isInitializing) return;
       if (isUpdating) return;
       isUpdating = true;
       try {
@@ -498,6 +502,7 @@ export class ProjetoBuilderComponent implements OnInit {
       takeUntil(this.destroy$),
       debounceTime(300)
     ).subscribe(() => {
+      if (this.isInitializing) return;
       if (!isUpdating) {
         isUpdating = true;
         if (this.validarFormularioParaCalculoBasico()) {
@@ -511,6 +516,7 @@ export class ProjetoBuilderComponent implements OnInit {
       takeUntil(this.destroy$),
       debounceTime(300)
     ).subscribe(() => {
+      if (this.isInitializing) return;
       if (!isUpdating) {
         isUpdating = true;
         this.valorMateriais = Math.max(0, this.itensFormArray.controls.reduce((total, control) => {
@@ -725,6 +731,7 @@ export class ProjetoBuilderComponent implements OnInit {
   }
 
   carregarProjeto() {
+    this.isInitializing = true;
     this.loading = true;
     this.projetoService.buscarProjetoPorId(this.projetoId).subscribe({
       next: (projeto) => {
@@ -737,6 +744,7 @@ export class ProjetoBuilderComponent implements OnInit {
           summary: 'Erro',
           detail: 'Erro ao carregar projeto'
         });
+        this.isInitializing = false;
         this.loading = false;
       }
     });
