@@ -274,12 +274,13 @@ export class VendaFormComponent implements OnInit {
     });
   }
 
+// Em venda-form.component.ts
+
   addItem(): void {
     const produtoFormValue = this.form.get('produtoId')?.value;
     const quantidade = this.form.get('quantidade')?.value;
     const precoUnitario = this.form.get('precoUnitario')?.value;
 
-    // Verifica se temos um produto válido (pode ser o objeto completo ou apenas o ID)
     const produtoId = produtoFormValue?.id || produtoFormValue;
 
     if (!produtoId || !quantidade || !precoUnitario || quantidade <= 0 || precoUnitario <= 0) {
@@ -291,7 +292,6 @@ export class VendaFormComponent implements OnInit {
       return;
     }
 
-    // Encontra o produto completo no array
     const produto = this.produtos.find(p => p.id === (produtoId.id || produtoId));
     if (!produto) {
       console.error('Produto não encontrado para o ID:', produtoId);
@@ -309,10 +309,16 @@ export class VendaFormComponent implements OnInit {
 
     this.items = [...this.items, newItem];
 
-    // Limpa campos (garanta que está limpando o objeto completo)
+    // Limpa campos
     this.form.get('produtoId')?.setValue(null);
     this.form.get('quantidade')?.setValue(1);
     this.form.get('precoUnitario')?.setValue(0);
+
+    if (this.items.length > 0) {
+      const produtoIdControl = this.form.get('produtoId');
+      produtoIdControl?.clearValidators();
+      produtoIdControl?.updateValueAndValidity(); // Notifica o Angular da mudança
+    }
 
     this.changeDetectorRef.detectChanges();
     this.updateTotais();
@@ -320,6 +326,14 @@ export class VendaFormComponent implements OnInit {
 
   removeItem(index: number): void {
     this.items = this.items.filter((_, i) => i !== index);
+
+    // ⭐ NOVO: Restaura a validação se a lista de itens ficar vazia
+    if (this.items.length === 0 && this.tipoVendaAtual === 'PRODUTO') {
+      const produtoIdControl = this.form.get('produtoId');
+      produtoIdControl?.setValidators(Validators.required);
+      produtoIdControl?.updateValueAndValidity(); // Notifica o Angular
+    }
+
     this.changeDetectorRef.detectChanges();
     this.updateTotais();
   }
@@ -432,21 +446,22 @@ export class VendaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.markAllAsTouched();
+
     if (this.form.invalid) {
-      this.markAllAsTouched();
       this.messageService.add({
         severity: 'warn',
-        summary: 'Formulário inválido',
-        detail: 'Preencha todos os campos obrigatórios'
+        summary: 'Formulário Inválido',
+        detail: 'Por favor, preencha todos os campos obrigatórios.'
       });
       return;
     }
 
-    if (this.form.value.tipo === 'PRODUTO' && this.items.length === 0) {
+    if (this.tipoVendaAtual === 'PRODUTO' && this.items.length === 0) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Adicione pelo menos um item para venda de produto'
+        summary: 'Venda Incompleta',
+        detail: 'Adicione pelo menos um item para registrar uma Venda de Produto.'
       });
       return;
     }
@@ -460,35 +475,54 @@ export class VendaFormComponent implements OnInit {
       desconto: formValue.desconto,
       formaPagamento: formValue.formaPagamento,
       numeroParcelas: formValue.numeroParcelas || 1,
-      observacoes: formValue.observacoes
+      observacoes: formValue.observacoes,
+      itensVenda: []
     };
 
     if (formValue.tipo === 'PRODUTO') {
-      vendaData.itens = this.items.map(item => ({
-        produtoId: item.produto?.id,
+      vendaData.itensVenda = this.items.map(item => ({
+        produto: item.produto?.id,
         quantidade: item.quantidade,
-        precoUnitario: item.preco
+        preco: item.preco
       }));
     } else {
       vendaData.projetoId = formValue.projetoId;
     }
 
+    // Etapa 1: Criar a venda
     this.vendaService.criarVenda(vendaData).subscribe({
-      next: (venda) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Venda registrada com sucesso!'
-        });
+      next: (vendaCriada) => {
+        // NÃO exiba a mensagem aqui. Apenas chame o próximo passo.
+        console.log('Venda criada com ID:', vendaCriada.id);
 
-        if (this.parcelas.length > 1) {
-          this.processarVendaCompleta(venda.id as number);
-        } else {
-          this.resetForm();
-        }
+        // Etapa 2: Processar a venda recém-criada
+        this.vendaService.processarVendaCompleta(vendaCriada.id as number).subscribe({
+          next: (response) => {
+            // Exiba a ÚNICA mensagem de sucesso aqui, no final de todo o processo.
+            if (response.success) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Sucesso',
+                detail: response.message || 'Venda registrada e processada com sucesso!'
+              });
+            } else {
+              this.messageService.add({
+                severity: 'warn',
+                summary: 'Aviso no Processamento',
+                detail: response.message || 'A venda foi criada, mas houve um aviso no processamento.'
+              });
+            }
+            this.resetForm();
+            this.submitting = false;
+          },
+          error: (err) => {
+            this.showError('Erro no processamento automático da venda', err);
+            this.submitting = false;
+          }
+        });
       },
       error: (err) => {
-        this.showError('Erro ao registrar venda', err);
+        this.showError('Erro ao criar a venda', err);
         this.submitting = false;
       }
     });
