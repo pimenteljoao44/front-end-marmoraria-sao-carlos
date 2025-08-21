@@ -14,13 +14,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import {DialogService, DynamicDialogModule} from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { TagModule } from 'primeng/tag';
-import { ToolbarModule } from 'primeng/toolbar';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import {VendaTableComponent} from "../projeto/components/venda-table/venda-table.component";
+
+import {VendaTableComponent} from "./components/venda-table/venda-table.component";
 import {VendaViewComponent} from "./components/venda-view/venda-view.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {RouterModule} from "@angular/router";
@@ -45,9 +42,9 @@ registerLocaleData(localePt, 'pt-BR');
   declarations: [
     VendaHomeComponent,
     VendaFormComponent,
-    VendaTableComponent,
     VendaViewComponent,
-    VendaItensComponent
+    VendaItensComponent,
+    VendaTableComponent
   ],
   imports: [
     CommonModule,
