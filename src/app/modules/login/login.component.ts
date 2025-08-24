@@ -50,15 +50,19 @@ export class LoginComponent implements OnInit, OnDestroy {
                 path: '/',
                 expires: 1,
               });
-              // Navegue imediatamente após o token ser salvo
-              this.router.navigate(['home'], { replaceUrl: true });
-              this.loginForm.reset();
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Sucesso',
-                detail: `Bem-vindo de volta ${response.nome}`,
-                life: 2000,
-              });
+
+              setTimeout(() => {
+                // Navegue após garantir que o cookie foi salvo
+                this.router.navigate(['home'], { replaceUrl: true }).then(() => {
+                  this.loginForm.reset();
+                  this.messageService.add({
+                    severity: 'success',
+                    summary: 'Sucesso',
+                    detail: `Bem-vindo de volta ${response.nome}`,
+                    life: 2000,
+                  });
+                });
+              }, 100);
             }
           },
           error: (err) => {

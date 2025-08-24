@@ -35,6 +35,8 @@ import {ProgressBarModule} from "primeng/progressbar";
 import {VendaItensComponent} from "./components/venda-itens/venda-itens.component";
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import {TagModule} from "primeng/tag";
+import {RippleModule} from "primeng/ripple";
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -71,6 +73,8 @@ registerLocaleData(localePt, 'pt-BR');
     ProgressSpinnerModule,
     ToastModule,
     ProgressBarModule,
+    TagModule,
+    RippleModule,
   ],
   providers: [DialogService, ConfirmationService, DatePipe,CurrencyPipe,
     { provide: LOCALE_ID, useValue: 'pt-BR' } ],

@@ -186,6 +186,7 @@
                   class="p-button-rounded p-button-warning"
                   pTooltip="Editar Compra"
                   tooltipPosition="top"
+                  [disabled]="compra != null"
                   (click)="handleCompraEvent(editCompraEvent, compra?.comprId)"
                 ></button>
                 <button

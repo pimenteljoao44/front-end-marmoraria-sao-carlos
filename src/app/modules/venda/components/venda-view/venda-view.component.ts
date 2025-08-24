@@ -16,6 +16,7 @@ export class VendaViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.venda = this.config.data.venda;
+    console.log(JSON.stringify(this.venda))
   }
 
   public getDescricaoFormaPagamento(cod?: FormaPagamento): string {

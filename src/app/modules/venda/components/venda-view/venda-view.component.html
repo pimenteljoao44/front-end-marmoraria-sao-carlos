@@ -37,7 +37,7 @@
         <tr>
           <td>{{ item.produtoNome }}</td>
           <td>{{ item.quantidade }}</td>
-          <td>{{ item.preco | currency }}</td>
+          <td>{{ item.preco | currency:'BRL':'symbol':'1.2-2' }}</td>
         </tr>
       </ng-template>
     </p-table>

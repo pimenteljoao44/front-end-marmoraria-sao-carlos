@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 // HttpHeaders é necessário para criar os cabeçalhos de autenticação
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {forkJoin, map, mergeMap, Observable, of} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Venda} from "../../../models/interfaces/venda/Venda";
 import {CookieService} from "ngx-cookie-service";
@@ -63,7 +63,25 @@ export class VendaService {
   }
 
   findById(id: number): Observable<Venda> {
-    return this.http.get<Venda>(`${this.apiUrl}/${id}`, this.httpOptions);
+    return this.http.get<Venda>(`${this.apiUrl}/${id}`, this.httpOptions).pipe(
+      mergeMap(venda => {
+        if (venda.vendaTipo === 0 && venda.itensVenda && venda.itensVenda.length > 0) {
+          const produtos$ = venda.itensVenda.map(item =>
+            this.http.get<{ nome: string }>(`${environment.baseUrl}/produto/${item.produto}`, this.httpOptions).pipe(
+              map(produto => ({...item, produtoNome: produto.nome}))
+            )
+          );
+
+          return forkJoin(produtos$).pipe(
+            map(itensComNome => {
+              return { ...venda, itensVenda: itensComNome };
+            })
+          );
+        }
+
+        return of(venda);
+      })
+    );
   }
 
   criarVenda(venda: Venda): Observable<Venda> {
@@ -86,6 +104,10 @@ export class VendaService {
 
   efetivarVenda(vendaId: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/${vendaId}/efetivar`, {}, this.httpOptions);
+  }
+
+  efetivarVendaProjeto(vendaId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${vendaId}/efetivar-projeto`, {},this.httpOptions);
   }
 
   gerarContaReceber(vendaId: number): Observable<any> {

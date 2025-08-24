@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { ProjetoService } from "../../../../services/projeto/projeto.service";
-import { Projeto } from "../../../../../models/interfaces/projeto/Projeto";
-import { StatusProjeto } from "../../../../../models/enums/projeto/StatusProjeto";
-import { TipoProjeto } from "../../../../../models/enums/projeto/TipoProjeto";
-import {forkJoin, map, of, Subject, takeUntil} from "rxjs";
-import { ClientesService } from "../../../../services/clientes/clientes.service";
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {ProjetoService} from "../../../../services/projeto/projeto.service";
+import {Projeto} from "../../../../../models/interfaces/projeto/Projeto";
+import {StatusProjeto} from "../../../../../models/enums/projeto/StatusProjeto";
+import {TipoProjeto} from "../../../../../models/enums/projeto/TipoProjeto";
+import {forkJoin, map, of} from "rxjs";
+import {ClientesService} from "../../../../services/clientes/clientes.service";
 import {ProdutoService} from "../../../../services/produto/produto.service";
 import {catchError} from "rxjs/operators";
 
@@ -38,7 +38,8 @@ export class ListaProjetosComponent implements OnInit {
     { label: 'Em Produção', value: StatusProjeto.EM_PRODUCAO },
     { label: 'Pronto', value: StatusProjeto.PRONTO },
     { label: 'Entregue', value: StatusProjeto.ENTREGUE },
-    { label: 'Cancelado', value: StatusProjeto.CANCELADO }
+    { label: 'Cancelado', value: StatusProjeto.CANCELADO },
+    { label: 'Vendido', value: StatusProjeto.VENDIDO }
   ];
 
   tipoProjetoOptions = [
@@ -334,7 +335,8 @@ export class ListaProjetosComponent implements OnInit {
       [StatusProjeto.EM_PRODUCAO]: 'warning',
       [StatusProjeto.PRONTO]: 'help',
       [StatusProjeto.ENTREGUE]: 'success',
-      [StatusProjeto.CANCELADO]: 'danger'
+      [StatusProjeto.CANCELADO]: 'danger',
+      [StatusProjeto.VENDIDO]: 'succes'
     };
     return severities[status] || 'info';
   }
@@ -346,7 +348,8 @@ export class ListaProjetosComponent implements OnInit {
       [StatusProjeto.EM_PRODUCAO]: 'Em Produção',
       [StatusProjeto.PRONTO]: 'Pronto',
       [StatusProjeto.ENTREGUE]: 'Entregue',
-      [StatusProjeto.CANCELADO]: 'Cancelado'
+      [StatusProjeto.CANCELADO]: 'Cancelado',
+      [StatusProjeto.VENDIDO]: 'Vendido'
     };
     return labels[status] || status;
   }
@@ -379,6 +382,46 @@ export class ListaProjetosComponent implements OnInit {
       [TipoProjeto.SOLEIRA]: 'pi pi-th-large' // Or pi pi-window-maximize
     };
     return icons[tipo] || 'pi pi-box';
+  }
+
+  aprovarProjeto(projeto: Projeto) {
+    this.confirmationService.confirm({
+      message: `Deseja aprovar o projeto "${projeto.nome}"?`,
+      header: 'Confirmar Aprovação',
+      icon: 'pi pi-check-circle',
+      acceptLabel: 'Sim, Aprovar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        // Solicitar observações opcionais
+        const observacoes = prompt('Observações sobre a aprovação (opcional):');
+
+        const requestBody = observacoes ? { observacoes } : {};
+
+        this.projetoService.aprovarProjeto(projeto.id!, requestBody).subscribe({
+          next: (projetoAtualizado) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Projeto aprovado com sucesso!'
+            });
+
+            // Atualizar o projeto na lista
+            const index = this.projetos.findIndex(p => p.id === projeto.id);
+            if (index !== -1) {
+              this.projetos[index] = projetoAtualizado;
+            }
+          },
+          error: (error) => {
+            console.error('Erro ao aprovar projeto:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: error.error?.message || 'Erro ao aprovar projeto'
+            });
+          }
+        });
+      }
+    });
   }
 
   exportarRelatorio() {

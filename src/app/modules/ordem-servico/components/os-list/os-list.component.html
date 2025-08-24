@@ -1,0 +1,213 @@
+<div class="col-12">
+  <p-card styleClass="shadow-3 mt-5 text-indigo-400" header="Ordens de Serviço">
+    <p-table
+      #osTable
+      [value]="ordensServico"
+      [rows]="10"
+      [paginator]="true"
+      [responsive]="true"
+      [globalFilterFields]="['numero','descricao','projeto.nome','funcionarioResponsavel.nome','status']"
+      [tableStyle]="{ 'min-width': '75rem' }"
+      [(selection)]="osSelected"
+      [rowHover]="true"
+      [showCurrentPageReport]="true"
+      dataKey="id"
+      currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} ordens de serviço"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                ID
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="id"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="id"
+                  display="menu"
+                  placeholder="Buscar por ID"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="numero">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Número
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="numero"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="numero"
+                  display="menu"
+                  placeholder="Buscar por número"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="descricao">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Descrição
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="descricao"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="descricao"
+                  display="menu"
+                  placeholder="Buscar por descrição"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="projeto.nome">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Projeto
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="projeto.nome"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="projeto.nome"
+                  display="menu"
+                  placeholder="Buscar por projeto"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="funcionarioResponsavel.nome">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Responsável
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="funcionarioResponsavel.nome"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="funcionarioResponsavel.nome"
+                  display="menu"
+                  placeholder="Buscar por responsável"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="status">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Status
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="status"></p-sortIcon>
+                <p-columnFilter
+                  type="text"
+                  field="status"
+                  display="menu"
+                  placeholder="Buscar por status"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th pSortableColumn="dataInicio">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
+                Data Início
+              </div>
+              <div class="flex justify-content-between align-items-center">
+                <p-sortIcon field="dataInicio"></p-sortIcon>
+                <p-columnFilter
+                  type="date"
+                  field="dataInicio"
+                  display="menu"
+                  placeholder="Buscar por data"
+                ></p-columnFilter>
+              </div>
+            </div>
+          </th>
+          <th>
+            <div class="flex justify-content-center align-items-center">
+              <p-button
+                icon="pi pi-plus"
+                styleClass="p-button-success p-button-sm"
+                pTooltip="Nova Ordem de Serviço"
+                tooltipPosition="top"
+                (onClick)="handleOSEvent(createOSEvent)"
+              ></p-button>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-os>
+        <tr>
+          <td>{{ os?.id }}</td>
+          <td>{{ os?.numero }}</td>
+          <td>{{ os?.descricao }}</td>
+          <td>{{ os?.projeto?.nome || 'N/A' }}</td>
+          <td>{{ os?.funcionarioResponsavel?.nome || 'N/A' }}</td>
+          <td>
+            <p-tag
+              [value]="getStatusLabel(os?.status)"
+              [severity]="getStatusSeverity(os?.status)">
+            </p-tag>
+          </td>
+          <td>{{ os?.dataInicio | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="flex justify-content-center gap-2">
+              <p-button
+                icon="pi pi-pencil"
+                styleClass="p-button-warning p-button-sm"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                [disabled]="!podeEditar(os)"
+                (click)="handleOSEvent(editOSEvent, os?.id)"
+              ></p-button>
+
+              <p-button
+                icon="pi pi-eye"
+                styleClass="p-button-info p-button-sm"
+                pTooltip="Visualizar"
+                tooltipPosition="top"
+                (click)="handleOSEvent(viewOSEvent, os?.id)"
+              ></p-button>
+
+              <p-button
+                *ngIf="podeIniciar(os)"
+                icon="pi pi-play"
+                styleClass="p-button-success p-button-sm"
+                pTooltip="Iniciar Execução"
+                tooltipPosition="top"
+                (click)="handleOSEvent(startOSEvent, os?.id)"
+              ></p-button>
+
+              <p-button
+                *ngIf="podeConcluir(os)"
+                icon="pi pi-check"
+                styleClass="p-button-success p-button-sm"
+                pTooltip="Concluir"
+                tooltipPosition="top"
+                (click)="handleOSEvent(completeOSEvent, os?.id)"
+              ></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="flex flex-column align-items-center justify-content-center py-5">
+              <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
+              <span class="text-lg text-600">Nenhuma ordem de serviço encontrada</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+

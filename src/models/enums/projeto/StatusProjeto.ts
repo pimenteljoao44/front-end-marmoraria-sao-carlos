@@ -4,5 +4,6 @@ export enum StatusProjeto {
   EM_PRODUCAO = 'EM_PRODUCAO',
   ENTREGUE = 'ENTREGUE',
   CANCELADO = 'CANCELADO',
-  PRONTO = 'PRONTO'
+  PRONTO = 'PRONTO',
+  VENDIDO = 'VENDIDO'
 }

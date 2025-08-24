@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import {ParcelaDTO, VendaService} from "../../../../services/venda/venda.service";
 import {Produto} from "../../../../../models/interfaces/produto/Produto";
 import {Projeto} from "../../../../../models/interfaces/projeto/Projeto";
@@ -9,6 +9,8 @@ import {ItemVenda} from "../../../../../models/interfaces/venda/ItemVenda";
 import {ProdutoService} from "../../../../services/produto/produto.service";
 import {ProjetoService} from "../../../../services/projeto/projeto.service";
 import {ClientesService} from "../../../../services/clientes/clientes.service";
+import {OrdemServicoService} from "../../../../services/os/ordem-de-servico.service";
+import {ContasAReceberService} from "../../../../services/financeiro/conta-receber.service";
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -25,7 +27,7 @@ export class VendaFormComponent implements OnInit {
 
   tiposVenda = [
     { label: 'Venda de Produto', value: 'PRODUTO' },
-    { label: 'Venda de Projeto', value: 'PROJETO' }
+    { label: 'Venda de Projeto', value: 'ORCAMENTO' }
   ];
 
   formasPagamento = [
@@ -55,10 +57,13 @@ export class VendaFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private vendaService: VendaService,
     private produtoService: ProdutoService,
     private projetoService: ProjetoService,
     private clienteService: ClientesService,
+    private ordemServicoService: OrdemServicoService,
+    private contasAReceberService: ContasAReceberService,
     private changeDetectorRef: ChangeDetectorRef
   ) {}
 
@@ -127,6 +132,11 @@ export class VendaFormComponent implements OnInit {
     });
 
     this.form.get('desconto')?.valueChanges.pipe(debounceTime(300)).subscribe(() => {
+      this.updateTotais();
+    });
+
+    // Listener para projeto - atualiza totais quando projeto é selecionado
+    this.form.get('projetoId')?.valueChanges.pipe(debounceTime(300)).subscribe(() => {
       this.updateTotais();
     });
   }
@@ -416,11 +426,10 @@ export class VendaFormComponent implements OnInit {
     // Calcula subtotal
     if (this.tipoVendaAtual === 'PRODUTO') {
       this.subtotalValue = this.items.reduce((sum, item) => sum + (item.subTotal ?? 0), 0);
-    } else if (this.tipoVendaAtual === 'PROJETO') {
-      const projetoId = this.form.get('projetoId')?.value;
-      if (projetoId) {
-        const projeto = this.projetosAprovados.find(p => p.id === projetoId);
-        this.subtotalValue = projeto?.valorTotal ?? 0;
+    } else if (this.tipoVendaAtual === 'ORCAMENTO') {
+      const projetoSelecionado = this.form.get('projetoId')?.value;
+      if (projetoSelecionado && projetoSelecionado.valorTotal) {
+        this.subtotalValue = projetoSelecionado.valorTotal;
       } else {
         this.subtotalValue = 0;
       }
@@ -428,7 +437,6 @@ export class VendaFormComponent implements OnInit {
       this.subtotalValue = 0;
     }
 
-    // Calcula total
     const desconto = this.form.value.desconto || 0;
     this.totalValue = Math.max(0, this.subtotalValue - desconto);
 
@@ -445,80 +453,21 @@ export class VendaFormComponent implements OnInit {
     return this.totalValue;
   }
 
-  onSubmit(): void {
-    this.markAllAsTouched();
-
-    if (this.form.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Formulário Inválido',
-        detail: 'Por favor, preencha todos os campos obrigatórios.'
-      });
-      return;
-    }
-
-    if (this.tipoVendaAtual === 'PRODUTO' && this.items.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Venda Incompleta',
-        detail: 'Adicione pelo menos um item para registrar uma Venda de Produto.'
-      });
-      return;
-    }
-
-    this.submitting = true;
-    const formValue = this.form.value;
-
-    const vendaData: any = {
-      tipo: formValue.tipo,
-      clienteId: formValue.clienteId,
-      desconto: formValue.desconto,
-      formaPagamento: formValue.formaPagamento,
-      numeroParcelas: formValue.numeroParcelas || 1,
-      observacoes: formValue.observacoes,
-      itensVenda: []
-    };
-
-    if (formValue.tipo === 'PRODUTO') {
-      vendaData.itensVenda = this.items.map(item => ({
-        produto: item.produto?.id,
-        quantidade: item.quantidade,
-        preco: item.preco
-      }));
-    } else {
-      vendaData.projetoId = formValue.projetoId;
-    }
-
-    // Etapa 1: Criar a venda
+  private processarVendaDeProduto(vendaData: any): void {
+    // Para produtos, o fluxo automático pode continuar.
     this.vendaService.criarVenda(vendaData).subscribe({
       next: (vendaCriada) => {
-        // NÃO exiba a mensagem aqui. Apenas chame o próximo passo.
-        console.log('Venda criada com ID:', vendaCriada.id);
-
-        // Etapa 2: Processar a venda recém-criada
         this.vendaService.processarVendaCompleta(vendaCriada.id as number).subscribe({
           next: (response) => {
-            // Exiba a ÚNICA mensagem de sucesso aqui, no final de todo o processo.
             if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Sucesso',
-                detail: response.message || 'Venda registrada e processada com sucesso!'
-              });
+              this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: response.message });
             } else {
-              this.messageService.add({
-                severity: 'warn',
-                summary: 'Aviso no Processamento',
-                detail: response.message || 'A venda foi criada, mas houve um aviso no processamento.'
-              });
+              this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: response.message });
             }
             this.resetForm();
-            this.submitting = false;
           },
-          error: (err) => {
-            this.showError('Erro no processamento automático da venda', err);
-            this.submitting = false;
-          }
+          error: (err) => this.showError('Erro no processamento da venda', err),
+          complete: () => this.submitting = false
         });
       },
       error: (err) => {
@@ -528,34 +477,177 @@ export class VendaFormComponent implements OnInit {
     });
   }
 
-  private processarVendaCompleta(vendaId: number): void {
-    this.vendaService.processarVendaCompleta(vendaId).subscribe({
-      next: (resultado) => {
-        if (resultado.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Processamento Completo',
-            detail: 'Venda processada com geração automática de contas a receber e ordem de serviço!'
-          });
-        } else {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Processamento Parcial',
-            detail: resultado.message || 'Venda criada, mas houve problemas no processamento automático'
-          });
-        }
-        this.resetForm();
+  private processarVendaDeOrcamento(vendaData: any): void {
+    console.log('DADOS DA VENDA:',JSON.stringify(vendaData))
+    // Etapa 1: Criar o registro da venda
+    this.vendaService.criarVenda(vendaData).subscribe({
+      next: (vendaCriada) => {
+        // Etapa 2: Efetivar a venda (backend finaliza e gera contas a receber)
+        this.vendaService.efetivarVendaProjeto(vendaCriada.id as number).subscribe({
+          next: (vendaEfetivada) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Venda Realizada',
+              detail: 'Venda do projeto efetivada com sucesso!'
+            });
+
+            // Etapa 3: Exibir a modal para o usuário decidir sobre a O.S.
+            this.mostrarModalGerarOS(vendaEfetivada);
+
+            this.resetForm(); // Limpa o formulário para a próxima venda
+            this.submitting = false;
+          },
+          error: (err) => {
+            this.showError('A venda foi criada, mas falhou ao ser efetivada', err);
+            this.submitting = false;
+          }
+        });
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Processamento Parcial',
-          detail: 'Venda criada, mas houve erro no processamento automático'
-        });
-        this.resetForm();
+        this.showError('Erro ao criar a Venda de Orçamento', err);
+        this.submitting = false;
       }
     });
   }
+
+  onSubmit(): void {
+    this.markAllAsTouched();
+    if (this.form.invalid) {
+      this.messageService.add({ severity: 'warn', summary: 'Formulário Inválido', detail: 'Preencha todos os campos obrigatórios.' });
+      return;
+    }
+    if (this.tipoVendaAtual === 'PRODUTO' && this.items.length === 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Venda Incompleta', detail: 'Adicione pelo menos um item.' });
+      return;
+    }
+
+    this.submitting = true;
+    const formValue = this.form.value;
+
+    console.log('Dados do formulario de venda: ', JSON.stringify(formValue))
+    const vendaData: any = {
+      tipo: formValue.tipo,
+      clienteId: formValue.clienteId,
+      desconto: formValue.desconto,
+      formaPagamento: formValue.formaPagamento,
+      numeroParcelas: formValue.numeroParcelas || 1,
+      observacoes: formValue.observacoes,
+    };
+
+    // Lógica separada por tipo de venda para maior clareza
+    if (formValue.tipo === 'PRODUTO') {
+      vendaData.itensVenda = this.items.map(item => ({
+        produto: item.produto?.id,
+        quantidade: item.quantidade,
+        preco: item.preco
+      }));
+      this.processarVendaDeProduto(vendaData);
+    } else { // ORCAMENTO
+      const projetoSelecionado = formValue.projetoId;
+      vendaData.projetoId = projetoSelecionado?.id || projetoSelecionado;
+      this.processarVendaDeOrcamento(vendaData);
+    }
+  }
+
+  /**
+   * Mostra modal perguntando se o usuário quer gerar uma ordem de serviço
+   * após a venda de um projeto
+   */
+  private mostrarModalGerarOS(venda: any): void {
+    console.log('Objeto venda recebido:', venda);
+
+    this.confirmationService.confirm({
+      message: 'Deseja gerar a Ordem de Serviço para este projeto agora?',
+      header: 'Gerar Ordem de Serviço',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sim, Gerar OS',
+      rejectLabel: 'Não, Agora Não',
+      accept: () => {
+        if (!venda.id) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'ID da venda não encontrado.'
+          });
+          return;
+        }
+        this.gerarOrdemServico(venda.id);
+      },
+      reject: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Ação Adiada',
+          detail: 'Você pode gerar a Ordem de Serviço depois.'
+        });
+      }
+    });
+  }
+
+  private gerarOrdemServico(vendaId: number): void {
+    this.vendaService.gerarOrdemServico(vendaId).subscribe({
+      next: (responseMessage) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Ordem de Serviço criada com sucesso!'
+        });
+      },
+      error: (err) => {
+        this.showError('Erro ao gerar Ordem de Serviço', err);
+      }
+    });
+  }
+
+  /**
+   * Pergunta se o usuário quer gerar conta a receber
+   */
+  private perguntarGerarContaReceber(venda: any, ordemServico: any): void {
+    this.confirmationService.confirm({
+      message: 'Deseja gerar uma Conta a Receber para esta venda?',
+      header: 'Gerar Conta a Receber',
+      icon: 'pi pi-money-bill',
+      acceptLabel: 'Sim, Gerar',
+      rejectLabel: 'Não',
+      accept: () => {
+        this.gerarContaReceber(venda, ordemServico);
+      }
+    });
+  }
+
+  /**
+   * Gera uma conta a receber para a venda
+   */
+  private gerarContaReceber(venda: any, ordemServico: any): void {
+    const contaReceberData = {
+      clienteId: venda.clienteId,
+      vendaId: venda.id,
+      ordemServicoId: ordemServico.id,
+      valor: venda.valorTotal || ordemServico.valorTotal,
+      dataVencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
+      descricao: `Conta referente à venda do projeto - OS ${ordemServico.numero}`,
+      status: 'PENDENTE'
+    };
+
+    this.contasAReceberService.criarContaReceber(contaReceberData).subscribe({
+      next: (conta) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Conta a Receber Criada',
+          detail: 'Conta a receber gerada com sucesso!'
+        });
+      },
+      error: (error) => {
+        console.error('Erro ao gerar conta a receber:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao gerar conta a receber. Você pode criar manualmente no módulo financeiro.'
+        });
+      }
+    });
+  }
+
+
 
   resetForm(): void {
     const formaInicial = 0;

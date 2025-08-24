@@ -1,0 +1,222 @@
+<form [formGroup]="osForm" (ngSubmit)="onSubmit()">
+  <div class="grid p-fluid">
+
+    <!-- Informações Básicas -->
+    <div class="col-12">
+      <h5 class="text-900 mb-3">
+        <i class="pi pi-info-circle mr-2"></i>
+        Informações Básicas
+      </h5>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <label for="numero" class="block text-900 font-medium mb-2">
+        Número da OS <span class="text-red-500">*</span>
+      </label>
+      <input
+        pInputText
+        id="numero"
+        formControlName="numero"
+        placeholder="Ex: OS-2024-001"
+        [class.ng-invalid]="isFieldInvalid('numero')"
+        class="w-full">
+      <small class="p-error" *ngIf="isFieldInvalid('numero')">
+        {{ getFieldError('numero') }}
+      </small>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <label for="status" class="block text-900 font-medium mb-2">
+        Status <span class="text-red-500">*</span>
+      </label>
+      <p-dropdown
+        inputId="status"
+        formControlName="status"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione o status"
+        [class.ng-invalid]="isFieldInvalid('status')"
+        class="w-full">
+      </p-dropdown>
+      <small class="p-error" *ngIf="isFieldInvalid('status')">
+        {{ getFieldError('status') }}
+      </small>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="projetoId" class="block text-900 font-medium mb-2">
+        ID do Projeto <span class="text-red-500">*</span>
+      </label>
+      <p-inputNumber
+        inputId="projetoId"
+        formControlName="projetoId"
+        placeholder="ID do projeto"
+        [useGrouping]="false"
+        [class.ng-invalid]="isFieldInvalid('projetoId')"
+        class="w-full">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="isFieldInvalid('projetoId')">
+        {{ getFieldError('projetoId') }}
+      </small>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="clienteId" class="block text-900 font-medium mb-2">
+        ID do Cliente <span class="text-red-500">*</span>
+      </label>
+      <p-inputNumber
+        inputId="clienteId"
+        formControlName="clienteId"
+        placeholder="ID do cliente"
+        [useGrouping]="false"
+        [class.ng-invalid]="isFieldInvalid('clienteId')"
+        class="w-full">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="isFieldInvalid('clienteId')">
+        {{ getFieldError('clienteId') }}
+      </small>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="valorTotal" class="block text-900 font-medium mb-2">
+        Valor Total <span class="text-red-500">*</span>
+      </label>
+      <p-inputNumber
+        inputId="valorTotal"
+        formControlName="valorTotal"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        placeholder="R$ 0,00"
+        [class.ng-invalid]="isFieldInvalid('valorTotal')"
+        class="w-full">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="isFieldInvalid('valorTotal')">
+        {{ getFieldError('valorTotal') }}
+      </small>
+    </div>
+
+    <!-- Datas -->
+    <div class="col-12">
+      <h5 class="text-900 mb-3 mt-4">
+        <i class="pi pi-calendar mr-2"></i>
+        Datas
+      </h5>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="dataEmissao" class="block text-900 font-medium mb-2">
+        Data de Emissão <span class="text-red-500">*</span>
+      </label>
+      <p-calendar
+        inputId="dataEmissao"
+        formControlName="dataEmissao"
+        dateFormat="dd/mm/yy"
+        placeholder="dd/mm/aaaa"
+        [showIcon]="true"
+        [class.ng-invalid]="isFieldInvalid('dataEmissao')"
+        class="w-full">
+      </p-calendar>
+      <small class="p-error" *ngIf="isFieldInvalid('dataEmissao')">
+        {{ getFieldError('dataEmissao') }}
+      </small>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="dataPrevistaInicio" class="block text-900 font-medium mb-2">
+        Data Prevista Início
+      </label>
+      <p-calendar
+        inputId="dataPrevistaInicio"
+        formControlName="dataPrevistaInicio"
+        dateFormat="dd/mm/yy"
+        placeholder="dd/mm/aaaa"
+        [showIcon]="true"
+        class="w-full">
+      </p-calendar>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <label for="dataPrevistaConclusao" class="block text-900 font-medium mb-2">
+        Data Prevista Conclusão
+      </label>
+      <p-calendar
+        inputId="dataPrevistaConclusao"
+        formControlName="dataPrevistaConclusao"
+        dateFormat="dd/mm/yy"
+        placeholder="dd/mm/aaaa"
+        [showIcon]="true"
+        class="w-full">
+      </p-calendar>
+    </div>
+
+    <!-- Responsável -->
+    <div class="col-12 md:col-6">
+      <label for="responsavel" class="block text-900 font-medium mb-2">
+        Responsável
+      </label>
+      <input
+        pInputText
+        id="responsavel"
+        formControlName="responsavel"
+        placeholder="Nome do responsável"
+        class="w-full">
+    </div>
+
+    <!-- Observações -->
+    <div class="col-12">
+      <h5 class="text-900 mb-3 mt-4">
+        <i class="pi pi-comment mr-2"></i>
+        Observações e Instruções
+      </h5>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <label for="observacoes" class="block text-900 font-medium mb-2">
+        Observações
+      </label>
+      <textarea
+        pInputTextarea
+        id="observacoes"
+        formControlName="observacoes"
+        rows="4"
+        placeholder="Observações gerais sobre a ordem de serviço"
+        class="w-full">
+      </textarea>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <label for="instrucoesTecnicas" class="block text-900 font-medium mb-2">
+        Instruções Técnicas
+      </label>
+      <textarea
+        pInputTextarea
+        id="instrucoesTecnicas"
+        formControlName="instrucoesTecnicas"
+        rows="4"
+        placeholder="Instruções técnicas específicas"
+        class="w-full">
+      </textarea>
+    </div>
+  </div>
+
+  <!-- Botões -->
+  <div class="flex justify-content-end gap-2 mt-4">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      styleClass="p-button-text"
+      (onClick)="onCancel()">
+    </p-button>
+
+    <p-button
+      [label]="isEditMode ? 'Atualizar' : 'Criar'"
+      [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+      type="submit"
+      [loading]="loading"
+      [disabled]="osForm.invalid">
+    </p-button>
+  </div>
+</form>
+

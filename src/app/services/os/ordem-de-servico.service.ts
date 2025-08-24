@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http'; // Importe HttpHeaders
 import { Observable } from 'rxjs';
-import {environment} from "../../../environments/environment";
+import { environment } from "../../../environments/environment";
+import { CookieService } from 'ngx-cookie-service'; // Importe o CookieService
 
 export interface OrdemServico {
   id?: number;
@@ -67,98 +68,114 @@ export interface EstatisticasOS {
 })
 export class OrdemServicoService {
   private apiUrl = `${environment.baseUrl}/api/os`;
+  private JWT_TOKEN: string;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private cookieService: CookieService
+  ) {
+    this.JWT_TOKEN = this.cookieService.get('USER_INFO');
+  }
+
+  private get httpOptions() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.JWT_TOKEN}`
+      })
+    };
+  }
 
   // CRUD Operations
   listarTodas(): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(this.apiUrl);
+    return this.http.get<OrdemServico[]>(this.apiUrl, this.httpOptions);
   }
 
   buscarPorId(id: number): Observable<OrdemServico> {
-    return this.http.get<OrdemServico>(`${this.apiUrl}/${id}`);
+    return this.http.get<OrdemServico>(`${this.apiUrl}/${id}`, this.httpOptions);
   }
 
   buscarPorNumero(numero: string): Observable<OrdemServico> {
-    return this.http.get<OrdemServico>(`${this.apiUrl}/numero/${numero}`);
+    return this.http.get<OrdemServico>(`${this.apiUrl}/numero/${numero}`, this.httpOptions);
   }
 
   gerarPorProjeto(projetoId: number): Observable<OrdemServico> {
-    return this.http.post<OrdemServico>(`${this.apiUrl}/gerar-por-projeto/${projetoId}`, {});
+    return this.http.post<OrdemServico>(`${this.apiUrl}/gerar-por-projeto/${projetoId}`, {}, this.httpOptions);
   }
 
   atualizar(id: number, ordemServico: OrdemServico): Observable<OrdemServico> {
-    return this.http.put<OrdemServico>(`${this.apiUrl}/${id}`, ordemServico);
+    return this.http.put<OrdemServico>(`${this.apiUrl}/${id}`, ordemServico, this.httpOptions);
   }
 
   // Operações de Aprovação e Agendamento
   aprovar(id: number, observacoes?: string): Observable<OrdemServico> {
     const body = observacoes ? { observacoes } : {};
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/aprovar`, body);
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/aprovar`, body, this.httpOptions);
   }
 
   agendar(id: number, agendamento: AgendamentoDTO): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/agendar`, agendamento);
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/agendar`, agendamento, this.httpOptions);
   }
 
   aprovarEAgendar(id: number, agendamento: AgendamentoDTO): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/aprovar-e-agendar`, agendamento);
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/aprovar-e-agendar`, agendamento, this.httpOptions);
   }
 
   // Operações de Controle de Execução
   iniciar(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/iniciar-os`, {});
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/iniciar-os`, {}, this.httpOptions);
   }
 
   pausar(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/pausar`, {});
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/pausar`, {}, this.httpOptions);
   }
 
   retomar(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/retornar`, {});
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/retornar`, {}, this.httpOptions);
   }
 
   concluir(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/concluir-os`, {});
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/concluir-os`, {}, this.httpOptions);
   }
 
   cancelar(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/cancelar`, {});
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/cancelar`, {}, this.httpOptions);
   }
 
   // Consultas Específicas
   buscarPorStatus(status: StatusOrdemServico): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/status/${status}`);
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/status/${status}`, this.httpOptions);
   }
 
   buscarPorCliente(clienteId: number): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/cliente/${clienteId}`);
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/cliente/${clienteId}`, this.httpOptions);
   }
 
   buscarPorPeriodo(dataInicio: string, dataFim: string): Observable<OrdemServico[]> {
     const params = new HttpParams()
       .set('dataInicio', dataInicio)
       .set('dataFim', dataFim);
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/periodo`, { params });
+    // Para requisições com params, as options vêm depois
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/periodo`, { params, headers: this.httpOptions.headers });
   }
 
   buscarPendentesAprovacao(): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/pendentes-aprovacao`);
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/pendentes-aprovacao`, this.httpOptions);
   }
 
   buscarAprovadasSemAgendamento(): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/aprovadas-sem-agendamento`);
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/aprovadas-sem-agendamento`, this.httpOptions);
   }
 
   buscarAgendadasHoje(): Observable<OrdemServico[]> {
-    return this.http.get<OrdemServico[]>(`${this.apiUrl}/agendadas-hoje`);
+    return this.http.get<OrdemServico[]>(`${this.apiUrl}/agendadas-hoje`, this.httpOptions);
   }
 
   obterEstatisticas(): Observable<EstatisticasOS> {
-    return this.http.get<EstatisticasOS>(`${this.apiUrl}/dashboard/estatisticas`);
+    return this.http.get<EstatisticasOS>(`${this.apiUrl}/dashboard/estatisticas`, this.httpOptions);
   }
 
-  // Métodos auxiliares
+  // Métodos auxiliares (não precisam de alteração)
   getStatusLabel(status: StatusOrdemServico): string {
     const labels = {
       [StatusOrdemServico.PENDENTE]: 'Pendente',
@@ -213,4 +230,3 @@ export class OrdemServicoService {
     return os.status !== StatusOrdemServico.CONCLUIDA;
   }
 }
-

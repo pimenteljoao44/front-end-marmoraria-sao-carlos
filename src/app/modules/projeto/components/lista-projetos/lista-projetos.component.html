@@ -241,6 +241,7 @@
             <td>
               <div class="flex gap-1">
                 <button
+                  *ngIf="projeto.status !== 'VENDIDO'"
                   pButton
                   pRipple
                   icon="pi pi-pencil"
@@ -248,6 +249,17 @@
                   (click)="editarProjeto(projeto)"
                   pTooltip="Editar" tooltipPosition="top">
                 </button>
+                <button
+                  *ngIf="projeto.status === 'ORCAMENTO'"
+                  pButton
+                  pRipple
+                  icon="pi pi-check"
+                  class="p-button-sm p-button-rounded p-button-text text-blue-500 hover:bg-blue-100"
+                  (click)="aprovarProjeto(projeto)"
+                  pTooltip="Aprovar Projeto"
+                  tooltipPosition="top">
+                </button>
+                <!--
                 <button
                   *ngIf="projeto.status === 'ORCAMENTO' || projeto.status === 'APROVADO'"
                   pButton
@@ -258,7 +270,9 @@
                   pTooltip="Gerar Ordem de Serviço"
                   tooltipPosition="top">
                 </button>
+                -->
                 <button
+                  *ngIf="projeto.status !== 'VENDIDO'"
                   pButton
                   pRipple
                   icon="pi pi-trash"

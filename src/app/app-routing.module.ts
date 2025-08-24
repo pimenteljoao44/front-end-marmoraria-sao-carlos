@@ -94,6 +94,11 @@ const routes: Routes = [
     path: 'financeiro',
     loadChildren: () => import('./modules/financeiro/financeiro.module').then((m) => m.FinanceiroModule),
     canActivate: [AuthGuardService]
+  },
+  {
+    path: 'ordem-servico',
+    loadChildren: () => import('./modules/ordem-servico/ordem-servico.module').then((m) => m.OrdemServicoModule),
+    canActivate: [AuthGuardService]
   }
 ];
 

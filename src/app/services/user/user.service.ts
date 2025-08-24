@@ -18,10 +18,12 @@ export class UserService {
   }
 
   private get httpOptions() {
+    // Sempre usar o token atual do cookie
+    const currentToken = this.cookieService.get('USER_INFO');
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.JWT_TOKEN}`,
+        Authorization: `Bearer ${currentToken}`,
       }),
     };
   }
@@ -64,7 +66,9 @@ export class UserService {
   }
 
   isLogedIn(): boolean {
-    return this.JWT_TOKEN ? true : false;
+    const currentToken = this.cookieService.get('USER_INFO');
+    this.JWT_TOKEN = currentToken;
+    return currentToken ? true : false;
   }
 
   authUser(requstDatas: AuthRequest): Observable<Usuario> {

@@ -82,6 +82,10 @@ export class ProjetoService {
     return this.httpClient.patch<Projeto>(`${this.baseUrl}/${id}/status`, { status }, this.httpOptions);
   }
 
+  aprovarProjeto(id: number, requestBody?: { observacoes?: string }): Observable<Projeto> {
+    return this.httpClient.patch<Projeto>(`${this.baseUrl}/${id}/aprovar`, requestBody || {}, this.httpOptions);
+  }
+
   // Ordem de Serviço Operations
   gerarOrdemServico(projetoId: number): Observable<OrdemDeServico> {
     return this.httpClient.post<OrdemDeServico>(`${environment.baseUrl}/os/gerar-por-projeto/${projetoId}`, {}, this.httpOptions);
