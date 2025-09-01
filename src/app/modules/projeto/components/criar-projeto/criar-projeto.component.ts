@@ -138,7 +138,7 @@ export class CriarProjetoComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar projeto'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
         this.loading = false;
       }
@@ -386,7 +386,7 @@ export class CriarProjetoComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao gerar ordem de serviço'
+              detail: error.error?.message || error.message || 'Erro desconhecido'
             });
           }
         });

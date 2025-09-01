@@ -698,7 +698,7 @@ export class ProjetoBuilderComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar clientes.',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 3000,
           });
         },
@@ -723,7 +723,7 @@ export class ProjetoBuilderComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar produtos.',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 3000,
           });
         },
@@ -742,7 +742,7 @@ export class ProjetoBuilderComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar projeto'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
         this.isInitializing = false;
         this.loading = false;

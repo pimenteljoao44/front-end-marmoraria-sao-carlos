@@ -311,7 +311,7 @@
 }
 
 .calc-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5c6268;
   color: white;
   padding: 1.5rem;
   border-radius: 12px;
@@ -320,11 +320,11 @@
   gap: 1rem;
 
   &.area {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #5c6268;
   }
 
   &.perimeter {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #5c6268;
   }
 
   .calc-icon {

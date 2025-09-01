@@ -46,12 +46,6 @@ export class HomeComponent implements OnInit {
       },
       error: (err) => {
         console.log(err);
-        this.messageService.add({
-          severity: 'Error',
-          summary: 'Erro.',
-          detail: 'Erro ao buscar produtos',
-          life: 2500,
-        });
       },
     });
   }

@@ -337,7 +337,6 @@ export class VendaFormComponent implements OnInit {
   removeItem(index: number): void {
     this.items = this.items.filter((_, i) => i !== index);
 
-    // ⭐ NOVO: Restaura a validação se a lista de itens ficar vazia
     if (this.items.length === 0 && this.tipoVendaAtual === 'PRODUTO') {
       const produtoIdControl = this.form.get('produtoId');
       produtoIdControl?.setValidators(Validators.required);

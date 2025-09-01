@@ -74,7 +74,7 @@ export class OsHomeComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar ordens de serviço'
+          detail: error.error?.message || error.message || 'Erro desconhecido',
         });
       }
     });
@@ -140,7 +140,7 @@ export class OsHomeComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao buscar ordem de serviço'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
       }
     });
@@ -173,7 +173,7 @@ export class OsHomeComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao buscar ordem de serviço'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
       }
     });
@@ -210,7 +210,7 @@ export class OsHomeComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao iniciar ordem de serviço'
+              detail: error.error?.message || error.message || 'Erro desconhecido'
             });
           }
         });
@@ -250,7 +250,7 @@ export class OsHomeComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao concluir ordem de serviço'
+              detail: error.error?.message || error.message || 'Erro desconhecido'
             });
           }
         });

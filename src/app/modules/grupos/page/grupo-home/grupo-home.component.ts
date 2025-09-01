@@ -60,7 +60,7 @@ export class GrupoHomeComponent implements OnInit, OnDestroy{
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar grupos',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -154,7 +154,7 @@ export class GrupoHomeComponent implements OnInit, OnDestroy{
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao excluir Grupo ${err.error.error}`,
+              detail: err.error?.message || err.message || 'Erro desconhecido',
               life: 3500,
             });
           },

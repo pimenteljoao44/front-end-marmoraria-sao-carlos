@@ -60,7 +60,7 @@ export class FornecedoresHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar Fornecedores',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -154,7 +154,7 @@ export class FornecedoresHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao excluir Fornecedor ${err.error.error}`,
+              detail: err.error?.message || err.message || 'Erro desconhecido',
               life: 2500,
             });
           },

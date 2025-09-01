@@ -125,7 +125,7 @@ export class GrupoFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao criar Grupo',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 3000,
           });
           console.log(err);
@@ -184,7 +184,7 @@ export class GrupoFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao editar Grupo: ${err.error.error}`,
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 3000,
           });
         },

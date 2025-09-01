@@ -57,7 +57,7 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar produtos',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },

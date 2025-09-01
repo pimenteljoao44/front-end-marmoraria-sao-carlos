@@ -200,7 +200,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao criar produto',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2000,
           });
           console.log(err);
@@ -275,7 +275,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao editar produto',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2000,
           });
         }

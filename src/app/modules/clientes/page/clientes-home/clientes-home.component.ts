@@ -60,7 +60,7 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar clientes',
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -154,7 +154,7 @@ export class ClientesHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao excluir cliente cliente está relacionado com a venda`,
+              detail: err.error?.message || err.message || 'Erro desconhecido',
               life: 2500,
             });
           },

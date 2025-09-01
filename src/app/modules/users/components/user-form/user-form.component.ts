@@ -130,7 +130,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: `Erro ao criar Conta ${err.error.error}`,
+            detail: err.error?.message || err.message || 'Erro desconhecido',
             life: 2000,
           });
           console.log(err);
@@ -204,7 +204,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: `Erro ao editar usuario ${err.error.error}`,
+              detail: err.error?.message || err.message || 'Erro desconhecido',
               life: 2000,
             });
           },
@@ -263,7 +263,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao carregar funcionários.',
+              detail: err.error?.message || err.message || 'Erro desconhecido',
               life: 3000,
             });
             reject(err);

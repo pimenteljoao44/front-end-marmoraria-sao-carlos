@@ -107,7 +107,7 @@ export class OsFormComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao atualizar ordem de serviço'
+              detail: error.error?.message || error.message || 'Erro desconhecido'
             });
           }
         });

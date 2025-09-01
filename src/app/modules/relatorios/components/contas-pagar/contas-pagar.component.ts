@@ -52,7 +52,7 @@ export class ContasPagarComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar fornecedores'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
       }
     });
@@ -77,7 +77,7 @@ export class ContasPagarComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao gerar relatório'
+          detail: error.error?.message || error.message || 'Erro desconhecido'
         });
         this.loading = false;
       }
