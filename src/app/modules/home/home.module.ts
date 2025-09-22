@@ -14,6 +14,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import {DashboardModule} from "../dashboard/dashboard.module";
 
 @NgModule({
   declarations: [HomeComponent],
@@ -30,6 +31,7 @@ import { InputTextModule } from 'primeng/inputtext';
     DialogModule,
     InputTextModule,
     SidebarModule,
+    DashboardModule,
     //shared
     SharedModule
   ],

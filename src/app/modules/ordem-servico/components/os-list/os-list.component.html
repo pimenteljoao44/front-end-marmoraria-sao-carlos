@@ -175,6 +175,29 @@
                 (click)="handleOSEvent(viewOSEvent, os?.id)"
               ></p-button>
 
+              <!-- Botão Aprovar
+               <p-button
+                *ngIf="podeAprovar(os)"
+                icon="pi pi-check-circle"
+                styleClass="p-button-info p-button-sm"
+                pTooltip="Aprovar"
+                tooltipPosition="top"
+                (click)="handleOSEvent('Aprovar ordem de serviço', os?.id)"
+              ></p-button>
+               -->
+
+
+              <!-- Botão Agendar -->
+              <p-button
+                *ngIf="podeAgendar(os)"
+                icon="pi pi-calendar"
+                styleClass="p-button-primary p-button-sm"
+                pTooltip="Agendar"
+                tooltipPosition="top"
+                (click)="handleOSEvent('Agendar ordem de serviço', os?.id)"
+              ></p-button>
+
+              <!-- Botão Iniciar -->
               <p-button
                 *ngIf="podeIniciar(os)"
                 icon="pi pi-play"
@@ -184,6 +207,27 @@
                 (click)="handleOSEvent(startOSEvent, os?.id)"
               ></p-button>
 
+              <!-- Botão Pausar -->
+              <p-button
+                *ngIf="podePausar(os)"
+                icon="pi pi-pause"
+                styleClass="p-button-warning p-button-sm"
+                pTooltip="Pausar"
+                tooltipPosition="top"
+                (click)="handleOSEvent('Pausar ordem de serviço', os?.id)"
+              ></p-button>
+
+              <!-- Botão Retomar -->
+              <p-button
+                *ngIf="podeRetomar(os)"
+                icon="pi pi-play"
+                styleClass="p-button-secondary p-button-sm"
+                pTooltip="Retomar"
+                tooltipPosition="top"
+                (click)="handleOSEvent('Retomar ordem de serviço', os?.id)"
+              ></p-button>
+
+              <!-- Botão Concluir -->
               <p-button
                 *ngIf="podeConcluir(os)"
                 icon="pi pi-check"
@@ -191,6 +235,16 @@
                 pTooltip="Concluir"
                 tooltipPosition="top"
                 (click)="handleOSEvent(completeOSEvent, os?.id)"
+              ></p-button>
+
+              <!-- Botão Cancelar -->
+              <p-button
+                *ngIf="podeCancelar(os)"
+                icon="pi pi-times"
+                styleClass="p-button-danger p-button-sm"
+                pTooltip="Cancelar"
+                tooltipPosition="top"
+                (click)="handleOSEvent('Cancelar ordem de serviço', os?.id)"
               ></p-button>
             </div>
           </td>
@@ -210,4 +264,3 @@
     </p-table>
   </p-card>
 </div>
-

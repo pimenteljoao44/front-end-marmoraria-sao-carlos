@@ -123,7 +123,7 @@ export class OrdemServicoService {
 
   // Operações de Controle de Execução
   iniciar(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/iniciar-os`, {}, this.httpOptions);
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/iniciar`, {}, this.httpOptions);
   }
 
   pausar(id: number): Observable<OrdemServico> {
@@ -135,7 +135,7 @@ export class OrdemServicoService {
   }
 
   concluir(id: number): Observable<OrdemServico> {
-    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/concluir-os`, {}, this.httpOptions);
+    return this.http.patch<OrdemServico>(`${this.apiUrl}/${id}/concluir`, {}, this.httpOptions);
   }
 
   cancelar(id: number): Observable<OrdemServico> {

@@ -1,0 +1,108 @@
+<div class="agendamento-modal">
+  <form [formGroup]="agendamentoForm" (ngSubmit)="onSubmit()">
+    <div class="grid">
+      <!-- Informações da O.S. -->
+      <div class="col-12 mb-3">
+        <p-card>
+          <div class="flex align-items-center gap-3">
+            <i class="pi pi-calendar text-primary text-2xl"></i>
+            <div>
+              <h5 class="m-0">{{ ordemServico?.numero }}</h5>
+              <p class="text-600 m-0">{{ ordemServico?.projeto?.nome || 'Projeto não informado' }}</p>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Data Prevista de Início -->
+      <div class="col-12 md:col-6">
+        <label for="dataPrevistaInicio" class="block text-900 font-medium mb-2">
+          Data Prevista de Início *
+        </label>
+        <p-calendar
+          id="dataPrevistaInicio"
+          formControlName="dataPrevistaInicio"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Selecione a data de início"
+          [class]="isFieldInvalid('dataPrevistaInicio') ? 'ng-invalid ng-dirty' : ''"
+          styleClass="w-full">
+        </p-calendar>
+        <small
+          *ngIf="isFieldInvalid('dataPrevistaInicio')"
+          class="p-error block mt-1">
+          {{ getFieldError('dataPrevistaInicio') }}
+        </small>
+      </div>
+
+      <!-- Data Prevista de Conclusão -->
+      <div class="col-12 md:col-6">
+        <label for="dataPrevistaConclusao" class="block text-900 font-medium mb-2">
+          Data Prevista de Conclusão
+        </label>
+        <p-calendar
+          id="dataPrevistaConclusao"
+          formControlName="dataPrevistaConclusao"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Selecione a data de conclusão"
+          styleClass="w-full">
+        </p-calendar>
+        <small class="text-600 block mt-1">
+          Campo opcional. Se não informado, será calculado automaticamente.
+        </small>
+      </div>
+
+      <!-- Responsável -->
+      <div class="col-12">
+        <label for="responsavel" class="block text-900 font-medium mb-2">
+          Responsável
+        </label>
+        <input
+          id="responsavel"
+          type="text"
+          pInputText
+          formControlName="responsavel"
+          placeholder="Nome do responsável pela execução"
+          class="w-full" />
+        <small class="text-600 block mt-1">
+          Funcionário ou equipe responsável pela execução da ordem de serviço.
+        </small>
+      </div>
+
+      <!-- Observações -->
+      <div class="col-12">
+        <label for="observacoes" class="block text-900 font-medium mb-2">
+          Observações do Agendamento
+        </label>
+        <textarea
+          id="observacoes"
+          pInputTextarea
+          formControlName="observacoes"
+          placeholder="Observações adicionais sobre o agendamento..."
+          rows="3"
+          class="w-full">
+        </textarea>
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="flex justify-content-end gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        styleClass="p-button-text"
+        (onClick)="onCancel()"
+        [disabled]="loading">
+      </p-button>
+
+      <p-button
+        label="Agendar"
+        icon="pi pi-calendar-plus"
+        type="submit"
+        [loading]="loading"
+        [disabled]="agendamentoForm.invalid">
+      </p-button>
+    </div>
+  </form>
+</div>

@@ -1,4 +1,378 @@
-.custom-card-header {
-  background-color: white; /* Define o fundo do cabeçalho como branco */
-  color: black; /* Define a cor do texto como preto */
+.dashboard-container {
+  padding: 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  position: relative;
+
+  &.loading {
+    pointer-events: none;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+
+  .loading-text {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+.dashboard-title {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    color: #3498db;
+  }
+}
+
+.dashboard-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0.5rem 0 2rem 0;
+}
+
+// KPI Cards Section
+.kpi-section {
+  margin-bottom: 2rem;
+
+  .kpi-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    &.revenue-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    &.clients-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    &.orders-card {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+    }
+
+    &.ticket-card {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      color: white;
+    }
+
+    .kpi-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .kpi-icon {
+      font-size: 3rem;
+      opacity: 0.8;
+    }
+
+    .kpi-data {
+      flex: 1;
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+      }
+
+      p {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+        opacity: 0.9;
+      }
+
+      .kpi-trend {
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        &.positive {
+          color: #2ecc71;
+        }
+
+        &.negative {
+          color: #e74c3c;
+        }
+      }
+    }
+  }
+}
+
+// Alerts Section
+.alerts-section {
+  margin-bottom: 2rem;
+
+  .alert-card {
+    border-left: 5px solid #e74c3c;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);
+
+    .alerts-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #fff5f5;
+      border-radius: 8px;
+      border: 1px solid #fed7d7;
+
+      span {
+        flex: 1;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Charts Section
+.charts-section {
+  margin-bottom: 2rem;
+
+  .chart-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .chart-insights {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .insight-item {
+        text-align: center;
+
+        .insight-label {
+          display: block;
+          font-size: 0.875rem;
+          color: #6c757d;
+          margin-bottom: 0.25rem;
+        }
+
+        .insight-value {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #2c3e50;
+
+          &.positive {
+            color: #28a745;
+          }
+
+          &.negative {
+            color: #dc3545;
+          }
+
+          &.warning {
+            color: #ffc107;
+          }
+
+          &.danger {
+            color: #dc3545;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Financial Section
+.financial-section {
+  margin-bottom: 2rem;
+
+  .financial-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    ::ng-deep .p-card-header {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    ::ng-deep .p-card-body {
+      background: white;
+      border-radius: 0 0 15px 15px;
+      color: #2c3e50;
+    }
+  }
+}
+
+// Operational Metrics Section
+.operational-metrics {
+  margin-bottom: 2rem;
+
+  .metric-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+
+      .metric-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+
+        .metric-label {
+          display: block;
+          font-size: 0.875rem;
+          color: #6c757d;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+
+        .metric-value {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #2c3e50;
+
+          &.warning {
+            color: #f39c12;
+          }
+
+          &.danger {
+            color: #e74c3c;
+          }
+
+          &.success {
+            color: #27ae60;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
+  .dashboard-title {
+    font-size: 2rem;
+  }
+
+  .kpi-card .kpi-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .chart-insights {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+// Global PrimeNG Overrides
+::ng-deep {
+  .p-card {
+    .p-card-header {
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #2c3e50;
+    }
+
+    .p-card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .p-chart {
+    canvas {
+      border-radius: 8px;
+    }
+  }
+
+  .p-tag {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+  }
+
+  .p-button {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .p-progressspinner {
+    .p-progressspinner-circle {
+      stroke: #3498db;
+    }
+  }
 }

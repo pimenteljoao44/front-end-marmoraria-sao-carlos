@@ -1,30 +1,233 @@
 <app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
 <app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
 
-<div class="grid">
-  <div class="col-12">
-    <!-- Gráfico de Produtos em Estoque -->
-    <p-card
-      header="Quantidade de Produtos em Estoque"
-      styleClass="shadow-3 m-5 custom-card-header"
-    >
-      <p-chart
-        type="bar"
-        [data]="productsChartDatas"
-        [options]="productsChartOptions"
-      ></p-chart>
-    </p-card>
+<div class="dashboard-container" [class.loading]="isLoading">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <p-progressSpinner></p-progressSpinner>
+    <p class="loading-text">Carregando dados do dashboard...</p>
   </div>
-</div>
 
-<div class="grid">
-  <div class="col-12">
-    <!-- Dashboard Financeiro -->
-    <p-card
-      header="Dashboard Financeiro"
-      styleClass="shadow-3 m-5 custom-card-header"
-    >
-      <app-parcelas-dashboard></app-parcelas-dashboard>
-    </p-card>
+  <!-- KPIs Cards -->
+  <div class="grid kpi-section">
+    <div class="col-12">
+      <h2 class="dashboard-title">
+        <i class="pi pi-chart-line"></i>
+        Dashboard Gerencial
+      </h2>
+      <p class="dashboard-subtitle">Visão geral dos indicadores de performance do negócio</p>
+    </div>
+
+    <!-- KPI Cards Row 1 -->
+    <div class="col-12 md:col-3">
+      <p-card styleClass="kpi-card revenue-card">
+        <div class="kpi-content">
+          <div class="kpi-icon">
+            <i class="pi pi-dollar"></i>
+          </div>
+          <div class="kpi-data">
+            <h3>{{ formatCurrency(kpis.faturamentoMensal) }}</h3>
+            <p>Faturamento Mensal</p>
+            <small class="kpi-trend">
+              Mês atual
+            </small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="kpi-card clients-card">
+        <div class="kpi-content">
+          <div class="kpi-icon">
+            <i class="pi pi-users"></i>
+          </div>
+          <div class="kpi-data">
+            <h3>{{ kpis.totalClientes }}</h3>
+            <p>Total de Clientes</p>
+            <small class="kpi-trend">
+              Cadastrados
+            </small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="kpi-card orders-card">
+        <div class="kpi-content">
+          <div class="kpi-icon">
+            <i class="pi pi-clipboard"></i>
+          </div>
+          <div class="kpi-data">
+            <h3>{{ kpis.ordensServico.total }}</h3>
+            <p>Ordens de Serviço</p>
+            <small class="kpi-trend">
+              {{ getPercentualConclusaoOS() }}% concluídas
+            </small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="kpi-card ticket-card">
+        <div class="kpi-content">
+          <div class="kpi-icon">
+            <i class="pi pi-shopping-cart"></i>
+          </div>
+          <div class="kpi-data">
+            <h3>{{ formatCurrency(kpis.ticketMedio) }}</h3>
+            <p>Ticket Médio</p>
+            <small class="kpi-trend">
+              Por venda
+            </small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+
+
+  <!-- Gráficos e Análises -->
+  <div class="grid charts-section">
+    <!-- Status das Ordens de Serviço -->
+    <div class="col-12 md:col-6">
+      <p-card header="Status das Ordens de Serviço" styleClass="chart-card">
+        <p-chart
+          type="doughnut"
+          [data]="osStatusChartData"
+          [options]="osStatusChartOptions"
+          height="300px">
+        </p-chart>
+        <div class="chart-insights">
+          <div class="insight-item">
+            <span class="insight-label">Taxa de Conclusão:</span>
+            <span class="insight-value">{{ getPercentualConclusaoOS() }}%</span>
+          </div>
+          <div class="insight-item">
+            <span class="insight-label">Em Andamento:</span>
+            <span class="insight-value">{{ kpis.ordensServico.emAndamento }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Evolução do Faturamento -->
+    <div class="col-12 md:col-6">
+      <p-card header="Evolução do Faturamento (6 meses)" styleClass="chart-card">
+        <p-chart
+          type="line"
+          [data]="vendasMensaisChartData"
+          [options]="vendasMensaisChartOptions"
+          height="300px">
+        </p-chart>
+        <div class="chart-insights">
+          <div class="insight-item">
+            <span class="insight-label">Total de Vendas:</span>
+            <span class="insight-value">{{ kpis.totalVendas }}</span>
+          </div>
+          <div class="insight-item">
+            <span class="insight-label">Período:</span>
+            <span class="insight-value">Últimos 6 meses</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Produtos com Menor Estoque -->
+    <div class="col-12 md:col-8">
+      <p-card header="Produtos com Menor Estoque (Atenção Necessária)" styleClass="chart-card">
+        <p-chart
+          type="bar"
+          [data]="productsChartDatas"
+          [options]="productsChartOptions"
+          height="350px">
+        </p-chart>
+        <div class="chart-insights">
+          <div class="insight-item">
+            <span class="insight-label">Produtos sem estoque:</span>
+            <span class="insight-value danger">{{ kpis.produtos.semEstoque }}</span>
+          </div>
+          <div class="insight-item">
+            <span class="insight-label">Estoque mínimo:</span>
+            <span class="insight-value warning">{{ kpis.produtos.estoqueMinimo }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Produtos Mais Vendidos -->
+    <div class="col-12 md:col-4">
+      <p-card header="Top 5 Produtos Mais Vendidos" styleClass="chart-card">
+        <p-chart
+          type="pie"
+          [data]="produtosMaisVendidosChartData"
+          [options]="produtosMaisVendidosChartOptions"
+          height="350px">
+        </p-chart>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Dashboard Financeiro
+   <div class="grid financial-section">
+    <div class="col-12">
+      <p-card header="💰 Dashboard Financeiro" styleClass="financial-card">
+        <app-parcelas-dashboard></app-parcelas-dashboard>
+      </p-card>
+    </div>
+  </div>
+
+   -->
+
+  <!-- Métricas Operacionais -->
+  <div class="grid operational-metrics">
+    <div class="col-12 md:col-6">
+      <p-card header="Produtividade" styleClass="metric-card">
+        <div class="metric-grid">
+          <div class="metric-item">
+            <span class="metric-label">OS por Funcionário</span>
+            <span class="metric-value">{{ (kpis.ordensServico.total / Math.max(kpis.totalFuncionarios, 1)).toFixed(1) }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Tempo Médio OS</span>
+            <span class="metric-value">{{ kpis.tempoMedioOS || 'N/A' }} dias</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Taxa Conclusão</span>
+            <span class="metric-value">{{ getPercentualConclusaoOS() }}%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Satisfação Cliente</span>
+            <span class="metric-value">{{ kpis.satisfacaoCliente || 'N/A' }}%</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <p-card header="Gestão de Estoque" styleClass="metric-card">
+        <div class="metric-grid">
+          <div class="metric-item">
+            <span class="metric-label">Giro de Estoque</span>
+            <span class="metric-value">{{ kpis.giroEstoque || 'N/A' }}x</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Valor em Estoque</span>
+            <span class="metric-value">{{ formatCurrency(kpis.valorTotalEstoque || 0) }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Produtos Ativos</span>
+            <span class="metric-value">{{ kpis.produtos.total - kpis.produtos.semEstoque }}</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Reposição Necessária</span>
+            <span class="metric-value warning">{{ kpis.produtos.estoqueMinimo }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
   </div>
 </div>

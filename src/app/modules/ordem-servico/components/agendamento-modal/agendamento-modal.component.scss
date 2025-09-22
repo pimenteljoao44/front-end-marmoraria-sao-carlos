@@ -1,0 +1,55 @@
+.agendamento-modal {
+  .p-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+
+    h5, p {
+      color: white !important;
+    }
+  }
+
+  .p-calendar {
+    width: 100%;
+  }
+
+  .p-inputtext, .p-inputtextarea {
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+  }
+
+  .p-button {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:not(.p-button-text) {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+    }
+  }
+
+  .p-error {
+    font-size: 0.875rem;
+    color: #ef4444;
+  }
+
+  .text-600 {
+    color: #6b7280;
+  }
+
+  .text-900 {
+    color: #111827;
+  }
+}

@@ -10,6 +10,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SharedModule } from 'src/app/shared/shared.module';
 import {ParcelasDashboardComponent} from "./page/parcelas-dashboard.component";
 import {FinanceiroModule} from "../financeiro/financeiro.module";
@@ -20,6 +22,9 @@ import {FinanceiroModule} from "../financeiro/financeiro.module";
   declarations: [
     DashboardHomeComponent,
     ParcelasDashboardComponent
+  ],
+  exports: [
+    DashboardHomeComponent
   ],
   imports: [
     CommonModule,
@@ -32,6 +37,8 @@ import {FinanceiroModule} from "../financeiro/financeiro.module";
     CardModule,
     ToastModule,
     ChartModule,
+    TagModule,
+    ProgressSpinnerModule,
     SharedModule,
     FinanceiroModule
   ]

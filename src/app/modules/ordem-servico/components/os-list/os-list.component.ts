@@ -77,5 +77,25 @@ export class OsListComponent {
   public podeConcluir(os: any): boolean {
     return os?.status === 'EM_ANDAMENTO';
   }
+
+  public podeAprovar(os: any): boolean {
+    return os?.status === 'PENDENTE';
+  }
+
+  public podeAgendar(os: any): boolean {
+    return os?.status === 'APROVADA' || os?.status === 'PENDENTE';
+  }
+
+  public podePausar(os: any): boolean {
+    return os?.status === 'EM_ANDAMENTO';
+  }
+
+  public podeRetomar(os: any): boolean {
+    return os?.status === 'PAUSADA';
+  }
+
+  public podeCancelar(os: any): boolean {
+    return os?.status !== 'CONCLUIDA' && os?.status !== 'CANCELADA';
+  }
 }
 

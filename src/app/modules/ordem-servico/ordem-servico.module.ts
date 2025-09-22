@@ -25,6 +25,7 @@ import { ConfirmationService } from 'primeng/api';
 import { OsListComponent } from './components/os-list/os-list.component';
 import { OsFormComponent } from './components/os-form/os-form.component';
 import { OsViewComponent } from './components/os-view/os-view.component';
+import { AgendamentoModalComponent } from './components/agendamento-modal/agendamento-modal.component';
 
 // Routing
 import { ORDEM_SERVICO_ROUTES } from './ordem-servico.routing';
@@ -38,7 +39,8 @@ import {OsHomeComponent} from "./page/os-home.component";
     OsHomeComponent,
     OsListComponent,
     OsFormComponent,
-    OsViewComponent
+    OsViewComponent,
+    AgendamentoModalComponent
   ],
   imports: [
     CommonModule,

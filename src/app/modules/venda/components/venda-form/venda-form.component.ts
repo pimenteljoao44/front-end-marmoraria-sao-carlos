@@ -484,20 +484,20 @@ export class VendaFormComponent implements OnInit {
         // Etapa 2: Efetivar a venda (backend finaliza e gera contas a receber)
         this.vendaService.efetivarVendaProjeto(vendaCriada.id as number).subscribe({
           next: (vendaEfetivada) => {
+            // Mostrar apenas um toast de sucesso
             this.messageService.add({
               severity: 'success',
               summary: 'Venda Realizada',
               detail: 'Venda do projeto efetivada com sucesso!'
             });
 
-            // Etapa 3: Exibir a modal para o usuário decidir sobre a O.S.
+            // Etapa 3: Perguntar se quer gerar OS
             this.mostrarModalGerarOS(vendaEfetivada);
-
-            this.resetForm(); // Limpa o formulário para a próxima venda
+            this.resetForm();
             this.submitting = false;
           },
           error: (err) => {
-            this.showError('A venda foi criada, mas falhou ao ser efetivada', err);
+            this.showError('Erro ao efetivar a venda', err);
             this.submitting = false;
           }
         });
@@ -587,7 +587,7 @@ export class VendaFormComponent implements OnInit {
       next: (responseMessage) => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Sucesso',
+          summary: 'Ordem de Serviço',
           detail: 'Ordem de Serviço criada com sucesso!'
         });
       },
