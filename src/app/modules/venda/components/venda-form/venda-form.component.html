@@ -1,266 +1,272 @@
 <div class="card">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="p-fluid grid">
-      <!-- Tipo de Venda -->
-      <div class="field col-12 md:col-4">
-        <label for="tipo">Tipo de Venda</label>
-        <p-dropdown
-          id="tipo"
-          formControlName="tipo"
-          [options]="tiposVenda"
-          optionLabel="label"
-          optionValue="value"
-          [disabled]="loading">
-        </p-dropdown>
-      </div>
+  <p-card>
+    <ng-template pTemplate="title">Registrar Nova Venda</ng-template>
 
-      <!-- Cliente -->
-      <div class="field col-12 md:col-8">
-        <label for="clienteId">Cliente</label>
-        <p-dropdown
-          id="clienteId"
-          formControlName="clienteId"
-          [options]="clientes"
-          optionLabel="nome"
-          optionValue="id"
-          [showClear]="true"
-          [disabled]="loading"
-          placeholder="Selecione um cliente">
-        </p-dropdown>
-        <small *ngIf="form.get('clienteId')?.invalid && form.get('clienteId')?.touched" class="p-error">
-          Cliente é obrigatório
-        </small>
-      </div>
-
-      <!-- Campos específicos para venda de produto -->
-      <ng-container *ngIf="tipoVendaAtual === 'PRODUTO'">
-        <div class="field col-12 md:col-6">
-          <label for="produtoId">Produto</label>
-          <p-autoComplete
-            id="produtoId"
-            formControlName="produtoId"
-            [suggestions]="produtos"
-            (completeMethod)="searchProdutos($event)"
-            field="nome"
-            [minLength]="2"
-            [dropdown]="true"
-            [forceSelection]="true"
-            optionLabel="nome"
-            optionValue="id"
-            [disabled]="loading"
-            placeholder="Digite para buscar produtos">
-            <ng-template let-produto pTemplate="item">
-              <div>{{produto.nome}} - {{produto.preco | currency:'BRL':'symbol':'1.2-2'}}</div>
-            </ng-template>
-          </p-autoComplete>
-          <small *ngIf="form.get('produtoId')?.invalid && form.get('produtoId')?.touched" class="p-error">
-            Produto é obrigatório
-          </small>
-        </div>
-
-        <div class="field col-12 md:col-2">
-          <label for="quantidade">Quantidade</label>
-          <p-inputNumber
-            id="quantidade"
-            formControlName="quantidade"
-            mode="decimal"
-            [min]="1"
-            [disabled]="loading">
-          </p-inputNumber>
-          <small *ngIf="form.get('quantidade')?.invalid && form.get('quantidade')?.touched" class="p-error">
-            Quantidade mínima: 1
-          </small>
-        </div>
-
-        <div class="field col-12 md:col-4">
-          <label for="precoUnitario">Preço Unitário</label>
-          <p-inputNumber
-            id="precoUnitario"
-            formControlName="precoUnitario"
-            mode="currency"
-            currency="BRL"
-            locale="pt-BR"
-            [disabled]="loading">
-          </p-inputNumber>
-          <small *ngIf="form.get('precoUnitario')?.invalid && form.get('precoUnitario')?.touched" class="p-error">
-            Preço inválido
-          </small>
-        </div>
-
-        <div class="field col-12">
-          <button
-            pButton
-            type="button"
-            label="Adicionar Item"
-            icon="pi pi-plus"
-            class="p-button-sm"
-            [disabled]="form.get('produtoId')?.invalid || form.get('quantidade')?.invalid || loading"
-            (click)="addItem()">
-          </button>
-        </div>
-
-        <!-- Lista de itens adicionados -->
-        <div class="field col-12" *ngIf="items.length > 0">
-          <p-table [value]="items" [responsive]="true" styleClass="p-datatable-sm">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Produto</th>
-                <th width="120px">Quantidade</th>
-                <th width="150px">Preço Unit.</th>
-                <th width="150px">Total</th>
-                <th width="80px">Ações</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-item let-i="rowIndex">
-              <tr>
-                <td>{{ item.produto?.nome }}</td>
-                <td>{{ item.quantidade }}</td>
-                <td>{{ item.preco | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td>{{ item.subTotal | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td>
-                  <button
-                    pButton
-                    icon="pi pi-trash"
-                    class="p-button-rounded p-button-danger p-button-text"
-                    (click)="removeItem(i)">
-                  </button>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="footer">
-              <tr>
-                <td colspan="3" class="text-right font-bold">Subtotal:</td>
-                <td class="font-bold">{{ subtotal | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td></td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </div>
-      </ng-container>
-
-      <!-- Campos específicos para venda de projeto -->
-      <ng-container *ngIf="tipoVendaAtual === 'ORCAMENTO'">
-        <div class="field col-12">
-          <label for="projetoId">Projeto</label>
-          <p-autoComplete
-            id="projetoId"
-            formControlName="projetoId"
-            [suggestions]="projetos"
-            (completeMethod)="searchProjetos($event)"
-            field="nome"
-            [minLength]="2"
-            [dropdown]="true"
-            [forceSelection]="true"
-            [disabled]="loading"
-            placeholder="Digite para buscar projetos">
-            <ng-template let-projeto pTemplate="item">
-              <div>{{projeto.nome}}</div>
-            </ng-template>
-          </p-autoComplete>
-          <small *ngIf="form.get('projetoId')?.invalid && form.get('projetoId')?.touched" class="p-error">
-            Projeto é obrigatório
-          </small>
-        </div>
-      </ng-container>
-
-      <!-- Forma de pagamento -->
-      <div class="field col-12 md:col-4">
-        <label for="formaPagamento">Forma de Pagamento</label>
-        <p-dropdown
-          id="formaPagamento"
-          formControlName="formaPagamento"
-          [options]="formasPagamento"
-          optionLabel="label"
-          optionValue="value"
-          [disabled]="loading">
-        </p-dropdown>
-      </div>
-
-      <!-- Número de parcelas (condicional) -->
-      <div class="field col-12 md:col-2" *ngIf="permiteParcelamento">
-        <label for="numeroParcelas">Parcelas</label>
-        <p-inputNumber
-          id="numeroParcelas"
-          formControlName="numeroParcelas"
-          [min]="1"
-          [max]="12"
-          [disabled]="loading">
-        </p-inputNumber>
-        <small *ngIf="form.get('numeroParcelas')?.invalid && form.get('numeroParcelas')?.touched" class="p-error">
-          Mínimo 1 parcela
-        </small>
-      </div>
-
-      <!-- Desconto -->
-      <div class="field col-12 md:col-3">
-        <label for="desconto">Desconto</label>
-        <p-inputNumber
-          id="desconto"
-          formControlName="desconto"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          [disabled]="loading">
-        </p-inputNumber>
-      </div>
-
-      <!-- Observações -->
-      <div class="field col-12">
-        <label for="observacoes">Observações</label>
-        <textarea
-          id="observacoes"
-          pInputTextarea
-          formControlName="observacoes"
-          [disabled]="loading"
-          rows="3">
-        </textarea>
-      </div>
-
-      <!-- Resumo financeiro -->
-      <div class="field col-12">
-        <p-card>
-          <div class="grid">
-            <div class="col-12 md:col-4">
-              <h4 class="mt-0">Subtotal</h4>
-              <p class="text-xl">{{ subtotal | currency:'BRL':'symbol':'1.2-2' }}</p>
-            </div>
-            <div class="col-12 md:col-4">
-              <h4 class="mt-0">Desconto</h4>
-              <p class="text-xl">{{ form.value.desconto | currency:'BRL':'symbol':'1.2-2' }}</p>
-            </div>
-            <div class="col-12 md:col-4">
-              <h4 class="mt-0">Total</h4>
-              <p class="text-xl text-primary font-bold">
-                {{ total | currency:'BRL':'symbol':'1.2-2'}}
-              </p>
-            </div>
+    <ng-template pTemplate="content">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="p-fluid grid">
+          <!-- Tipo de Venda -->
+          <div class="field col-12 md:col-4">
+            <label for="tipo">Tipo de Venda</label>
+            <p-dropdown
+              id="tipo"
+              formControlName="tipo"
+              [options]="tiposVenda"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="loading">
+            </p-dropdown>
           </div>
-        </p-card>
-      </div>
 
-      <!-- Botão de submit -->
-      <div class="field col-12">
-        <button
-          pButton
-          type="submit"
-          label="Registrar Venda"
-          icon="pi pi-check"
-          class="p-button-success"
-          [disabled]="form.invalid || submitting || loading"
-          [loading]="submitting">
-        </button>
-        <button
-          pButton
-          type="button"
-          label="Limpar"
-          icon="pi pi-trash"
-          class="p-button-secondary ml-2"
-          [disabled]="submitting || loading"
-          (click)="resetForm()">
-        </button>
-      </div>
-    </div>
-  </form>
+          <!-- Cliente -->
+          <div class="field col-12 md:col-8">
+            <label for="clienteId">Cliente</label>
+            <p-dropdown
+              id="clienteId"
+              formControlName="clienteId"
+              [options]="clientes"
+              optionLabel="nome"
+              optionValue="id"
+              [showClear]="true"
+              [disabled]="loading"
+              placeholder="Selecione um cliente">
+            </p-dropdown>
+            <small *ngIf="form.get('clienteId')?.invalid && form.get('clienteId')?.touched" class="p-error">
+              Cliente é obrigatório
+            </small>
+          </div>
+
+          <!-- Campos específicos para venda de produto -->
+          <ng-container *ngIf="tipoVendaAtual === 'PRODUTO'">
+            <div class="field col-12 md:col-6">
+              <label for="produtoId">Produto</label>
+              <p-autoComplete
+                id="produtoId"
+                formControlName="produtoId"
+                [suggestions]="produtos"
+                (completeMethod)="searchProdutos($event)"
+                field="nome"
+                [minLength]="2"
+                [dropdown]="true"
+                [forceSelection]="true"
+                optionLabel="nome"
+                optionValue="id"
+                [disabled]="loading"
+                placeholder="Digite para buscar produtos">
+                <ng-template let-produto pTemplate="item">
+                  <div>{{produto.nome}} - {{produto.preco | currency:'BRL':'symbol':'1.2-2'}}</div>
+                </ng-template>
+              </p-autoComplete>
+              <small *ngIf="form.get('produtoId')?.invalid && form.get('produtoId')?.touched" class="p-error">
+                Produto é obrigatório
+              </small>
+            </div>
+
+            <div class="field col-12 md:col-2">
+              <label for="quantidade">Quantidade</label>
+              <p-inputNumber
+                id="quantidade"
+                formControlName="quantidade"
+                mode="decimal"
+                [min]="1"
+                [disabled]="loading">
+              </p-inputNumber>
+              <small *ngIf="form.get('quantidade')?.invalid && form.get('quantidade')?.touched" class="p-error">
+                Quantidade mínima: 1
+              </small>
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label for="precoUnitario">Preço Unitário</label>
+              <p-inputNumber
+                id="precoUnitario"
+                formControlName="precoUnitario"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                [disabled]="loading">
+              </p-inputNumber>
+              <small *ngIf="form.get('precoUnitario')?.invalid && form.get('precoUnitario')?.touched" class="p-error">
+                Preço inválido
+              </small>
+            </div>
+
+            <div class="field col-12">
+              <button
+                pButton
+                type="button"
+                label="Adicionar Item"
+                icon="pi pi-plus"
+                class="p-button-sm"
+                [disabled]="form.get('produtoId')?.invalid || form.get('quantidade')?.invalid || loading"
+                (click)="addItem()">
+              </button>
+            </div>
+
+            <!-- Lista de itens adicionados -->
+            <div class="field col-12" *ngIf="items.length > 0">
+              <p-table [value]="items" [responsive]="true" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Produto</th>
+                    <th width="120px">Quantidade</th>
+                    <th width="150px">Preço Unit.</th>
+                    <th width="150px">Total</th>
+                    <th width="80px">Ações</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item let-i="rowIndex">
+                  <tr>
+                    <td>{{ item.produto?.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>{{ item.preco | currency:'BRL':'symbol':'1.2-2' }}</td>
+                    <td>{{ item.subTotal | currency:'BRL':'symbol':'1.2-2' }}</td>
+                    <td>
+                      <button
+                        pButton
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-danger p-button-text"
+                        (click)="removeItem(i)">
+                      </button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                  <tr>
+                    <td colspan="3" class="text-right font-bold">Subtotal:</td>
+                    <td class="font-bold">{{ subtotal | currency:'BRL':'symbol':'1.2-2' }}</td>
+                    <td></td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </ng-container>
+
+          <!-- Campos específicos para venda de projeto -->
+          <ng-container *ngIf="tipoVendaAtual === 'ORCAMENTO'">
+            <div class="field col-12">
+              <label for="projetoId">Projeto</label>
+              <p-autoComplete
+                id="projetoId"
+                formControlName="projetoId"
+                [suggestions]="projetos"
+                (completeMethod)="searchProjetos($event)"
+                field="nome"
+                [minLength]="2"
+                [dropdown]="true"
+                [forceSelection]="true"
+                [disabled]="loading"
+                placeholder="Digite para buscar projetos">
+                <ng-template let-projeto pTemplate="item">
+                  <div>{{projeto.nome}}</div>
+                </ng-template>
+              </p-autoComplete>
+              <small *ngIf="form.get('projetoId')?.invalid && form.get('projetoId')?.touched" class="p-error">
+                Projeto é obrigatório
+              </small>
+            </div>
+          </ng-container>
+
+          <!-- Forma de pagamento -->
+          <div class="field col-12 md:col-4">
+            <label for="formaPagamento">Forma de Pagamento</label>
+            <p-dropdown
+              id="formaPagamento"
+              formControlName="formaPagamento"
+              [options]="formasPagamento"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="loading">
+            </p-dropdown>
+          </div>
+
+          <!-- Número de parcelas (condicional) -->
+          <div class="field col-12 md:col-2" *ngIf="permiteParcelamento">
+            <label for="numeroParcelas">Parcelas</label>
+            <p-inputNumber
+              id="numeroParcelas"
+              formControlName="numeroParcelas"
+              [min]="1"
+              [max]="12"
+              [disabled]="loading">
+            </p-inputNumber>
+            <small *ngIf="form.get('numeroParcelas')?.invalid && form.get('numeroParcelas')?.touched" class="p-error">
+              Mínimo 1 parcela
+            </small>
+          </div>
+
+          <!-- Desconto -->
+          <div class="field col-12 md:col-3">
+            <label for="desconto">Desconto</label>
+            <p-inputNumber
+              id="desconto"
+              formControlName="desconto"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              [disabled]="loading">
+            </p-inputNumber>
+          </div>
+
+          <!-- Observações -->
+          <div class="field col-12">
+            <label for="observacoes">Observações</label>
+            <textarea
+              id="observacoes"
+              pInputTextarea
+              formControlName="observacoes"
+              [disabled]="loading"
+              rows="3">
+            </textarea>
+          </div>
+
+          <!-- Resumo financeiro -->
+          <div class="field col-12">
+            <p-card>
+              <div class="grid">
+                <div class="col-12 md:col-4">
+                  <h4 class="mt-0">Subtotal</h4>
+                  <p class="text-xl">{{ subtotal | currency:'BRL':'symbol':'1.2-2' }}</p>
+                </div>
+                <div class="col-12 md:col-4">
+                  <h4 class="mt-0">Desconto</h4>
+                  <p class="text-xl">{{ form.value.desconto | currency:'BRL':'symbol':'1.2-2' }}</p>
+                </div>
+                <div class="col-12 md:col-4">
+                  <h4 class="mt-0">Total</h4>
+                  <p class="text-xl text-primary font-bold">
+                    {{ total | currency:'BRL':'symbol':'1.2-2'}}
+                  </p>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Botões de Ação -->
+          <div class="col-12 flex justify-content-end gap-2 mt-4">
+            <button
+              pButton
+              type="button"
+              label="Limpar"
+              icon="pi pi-trash"
+              class="p-button-outlined p-button-secondary"
+              [disabled]="submitting || loading"
+              (click)="resetForm()">
+            </button>
+            <button
+              pButton
+              type="submit"
+              label="Registrar Venda"
+              icon="pi pi-check"
+              class="p-button-success"
+              [disabled]="form.invalid || submitting || loading"
+              [loading]="submitting">
+            </button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </p-card>
 </div>
 
 <p-toast></p-toast>

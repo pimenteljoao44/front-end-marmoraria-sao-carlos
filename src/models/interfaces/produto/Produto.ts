@@ -9,5 +9,6 @@ export interface Produto {
   estoque:number,
   quantidade:number,
   grupo:Grupo,
-  fornecedor?:Fornecedor
+  fornecedor?:Fornecedor,
+  unidadeDeMedida?: string;
 }

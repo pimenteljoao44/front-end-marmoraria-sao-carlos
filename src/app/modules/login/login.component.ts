@@ -15,6 +15,8 @@ import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   displayForgotPasswordDialog: boolean = false;
+  loading: boolean = false;
+  loadingForgotPassword: boolean = false;
 
   loginForm = this.formBuilder.group({
     login: ['', Validators.required],
@@ -39,6 +41,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onsubmitLoginForm(): void {
     if (this.loginForm.value && this.loginForm.valid) {
+      this.loading = true;
       this.userService
         .authUser(this.loginForm.value as AuthRequest)
         .pipe(takeUntil(this.destroy$))
@@ -64,8 +67,10 @@ export class LoginComponent implements OnInit, OnDestroy {
                 });
               }, 100);
             }
+            this.loading = false;
           },
           error: (err) => {
+            this.loading = false;
             this.cookieService.delete('USER_INFO', '/');
             this.messageService.add({
               severity: 'error',
@@ -113,6 +118,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               detail: 'Não encontramos nenhum usuário com o email informado',
               life: 2000,
             });
+            this.loadingForgotPassword = false;
           },
         });
     }

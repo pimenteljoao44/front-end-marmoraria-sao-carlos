@@ -35,12 +35,14 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
   public fornecedorSelecionado!: Fornecedor;
   public ativo: boolean = true;
   public validouEstoquePreco: boolean = false;
+  public unidadesDeMedida: Array<{ label: string, value: string }> = [];
 
   public addProductForm = this.formBuilder.group({
     nome: ['', Validators.required],
     preco: [0, Validators.required],
     ativo: [this.ativo, Validators.required],
     estoque: [0, Validators.required],
+    unidadeDeMedida: ['', Validators.required],
     grupo: this.formBuilder.group({
       id: [null, Validators.required],
       nome: ['', Validators.required],
@@ -55,6 +57,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
     ativo: [this.ativo, Validators.required],
     estoque: [0, Validators.required],
     quantidade: [0],
+    unidadeDeMedida: ['', Validators.required],
     grupo: this.formBuilder.group({
       id: [null, Validators.required],
       nome: ['', Validators.required],
@@ -87,6 +90,20 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
       this.getProductSelectedDatas(prodId as number);
     }
     this.getAllGroups();
+    this.initializeUnidadesDeMedida();
+  }
+
+  initializeUnidadesDeMedida(): void {
+    this.unidadesDeMedida = [
+      { label: 'Metros', value: 'METROS' },
+      { label: 'Centímetros', value: 'CENTIMETROS' },
+      { label: 'Polegadas', value: 'POLEGADAS' },
+      { label: 'Unidade', value: 'UNIDADE' },
+      { label: 'Peça', value: 'PECA' },
+      { label: 'Metro Quadrado', value: 'METRO_QUADRADO' },
+      { label: 'Litro', value: 'LITRO' },
+      { label: 'Quilograma', value: 'QUILOGRAMA' },
+    ];
   }
 
   getAllGroups(): void {
@@ -248,6 +265,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
       ativo: this.editProductform.value.ativo as boolean,
       estoque: this.editProductform.value.estoque as number,
       quantidade: this.editProductform.value.quantidade as number,
+      unidadeDeMedida: this.editProductform.value.unidadeDeMedida as string,
       grupo: {
         id: this.grupoSelecionado.id,
         nome: this.grupoSelecionado.nome,
@@ -308,6 +326,7 @@ export class ProdutoFormComponent implements OnInit, OnDestroy {
           preco: productFiltered.preco,
           ativo: productFiltered.ativo,
           estoque: productFiltered.estoque,
+          unidadeDeMedida: productFiltered.unidadeDeMedida,
           grupo: {
             id: productFiltered.grupo?.id || null,
             nome: productFiltered.grupo?.nome || '',

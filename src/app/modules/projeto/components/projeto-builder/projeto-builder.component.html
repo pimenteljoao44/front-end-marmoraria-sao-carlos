@@ -168,111 +168,271 @@
       <!-- Step 3: Medidas -->
       <div *ngIf="currentStep === 2" class="step-content-wrapper">
         <div class="step-header">
-          <h3>Quais são as dimensões do projeto?</h3>
-          <p>Informe as medidas para calcularmos automaticamente a quantidade de material necessária.</p>
+          <h3>Defina as medidas do projeto</h3>
+          <p>Informe as dimensões das peças que serão produzidas para este projeto.</p>
         </div>
 
-        <div formGroupName="medidas" class="medidas-section">
-          <div class="medidas-grid">
+        <!-- Interface de Medidas Dinâmica com Canvas -->
+        <div class="medidas-container">
 
-            <!-- Profundidade -->
-            <div class="medida-field">
-              <label for="profundidade" class="form-label">Profundidade *</label>
-              <div class="p-inputgroup">
-                <p-inputNumber
-                  inputId="profundidade"
-                  formControlName="profundidade"
-                  mode="decimal"
-                  [minFractionDigits]="2"
-                  [maxFractionDigits]="2"
-                  placeholder="0,00"
-                  [min]="0.01"
-                  class="w-full">
-                </p-inputNumber>
-                <span class="p-inputgroup-addon">m</span>
-              </div>
-            </div>
+          <!-- Layout Principal: Formulário + Canvas -->
+          <div class="medidas-layout">
 
-            <!-- Largura -->
-            <div class="medida-field">
-              <label for="largura" class="form-label">Largura *</label>
-              <div class="p-inputgroup">
-                <p-inputNumber
-                  inputId="largura"
-                  formControlName="largura"
-                  mode="decimal"
-                  [minFractionDigits]="2"
-                  [maxFractionDigits]="2"
-                  placeholder="0,00"
-                  [min]="0.01"
-                  class="w-full">
-                </p-inputNumber>
-                <span class="p-inputgroup-addon">m</span>
-              </div>
-            </div>
+            <!-- Painel Esquerdo: Formulário Dinâmico -->
+            <div class="form-panel">
 
-            <!-- Altura -->
-            <div class="medida-field">
-              <label for="altura" class="form-label">Altura *</label>
-              <div class="p-inputgroup">
-                <p-inputNumber
-                  inputId="altura"
-                  formControlName="altura"
-                  mode="decimal"
-                  [minFractionDigits]="2"
-                  [maxFractionDigits]="2"
-                  placeholder="0,00"
-                  [min]="0.01"
-                  class="w-full">
-                </p-inputNumber>
-                <span class="p-inputgroup-addon">m</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Calculated Values -->
-          <div class="calculated-values" *ngIf="projetoForm.get('medidas.profundidade')?.value && projetoForm.get('medidas.largura')?.value">
-            <div class="calculation-cards">
-              <div class="calc-card area">
-                <div class="calc-icon">
-                  <i class="pi pi-th-large"></i>
+              <!-- Controles Superiores -->
+              <div class="form-header">
+                <h4>Definir Medidas</h4>
+                <div class="unidade-selector">
+                  <label>Unidade:</label>
+                  <p-dropdown
+                    [options]="unidadesDisponiveis"
+                    [(ngModel)]="unidadePadrao"
+                    [ngModelOptions]="{standalone: true}"
+                    optionLabel="label"
+                    optionValue="value"
+                    [style]="{'width': '100px'}"
+                    (onChange)="onUnidadeChange()">
+                  </p-dropdown>
                 </div>
-                <div class="calc-content">
-                  <div class="calc-value">
-                    {{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }} m²
+              </div>
+
+              <!-- Formulário de Peça Ativa -->
+              <div class="peca-form" *ngIf="pecaAtiva">
+                <div class="form-section">
+                  <label class="section-title">Informações da Peça</label>
+
+                  <div class="form-field">
+                    <label>Nome/Descrição</label>
+                    <input
+                      pInputText
+                      [(ngModel)]="pecaAtiva.nome"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Ex: Bancada Principal, Ilha, Soleira..."
+                      (ngModelChange)="atualizarCanvas()"
+                      class="w-full">
                   </div>
-                  <div class="calc-label">Área Total</div>
-                </div>
-              </div>
 
-              <div class="calc-card perimeter">
-                <div class="calc-icon">
-                  <i class="pi pi-circle"></i>
-                </div>
-                <div class="calc-content">
-                  <div class="calc-value">
-                    {{ (2 * (projetoForm.get('medidas.profundidade')?.value + projetoForm.get('medidas.largura')?.value)).toFixed(2) }} m
+                  <div class="form-field">
+                    <label>Tipo de Peça</label>
+                    <p-dropdown
+                      [options]="tiposPeca"
+                      [(ngModel)]="pecaAtiva.tipo"
+                      [ngModelOptions]="{standalone: true}"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Selecione o tipo"
+                      (onChange)="onTipoPecaChange()"
+                      class="w-full">
+                    </p-dropdown>
                   </div>
-                  <div class="calc-label">Perímetro</div>
                 </div>
+
+                <div class="form-section">
+                  <label class="section-title">Dimensões Principais</label>
+
+                  <div class="dimensions-grid">
+                    <div class="dim-field">
+                      <label>Largura</label>
+                      <div class="input-with-unit">
+                        <p-inputNumber
+                          [(ngModel)]="pecaAtiva.largura"
+                          [ngModelOptions]="{standalone: true}"
+                          mode="decimal"
+                          [minFractionDigits]="0"
+                          [maxFractionDigits]="2"
+                          [min]="0.01"
+                          placeholder="0"
+                          (onInput)="atualizarCanvas()">
+                        </p-inputNumber>
+                        <span class="unit">{{ getSimboloUnidade() }}</span>
+                      </div>
+                    </div>
+
+                    <div class="dim-field">
+                      <label>Altura/Profundidade</label>
+                      <div class="input-with-unit">
+                        <p-inputNumber
+                          [(ngModel)]="pecaAtiva.altura"
+                          [ngModelOptions]="{standalone: true}"
+                          mode="decimal"
+                          [minFractionDigits]="0"
+                          [maxFractionDigits]="2"
+                          [min]="0.01"
+                          placeholder="0"
+                          (onInput)="atualizarCanvas()">
+                        </p-inputNumber>
+                        <span class="unit">{{ getSimboloUnidade() }}</span>
+                      </div>
+                    </div>
+
+                    <div class="dim-field">
+                      <label>Espessura</label>
+                      <div class="input-with-unit">
+                        <p-inputNumber
+                          [(ngModel)]="pecaAtiva.espessura"
+                          [ngModelOptions]="{standalone: true}"
+                          mode="decimal"
+                          [minFractionDigits]="0"
+                          [maxFractionDigits]="2"
+                          [min]="0.01"
+                          placeholder="3"
+                          (onInput)="atualizarCanvas()">
+                        </p-inputNumber>
+                        <span class="unit">{{ getSimboloUnidade() }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Seção de Recortes/Furos -->
+                <div class="form-section" *ngIf="pecaAtiva.tipo && pecaAtiva.tipo !== 'simples'">
+                  <label class="section-title">Recortes e Detalhes</label>
+
+                  <div class="recortes-list" *ngIf="pecaAtiva.recortes && pecaAtiva.recortes.length > 0">
+                    <div *ngFor="let recorte of pecaAtiva.recortes; let i = index" class="recorte-item">
+                      <span>{{ recorte.tipo }}: {{ recorte.largura }}{{ getSimboloUnidade() }} × {{ recorte.altura }}{{ getSimboloUnidade() }}</span>
+                      <p-button
+                        icon="pi pi-trash"
+                        styleClass="p-button-text p-button-sm p-button-danger"
+                        (onClick)="removerRecorte(i)">
+                      </p-button>
+                    </div>
+                  </div>
+
+                  <p-button
+                    label="Adicionar Recorte"
+                    icon="pi pi-plus"
+                    styleClass="p-button-sm p-button-outlined"
+                    (onClick)="adicionarRecorte()">
+                  </p-button>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                  <label class="section-title">Observações</label>
+                  <textarea
+                    pInputTextarea
+                    [(ngModel)]="pecaAtiva.observacoes"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Detalhes especiais, acabamentos, etc..."
+                    rows="2"
+                    class="w-full">
+                  </textarea>
+                </div>
+
+                <!-- Área Calculada -->
+                <div class="area-info" *ngIf="pecaAtiva.largura && pecaAtiva.altura">
+                  <div class="area-display">
+                    <span class="area-label">Área:</span>
+                    <span class="area-value">{{ calcularAreaPeca(pecaAtiva) }} m²</span>
+                  </div>
+                </div>
+
+                <!-- Ações da Peça -->
+                <div class="form-actions">
+                  <p-button
+                    label="Salvar Peça"
+                    icon="pi pi-check"
+                    styleClass="p-button-sm"
+                    [disabled]="!pecaAtiva.nome || !pecaAtiva.largura || !pecaAtiva.altura"
+                    (onClick)="salvarPecaAtiva()">
+                  </p-button>
+                  <p-button
+                    label="Nova Peça"
+                    icon="pi pi-plus"
+                    styleClass="p-button-sm p-button-outlined"
+                    (onClick)="novaPeca()">
+                  </p-button>
+                </div>
+              </div>
+
+              <!-- Estado Inicial -->
+              <div class="empty-form" *ngIf="!pecaAtiva">
+                <div class="empty-content">
+                  <i class="pi pi-drafts"></i>
+                  <h4>Começar Projeto</h4>
+                  <p>Clique no botão abaixo para definir a primeira peça</p>
+                  <p-button
+                    label="Definir Primeira Peça"
+                    icon="pi pi-plus"
+                    (onClick)="novaPeca()">
+                  </p-button>
+                </div>
+              </div>
+
+              <!-- Lista de Peças Salvas -->
+              <div class="pecas-salvas" *ngIf="pecasProjeto.length > 0">
+                <h5>Peças do Projeto ({{ pecasProjeto.length }})</h5>
+                <div class="pecas-resumo">
+                  <div *ngFor="let peca of pecasProjeto; let i = index" class="peca-resumo">
+                    <div class="peca-info">
+                      <strong>{{ peca.nome }}</strong>
+                      <span>{{ peca.largura }}{{ getSimboloUnidade() }} × {{ peca.altura }}{{ getSimboloUnidade() }}</span>
+                      <small>{{ calcularAreaPeca(peca) }} m²</small>
+                    </div>
+                    <div class="peca-actions">
+                      <p-button
+                        icon="pi pi-pencil"
+                        styleClass="p-button-text p-button-sm"
+                        (onClick)="editarPecaSalva(peca, i)"
+                        pTooltip="Editar">
+                      </p-button>
+                      <p-button
+                        icon="pi pi-trash"
+                        styleClass="p-button-text p-button-sm p-button-danger"
+                        (onClick)="removerPeca(i)"
+                        pTooltip="Remover">
+                      </p-button>
+                    </div>
+                  </div>
+                </div>
+                <div class="total-area">
+                  <strong>Área Total: {{ calcularAreaTotalProjeto() }} m²</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Painel Direito: Canvas de Desenho -->
+            <div class="canvas-panel">
+              <div class="canvas-header">
+                <h4>Desenho Técnico</h4>
+                <div class="canvas-controls">
+                  <p-button
+                    icon="pi pi-refresh"
+                    styleClass="p-button-text p-button-sm"
+                    (onClick)="limparCanvas()"
+                    pTooltip="Limpar">
+                  </p-button>
+                  <p-button
+                    icon="pi pi-download"
+                    styleClass="p-button-text p-button-sm"
+                    (onClick)="exportarDesenho()"
+                    pTooltip="Exportar">
+                  </p-button>
+                </div>
+              </div>
+
+              <div class="canvas-container">
+                <canvas
+                  #canvasDesenho
+                  width="600"
+                  height="500"
+                  (mousedown)="onCanvasMouseDown($event)"
+                  (mousemove)="onCanvasMouseMove($event)"
+                  (mouseup)="onCanvasMouseUp($event)"
+                  (mouseleave)="onCanvasMouseUp($event)"
+                  style="border: 1px solid #dee2e6; border-radius: 8px; cursor: pointer;">
+                </canvas>
+              </div>
+
+              <div class="canvas-info">
+                <small>Clique no canvas para posicionar peças • Desenho em escala automática</small>
               </div>
             </div>
           </div>
 
-          <!-- Observações das medidas -->
-          <div class="mt-4">
-            <div class="p-field">
-              <label for="medidasObs" class="form-label">Observações sobre as medidas</label>
-              <textarea
-                pInputTextarea
-                id="medidasObs"
-                formControlName="observacoes"
-                rows="2"
-                placeholder="Observações especiais sobre as medidas, recortes, etc."
-                class="w-full">
-              </textarea>
-            </div>
-          </div>
         </div>
       </div>
 

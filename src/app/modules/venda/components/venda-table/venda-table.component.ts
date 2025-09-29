@@ -37,11 +37,11 @@ export class VendaTableComponent {
     }
   }
 
-  public getTipoVendaLabel(tipo: number): string {
+  public getTipoVendaLabel(tipo: VendaTipo): string {
     switch (tipo) {
-      case 0:
+      case VendaTipo.VENDA:
         return 'Produto';
-      case 1:
+      case VendaTipo.ORCAMENTO:
         return 'Projeto';
       default:
         return 'N/A';
@@ -87,7 +87,7 @@ export class VendaTableComponent {
   }
 
   public podeGerarOrdemServico(venda: Venda): boolean {
-    return venda.status === 'CONFIRMADA' && venda.vendaTipo === VendaTipo.ORCAMENTO && !venda.ordemServicoGerada;
+    return venda.vendaTipo == VendaTipo.ORCAMENTO && !venda.ordemServicoGerada;
   }
 
   public getDescricaoFormaPagamento(cod: FormaPagamento): string {

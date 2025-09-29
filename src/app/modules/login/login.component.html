@@ -22,7 +22,14 @@
           <input pInputText type="password" placeholder="Senha" formControlName="senha" />
         </div>
         <div class="card flex justify-content-center mt-3">
-          <button pButton pRiple type="submit" label="Entrar" [disabled]="!this.loginForm.valid"></button>
+          <button
+            pButton
+            pRiple
+            type="submit"
+            label="Entrar"
+            [loading]="loading"
+            [disabled]="!loginForm.valid || loading">
+          </button>
         </div>
         <div class="card flex justify-content-center mt-3">
           <span (click)="showForgotPasswordDialog()" style="cursor: pointer;">Esqueceu a sua senha?</span>
@@ -41,11 +48,23 @@
     <input pInputText type="email" placeholder="Seu e-mail" formControlName="email"/>
 
     <div class="flex justify-content-center align-content-center text-align-center mt-3 ui-dialog-buttonpane ui-helper-clearfix">
-      <button pButton type="submit" label="Recuperar Senha"></button>
+      <button
+        pButton
+        type="submit"
+        label="Recuperar Senha"
+        [loading]="loadingForgotPassword"
+        [disabled]="!forgotPasswordForm.valid || loadingForgotPassword">
+      </button>
     </div>
 
     <div class="flex justify-content-center align-content-center text-align-center mt-3 ui-dialog-buttonpane ui-helper-clearfix">
-      <button pButton type="button" (click)="hideForgotPasswordDialog()" label="Cancelar"></button>
+      <button
+        pButton
+        type="button"
+        (click)="hideForgotPasswordDialog()"
+        label="Cancelar"
+        [disabled]="loadingForgotPassword">
+      </button>
     </div>
   </form>
 </p-dialog>

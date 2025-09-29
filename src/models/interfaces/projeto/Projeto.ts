@@ -1,6 +1,30 @@
 import {TipoProjeto} from "../../enums/projeto/TipoProjeto";
 import {StatusProjeto} from "../../enums/projeto/StatusProjeto";
 import {ProjetoItem} from "./ProjetoItem";
+
+// Adicionado Recorte e PecaProjeto
+export interface Recorte {
+  tipo: string;
+  largura: number;
+  altura: number;
+  x?: number;
+  y?: number;
+}
+
+export interface PecaProjeto {
+  id?: number;
+  nome: string;
+  tipo: string;
+  largura: number;
+  altura: number;
+  espessura?: number;
+  unidade: string;
+  recortes?: Recorte[];
+  observacoes?: string;
+  x?: number;
+  y?: number;
+}
+
 export interface Projeto {
   id?: number;
   nome: string;
@@ -18,6 +42,7 @@ export interface Projeto {
   observacoes?: string;
   itens: ProjetoItem[];
   medidas: MedidasProjeto;
+  pecas?: PecaProjeto[]; // Adicionado campo para as peças
   ordemServico?: any; // Reference to OrdemServico
   dataCriacao: Date;
   dataAtualizacao: Date;

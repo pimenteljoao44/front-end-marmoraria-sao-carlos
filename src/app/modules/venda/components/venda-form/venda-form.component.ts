@@ -571,6 +571,7 @@ export class VendaFormComponent implements OnInit {
           return;
         }
         this.gerarOrdemServico(venda.id);
+        venda.ordemServicoGerada = true;
       },
       reject: () => {
         this.messageService.add({

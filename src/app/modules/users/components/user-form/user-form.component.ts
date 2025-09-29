@@ -19,6 +19,7 @@ import { Funcionario } from 'src/models/interfaces/funcionario/Funcionario';
 })
 export class UserFormComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<void> = new Subject();
+
   public userAction!: {
     event: EventAction;
     userList: Array<Usuario>;
@@ -29,30 +30,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
     { label: 'Funcionário', value: 1 },
   ];
 
-  public nivelSelected: Array<{ label: string; value: number }> = [];
+  public userForm!: FormGroup;
   public usersSelectedDatas!: Usuario;
-  public userDatas: Array<Usuario> = [];
   public funcionarios: Array<Funcionario> = [];
   public allFuncionarios: Funcionario[] = [];
-
-  public addUserForm = this.formBuilder.group({
-    nome: ['', Validators.required],
-    login: ['', Validators.required],
-    senha: ['', Validators.required],
-    email: ['', Validators.required],
-    nivelAcesso: [null, Validators.required],
-    funcionario: [null, Validators.required],
-  });
-
-  public editUserForm = this.formBuilder.group({
-    nome: ['', Validators.required],
-    login: ['', Validators.required],
-    senha: ['', Validators.required],
-    email: ['', Validators.required],
-    nivelAcesso: [null, Validators.required],
-    funcionario: [null, Validators.required],
-    funcionarioNome: [''],
-  });
 
   public addUserAction = UserEvent.CREATE_USER_EVENT;
   public editUserAction = UserEvent.EDIT_USER_EVENT;
@@ -67,185 +48,127 @@ export class UserFormComponent implements OnInit, OnDestroy {
     private funcionarioService: FuncionarioService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.userAction = this.ref.data;
-    this.loadAllFuncionarios();
-    if (
-      this.userAction?.event.action === this.editUserAction &&
-      this.userAction?.userList
-    ) {
-      this.getUserSelectedDatas(this.userAction?.event?.id as number);
+    this.userForm = this.createForm();
+    await this.loadAllFuncionarios();
+
+    if (this.isEditAction()) {
+      this.setupEditForm();
     }
   }
 
-  markFormGroupTouched(formGroup: FormGroup) {
+  private createForm(): FormGroup {
+    return this.formBuilder.group({
+      nome: ['', [Validators.required, Validators.minLength(3)]],
+      login: ['', [Validators.required, Validators.minLength(3)]],
+      senha: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['', [Validators.required, Validators.email]],
+      nivelAcesso: [null as number | null, Validators.required],
+      funcionario: [null as Funcionario | null, Validators.required],
+    });
+  }
+
+  private setupEditForm(): void {
+    // Senha não é obrigatória na edição
+    this.userForm.get('senha')?.clearValidators();
+    this.userForm.get('senha')?.updateValueAndValidity();
+    this.getUserSelectedDatas(this.userAction?.event?.id as number);
+  }
+
+  private isEditAction(): boolean {
+    return this.userAction?.event?.action === this.editUserAction && !!this.userAction?.userList;
+  }
+
+  private markAllAsTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach((control) => {
+      control.markAsTouched();
       if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      } else {
-        control.markAsTouched();
+        this.markAllAsTouched(control);
       }
     });
   }
 
-  handleSubmitAddUser(): void {
-    const invalidControls: string[] = [];
-    Object.keys(this.addUserForm.controls).forEach((controlName) => {
-      const control = this.addUserForm.get(controlName);
-      if (control && control.invalid) {
-        invalidControls.push(controlName);
-      }
-    });
-
-    if (invalidControls.length > 0) {
-      const invalidFieldsMessage = `Os campos ${invalidControls.join(
-        ', '
-      )} estão inválidos.`;
-
-      this.markFormGroupTouched(this.addUserForm);
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Aviso',
-        detail: invalidFieldsMessage,
-        life: 3000,
-      });
+  handleSubmit(): void {
+    if (this.userForm.invalid) {
+      this.markAllAsTouched(this.userForm);
+      this.showValidationWarning();
       return;
     }
+
+    if (this.isEditAction()) {
+      this.handleSubmitEditUser();
+    } else {
+      this.handleSubmitAddUser();
+    }
+  }
+
+  private handleSubmitAddUser(): void {
     this.userService
-      .create(this.addUserForm.value as Usuario)
+      .create(this.userForm.value as Usuario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response) {
-            this.addUserForm.reset();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: `O usuário ${response.nome} foi criado com sucesso!`,
-              life: 2000,
-            });
+            this.userForm.reset();
+            this.showSuccessMessage(`O usuário ${response.nome} foi criado com sucesso!`);
           }
         },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: err.error?.message || err.message || 'Erro desconhecido',
-            life: 2000,
-          });
-          console.log(err);
+        error: (err) => this.showErrorMessage('Erro ao criar usuário.', err),
+      });
+  }
+
+  private handleSubmitEditUser(): void {
+    if (!this.userAction.event.id) return;
+
+    const formValue = this.userForm.value;
+    const requestEditUser: Partial<Usuario> = {
+      id: this.userAction.event.id,
+      nome: formValue.nome as string,
+      login: formValue.login as string,
+      email: formValue.email as string,
+      nivelAcesso: formValue.nivelAcesso as any,
+      funcionario: formValue.funcionario as any,
+    };
+
+    if (formValue.senha) {
+      requestEditUser.senha = formValue.senha as string;
+    }
+
+    this.userService
+      .update(requestEditUser as Usuario)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.userForm.reset();
+          this.showSuccessMessage('Usuário editado com sucesso!');
         },
+        error: (err) => this.showErrorMessage('Erro ao editar usuário.', err),
       });
-  }
-
-  onFuncionarioSelect(event: any): void {
-    const selectedFuncionario = event?.value;
-    if (selectedFuncionario) {
-      this.editUserForm.patchValue({
-        funcionario: selectedFuncionario,
-        funcionarioNome: selectedFuncionario.nome,
-      });
-    }
-  }
-
-  handleSubmitEditUser() {
-    if (this.userAction.event.id) {
-      const requestEditProduct: Usuario = {
-        id: this.userAction?.event?.id as number,
-        nome: this.editUserForm?.value?.nome as string,
-        login: this.editUserForm?.value?.login as string,
-        senha: this.editUserForm?.value?.senha as string,
-        email: this.editUserForm?.value?.email as string,
-        nivelAcesso: this.editUserForm?.value.nivelAcesso,
-        funcionario: this.editUserForm?.value.funcionario as any,
-        funcionarioNome: this.editUserForm?.value?.funcionarioNome as string,
-        token: '',
-      };
-      const invalidControls: string[] = [];
-      Object.keys(this.editUserForm.controls).forEach((controlName) => {
-        const control = this.editUserForm.get(controlName);
-        if (control && control.invalid) {
-          invalidControls.push(controlName);
-        }
-      });
-
-      if (invalidControls.length > 0) {
-        const invalidFieldsMessage = `Os campos ${invalidControls.join(
-          ', '
-        )} estão inválidos.`;
-
-        this.markFormGroupTouched(this.editUserForm);
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Aviso',
-          detail: invalidFieldsMessage,
-          life: 3000,
-        });
-        return;
-      }
-      this.userService
-        .update(requestEditProduct)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            if (response) {
-              this.editUserForm.reset();
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Sucesso',
-                detail: `O usuário editado com sucesso!`,
-                life: 2000,
-              });
-            }
-          },
-          error: (err) => {
-            console.log(err);
-            this.addUserForm.reset();
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro desconhecido',
-              life: 2000,
-            });
-          },
-        });
-    }
   }
 
   getUserSelectedDatas(user_id: number): void {
     const allUsers = this.userAction.userList;
     if (allUsers.length > 0) {
-      const userFiltered = allUsers.filter(
-        (element) => element?.id === user_id
-      );
+      const userFiltered = allUsers.find((element) => element?.id === user_id);
+
       if (userFiltered) {
-        this.usersSelectedDatas = userFiltered[0];
-        console.log(this.usersSelectedDatas);
-        this.editUserForm.patchValue({
-          nome: this.usersSelectedDatas?.nome,
-          login: this.usersSelectedDatas?.login,
+        this.usersSelectedDatas = userFiltered;
+
+        const selectedFuncionario = this.allFuncionarios.find(
+          (f) => f.id === this.usersSelectedDatas.funcionario?.id
+        );
+
+        this.userForm.patchValue({
+          nome: this.usersSelectedDatas.nome,
+          login: this.usersSelectedDatas.login,
           senha: '',
-          email: this.usersSelectedDatas?.email,
-          nivelAcesso: this.usersSelectedDatas?.nivelAcesso,
-          funcionario: this.usersSelectedDatas?.funcionario as any,
-          funcionarioNome: this.usersSelectedDatas.nome as string,
+          email: this.usersSelectedDatas.email,
+          nivelAcesso: this.usersSelectedDatas.nivelAcesso,
+          funcionario: selectedFuncionario || null,
         });
       }
     }
-  }
-
-  getUserDatas(): void {
-    this.userService
-      .findAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.length > 0) {
-            this.userDatas = response;
-            this.userDatas && this.userDTO.setUsersDatas(this.userDatas);
-          }
-        },
-      });
   }
 
   loadAllFuncionarios(): Promise<void> {
@@ -260,23 +183,46 @@ export class UserFormComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             console.error('Erro ao carregar funcionários:', err);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro desconhecido',
-              life: 3000,
-            });
+            this.showErrorMessage('Não foi possível carregar a lista de funcionários.', err);
             reject(err);
           },
         });
     });
   }
 
-  searchFuncionarios(event: any) {
+  searchFuncionarios(event: any): void {
     const query = event.query.toLowerCase();
     this.funcionarios = this.allFuncionarios.filter((funcionario) =>
       funcionario.nome.toLowerCase().includes(query)
     );
+  }
+
+  private showValidationWarning(): void {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Aviso',
+      detail: 'Por favor, preencha todos os campos obrigatórios corretamente.',
+      life: 3000,
+    });
+  }
+
+  private showSuccessMessage(detail: string): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: detail,
+      life: 2000,
+    });
+  }
+
+  private showErrorMessage(summary: string, err: any): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: summary,
+      detail: err.error?.message || 'Ocorreu um erro inesperado.',
+      life: 2000,
+    });
+    console.error(err);
   }
 
   ngOnDestroy(): void {

@@ -1,64 +1,75 @@
-<!-----FORMULARIO DE NOVO USUARIO-->
-<div *ngIf="userAction.event.action === addUserAction">
-  <form [formGroup]="addUserForm" (ngSubmit)="handleSubmitAddUser()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <input
-        pInputText
-        placeholder="Nome."
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            addUserForm.get('nome')?.invalid && addUserForm.get('nome')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Login."
-        formControlName="login"
-        [ngClass]="{
-          'p-invalid':
-            addUserForm.get('login')?.invalid &&
-            addUserForm.get('login')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Senha."
-        formControlName="senha"
-        [ngClass]="{
-          'p-invalid':
-            addUserForm.get('senha')?.invalid &&
-            addUserForm.get('senha')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Email"
-        formControlName="email"
-        [ngClass]="{
-          'p-invalid':
-            addUserForm.get('email')?.invalid &&
-            addUserForm.get('email')?.touched
-        }"
-      />
-      <p-dropdown
-        styleClass="w-full"
-        [options]="niveisAcesso"
-        placeholder="Selecione o nível de acesso"
-        formControlName="nivelAcesso"
-        [(ngModel)]="nivelSelected"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Selecione um nível de acesso"
-        [ngClass]="{
-          'p-invalid':
-            addUserForm.get('nivelAcesso')?.invalid &&
-            addUserForm.get('nivelAcesso')?.touched
-        }"
-      ></p-dropdown>
-      <!-----Campo só aparece se tiver usuários cadastrados no sistema-->
-      <!----Deixa o campo de autocomplete do mesmo size que o  resto dos campos do formulário-->
-      <div class="p-field" *ngIf="allFuncionarios.length > 0">
+<div class="card">
+  <h2 class="text-center mb-4">
+    {{ userAction.event.action === editUserAction ? 'Editar Usuário' : 'Novo Usuário' }}
+  </h2>
+  <form [formGroup]="userForm" (ngSubmit)="handleSubmit()">
+    <div class="p-fluid p-formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label for="nome">Nome</label>
+        <input
+          id="nome"
+          pInputText
+          placeholder="Nome"
+          formControlName="nome"
+          [ngClass]="{
+            'p-invalid': userForm.get('nome')?.invalid && userForm.get('nome')?.touched
+          }"
+        />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="login">Login</label>
+        <input
+          id="login"
+          pInputText
+          placeholder="Login"
+          formControlName="login"
+          [ngClass]="{
+            'p-invalid': userForm.get('login')?.invalid && userForm.get('login')?.touched
+          }"
+        />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="senha">Senha</label>
+        <input
+          id="senha"
+          pInputText
+          type="password"
+          placeholder="Senha"
+          formControlName="senha"
+          [ngClass]="{
+            'p-invalid': userForm.get('senha')?.invalid && userForm.get('senha')?.touched
+          }"
+        />
+        <small *ngIf="userAction.event.action === editUserAction">Deixe em branco para não alterar.</small>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          pInputText
+          placeholder="Email"
+          formControlName="email"
+          [ngClass]="{
+            'p-invalid': userForm.get('email')?.invalid && userForm.get('email')?.touched
+          }"
+        />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="nivelAcesso">Nível de Acesso</label>
+        <p-dropdown
+          id="nivelAcesso"
+          styleClass="w-full"
+          [options]="niveisAcesso"
+          placeholder="Selecione o nível de acesso"
+          formControlName="nivelAcesso"
+          optionLabel="label"
+          optionValue="value"
+          [ngClass]="{
+            'p-invalid': userForm.get('nivelAcesso')?.invalid && userForm.get('nivelAcesso')?.touched
+          }"
+        ></p-dropdown>
+      </div>
+      <div class="field col-12 md:col-6" *ngIf="allFuncionarios.length > 0">
         <label for="funcionario">Funcionário</label>
         <p-autoComplete
           id="funcionario"
@@ -67,104 +78,14 @@
           (completeMethod)="searchFuncionarios($event)"
           field="nome"
           [style]="{ width: '100%' }"
-          [size]="82"
           [ngClass]="{
-            'ng-invalid ng-dirty':
-            addUserForm.get('funcionario')?.invalid &&
-            addUserForm.get('funcionario')?.touched
+            'ng-invalid ng-dirty': userForm.get('funcionario')?.invalid && userForm.get('funcionario')?.touched
           }"
         ></p-autoComplete>
-      </div>
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
-        <button type="submit" class="p-button">Concluir</button>
       </div>
     </div>
-  </form>
-</div>
-<!-----FORMULARIO DE EDITAR USUARIO-->
-
-<div *ngIf="userAction.event.action === editUserAction">
-  <form [formGroup]="editUserForm" (ngSubmit)="handleSubmitEditUser()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <input
-        pInputText
-        placeholder="Nome."
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            editUserForm.get('nome')?.invalid && addUserForm.get('nome')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Login."
-        formControlName="login"
-        [ngClass]="{
-          'p-invalid':
-            editUserForm.get('login')?.invalid &&
-            editUserForm.get('login')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Senha."
-        formControlName="senha"
-        [ngClass]="{
-          'p-invalid':
-          editUserForm.get('senha')?.invalid &&
-          editUserForm.get('senha')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Email"
-        formControlName="email"
-        [ngClass]="{
-          'p-invalid':
-          editUserForm.get('email')?.invalid &&
-            editUserForm.get('email')?.touched
-        }"
-      />
-      <p-dropdown
-        styleClass="w-full"
-        [options]="niveisAcesso"
-        placeholder="Selecione o nível de acesso"
-        formControlName="nivelAcesso"
-        [(ngModel)]="nivelSelected"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Selecione um nível de acesso"
-        [ngClass]="{
-          'p-invalid':
-            editUserForm.get('nivelAcesso')?.invalid &&
-            editUserForm.get('nivelAcesso')?.touched
-        }"
-      ></p-dropdown>
-      <!-----Campo só aparece se tiver usuários cadastrados no sistema-->
-      <div class="p-field" *ngIf="allFuncionarios.length > 0">
-        <label for="funcionario">Funcionário</label>
-        <p-autoComplete
-          id="funcionario"
-          formControlName="funcionario"
-          [suggestions]="funcionarios"
-          (completeMethod)="searchFuncionarios($event)"
-          field="nome"
-          [style]="{ width: '100%' }"
-          [size]="82"
-          [ngClass]="{
-            'ng-invalid ng-dirty':
-            editUserForm.get('funcionario')?.invalid &&
-            editUserForm.get('funcionario')?.touched
-          }"
-        ></p-autoComplete>
-      </div>
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
-        <button type="submit" class="p-button">Concluir</button>
-      </div>
+    <div class="flex flex-row justify-content-center align-items-center align-content-center mt-4">
+      <button pButton type="submit" [label]="userAction.event.action === editUserAction ? 'Salvar Alterações' : 'Concluir'"></button>
     </div>
   </form>
 </div>
