@@ -7,8 +7,9 @@ export interface Recorte {
   tipo: string;
   largura: number;
   altura: number;
-  x?: number;
-  y?: number;
+  // Propriedades de posição do recorte dentro da peça
+  posicaoX?: number;
+  posicaoY?: number;
 }
 
 export interface PecaProjeto {

@@ -241,7 +241,10 @@
             <td>
               <div class="flex gap-1">
                 <button
-                  *ngIf="projeto.status !== 'VENDIDO'"
+                  *ngIf="projeto.status !== 'VENDIDO' &&
+                  projeto.status !== 'CANCELADO' &&
+                  projeto.status !== 'ENTREGUE' &&
+                  projeto.status !== 'PRONTO'"
                   pButton
                   pRipple
                   icon="pi pi-pencil"
@@ -272,7 +275,10 @@
                 </button>
                 -->
                 <button
-                  *ngIf="projeto.status !== 'VENDIDO'"
+                  *ngIf="projeto.status !== 'VENDIDO' &&
+                  projeto.status !== 'CANCELADO' &&
+                  projeto.status !== 'ENTREGUE' &&
+                  projeto.status !== 'PRONTO'"
                   pButton
                   pRipple
                   icon="pi pi-trash"

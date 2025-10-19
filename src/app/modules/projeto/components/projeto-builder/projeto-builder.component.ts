@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectorRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -37,7 +37,7 @@ interface MaterialTemplate {
   templateUrl: './projeto-builder.component.html',
   styleUrls: ['./projeto-builder.component.scss', './projeto-builder-dinamico.scss']
 })
-export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
+export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy { // Adicionado OnDestroy
   private readonly destroy$: Subject<void> = new Subject();
   private isInitializing = false;
   projetoForm!: FormGroup;
@@ -186,12 +186,14 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   private ctx?: CanvasRenderingContext2D;
   private escala: number = 50; // pixels por metro
 
-  private pecaSelecionada?: PecaProjeto & { index: number };
+  private pecaSendoArrastadaOuRedimensionada?: PecaProjeto & { index?: number }; // Pode ser a pecaAtiva ou uma pecaProjeto
   private arrastando = false;
   private redimensionando = false;
   private pontoInicialMouse = { x: 0, y: 0 };
   private posicaoInicialPeca = { x: 0, y: 0 };
   private dimensaoInicialPeca = { largura: 0, altura: 0 };
+  private tipoManipulador: 'bordaDireita' | 'bordaInferior' | 'cantoInferiorDireito' | null = null;
+
 
   valorMateriais = 0;
   valorMaoObra = 0;
@@ -214,7 +216,8 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     private confirmationService: ConfirmationService,
     private clienteService: ClientesService,
     private produtoService: ProdutoService,
-    private relatorioService: RelatorioService
+    private relatorioService: RelatorioService,
+    private cdr: ChangeDetectorRef // Adicionado ChangeDetectorRef
   ) {
     this.initializeForm();
   }
@@ -230,6 +233,29 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     }
 
     this.setupFormWatchers();
+    this.cdr.detectChanges(); // Força a detecção de mudanças após a inicialização
+  }
+
+  ngAfterViewInit(): void {
+    // Garante que o canvas esteja disponível antes de tentar inicializá-lo
+    if (this.canvasRef) {
+      this.inicializarCanvas(this.canvasRef.nativeElement);
+    } else {
+      // Fallback caso o ViewChild não esteja pronto (raro com static: false e AfterViewInit)
+      setTimeout(() => {
+        if (this.canvasRef) {
+          this.inicializarCanvas(this.canvasRef.nativeElement);
+        } else {
+          console.warn('Canvas element not found after multiple attempts.');
+        }
+      }, 100);
+    }
+    this.cdr.detectChanges(); // Força a detecção de mudanças após a renderização da view
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   initializeForm() {
@@ -242,10 +268,12 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       dataPrevista: [null],
       observacoes: [''],
       margemLucro: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+      // As medidas principais do projeto serão derivadas das peças individuais
+      // Mantido para compatibilidade, mas pode ser removido se não for mais usado diretamente
       medidas: this.fb.group({
-        profundidade: [null, [Validators.required, Validators.min(0.1)]],
-        largura: [null, [Validators.required, Validators.min(0.1)]],
-        altura: [null, [Validators.required, Validators.min(0.1)]],
+        profundidade: [null], // Não mais obrigatório aqui, pois vem das peças
+        largura: [null],     // Não mais obrigatório aqui, pois vem das peças
+        altura: [null],      // Não mais obrigatório aqui, pois vem das peças
         observacoes: ['']
       }),
       itens: this.fb.array([]),
@@ -256,19 +284,20 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   private validarFormularioParaCalculoBasico(): boolean {
     const tipoProjeto = this.projetoForm.get('tipoProjeto')?.value;
     const clienteId = this.projetoForm.get('clienteId')?.value;
-    const medidas = this.projetoForm.get('medidas')?.value;
+    // A validação de medidas agora depende da existência de peças
+    const temPecas = this.pecasProjeto.length > 0;
 
     return tipoProjeto != null &&
       clienteId != null &&
-      medidas?.profundidade > 0 &&
-      medidas?.largura > 0 &&
+      temPecas && // Verifica se há peças
       this.itensFormArray.length > 0;
   }
 
   private prepararDadosParaPDF(): any {
     const formValue = this.projetoForm.value;
     const cliente = this.clientes.find(c => c.id === formValue.clienteId);
-    const medidas = formValue.medidas;
+    // As medidas para o PDF agora vêm da área total das peças
+    const areaTotalProjeto = parseFloat(this.calcularAreaTotalProjeto());
 
     const itens = this.itensFormArray.controls.map(control => {
       const itemValue = control.getRawValue();
@@ -311,16 +340,32 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       projetoDescricao: formValue.descricao || '',
       dataOrcamento: new Date().toISOString().split('T')[0],
       dataValidade: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      largura: Number(medidas.largura) || 0,
-      comprimento: Number(medidas.profundidade) || 0,
-      area: Number(medidas.largura * medidas.profundidade) || 0,
-      espessura: Number(medidas.altura) || 0,
+      // Usar a área total das peças
+      largura: 0, // Não aplicável diretamente de uma única medida
+      comprimento: 0, // Não aplicável diretamente de uma única medida
+      area: areaTotalProjeto,
+      espessura: 0, // Não aplicável diretamente de uma única medida
       valorMateriais: Number(this.valorMateriais) || 0,
       valorMaoObra: Number(this.valorMaoObra) || 0,
       margemLucro: Number(formValue.margemLucro) || 0,
       valorTotal: Number(this.valorTotal) || 0,
       observacoes: formValue.observacoes || '',
-      itens: itens
+      itens: itens,
+      pecas: this.pecasProjeto.map(p => ({
+        nome: p.nome,
+        largura: p.largura,
+        altura: p.altura,
+        espessura: p.espessura,
+        unidade: p.unidade,
+        area: parseFloat(this.calcularAreaPeca(p)),
+        recortes: p.recortes?.map(r => ({
+          tipo: r.tipo,
+          largura: r.largura,
+          altura: r.altura,
+          posicaoX: r.posicaoX,
+          posicaoY: r.posicaoY
+        })) || []
+      }))
     };
   }
 
@@ -399,11 +444,12 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.projetoForm.get('medidas')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(500), distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c))).subscribe(() => {
-      if (this.isInitializing) return;
-      this.calcularArea();
-      if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
-    });
+    // Removido watcher de medidas do formulário principal, pois as medidas vêm das peças
+    // this.projetoForm.get('medidas')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(500), distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c))).subscribe(() => {
+    //   if (this.isInitializing) return;
+    //   this.calcularArea(); // Esta função precisará ser adaptada ou removida
+    //   if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
+    // });
 
     this.projetoForm.get('margemLucro')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300)).subscribe(() => {
       if (this.isInitializing) return;
@@ -422,7 +468,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     if (stepIndex >= 0 && stepIndex < this.steps.length) {
       this.currentStep = stepIndex;
       this.updateStepsState();
-      if (this.currentStep === 2) setTimeout(() => this.aguardarCanvas(), 100);
+      if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100); // Garante inicialização do canvas
     }
   }
 
@@ -434,7 +480,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     if (this.canAdvanceStep()) {
       this.currentStep++;
       this.updateAllStepsCompletion();
-      if (this.currentStep === 2) setTimeout(() => this.aguardarCanvas(), 100);
+      if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100); // Garante inicialização do canvas
     }
   }
 
@@ -447,7 +493,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     switch (currentStepId) {
       case 'tipo': return !!this.projetoForm.get('tipoProjeto')?.value;
       case 'cliente': return !!this.projetoForm.get('clienteId')?.value;
-      case 'medidas': return this.pecasProjeto.length > 0;
+      case 'medidas': return this.pecasProjeto.length > 0; // Valida se há peças no projeto
       case 'materiais': return this.itensFormArray.length > 0;
       default: return true;
     }
@@ -585,7 +631,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       dataPrevista: projeto.dataPrevista ? new Date(projeto.dataPrevista) : null,
       observacoes: projeto.observacoes,
       margemLucro: projeto.margemLucro,
-      medidas: projeto.medidas
+      // medidas: projeto.medidas // Removido, pois as medidas vêm das peças
     });
 
     if (projeto.pecas && Array.isArray(projeto.pecas)) {
@@ -595,10 +641,16 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     this.itensFormArray.clear();
     projeto.itens.forEach(item => this.adicionarItem(item));
 
+    // Repopula materiaisSelecionados com base nos itens do projeto
+    this.materiaisSelecionados = projeto.itens
+      .map(item => this.getMaterialById(item.produtoId))
+      .filter((material): material is MaterialTemplate => material !== undefined);
+
     this.calcularTotais();
     this.updateAllStepsCompletion();
 
-    if (this.currentStep === 2) setTimeout(() => this.aguardarCanvas(), 100);
+    // Garante que o canvas seja atualizado após carregar o projeto
+    if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100);
   }
 
   updateAllStepsCompletion() {
@@ -642,12 +694,13 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     return aplicacoes[material.categoria]?.[tipoProjeto] || 'Aplicação geral';
   }
 
+  // Esta função não é mais usada diretamente, pois as medidas vêm das peças
   calcularArea(): void {
-    const medidas = this.projetoForm.get('medidas')?.value;
-    if (!medidas || medidas.profundidade <= 0 || medidas.largura <= 0) return;
-    const area = medidas.profundidade * medidas.largura;
-    const perimetro = 2 * (medidas.profundidade + medidas.largura);
-    this.projetoForm.get('medidas')?.patchValue({ area, perimetro }, { emitEvent: false });
+    // const medidas = this.projetoForm.get('medidas')?.value;
+    // if (!medidas || medidas.profundidade <= 0 || medidas.largura <= 0) return;
+    // const area = medidas.profundidade * medidas.largura;
+    // const perimetro = 2 * (medidas.profundidade + medidas.largura);
+    // this.projetoForm.get('medidas')?.patchValue({ area, perimetro }, { emitEvent: false });
   }
 
   calcularTotais() {
@@ -676,6 +729,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   }
 
   private calcularOrcamentoAutomatico(): void {
+    // A validação de medidas agora depende da existência de peças
     if (this.calculandoOrcamento || Date.now() - this.lastRequestTime < 2000 || !this.validarFormularioParaCalculo()) return;
 
     this.calculandoOrcamento = true;
@@ -692,17 +746,18 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   }
 
   private validarFormularioParaCalculo(): boolean {
-    if (!this.projetoForm.valid) {
-      this.showToast('warn', 'Formulário incompleto', 'Preencha todos os campos obrigatórios');
-      return false;
-    }
-    const medidas = this.projetoForm.get('medidas')?.value;
-    if (!medidas.profundidade || !medidas.largura) {
-      this.showToast('warn', 'Medidas inválidas', 'Informe profundidade e largura');
+    // Validação de peças
+    if (this.pecasProjeto.length === 0) {
+      this.showToast('warn', 'Medidas necessárias', 'Adicione pelo menos uma peça ao projeto.');
       return false;
     }
     if (this.itensFormArray.length === 0) {
-      this.showToast('warn', 'Materiais necessários', 'Adicione pelo menos um material');
+      this.showToast('warn', 'Materiais necessários', 'Adicione pelo menos um material.');
+      return false;
+    }
+    // Outras validações do formulário
+    if (!this.projetoForm.get('nome')?.valid || !this.projetoForm.get('clienteId')?.valid || !this.projetoForm.get('tipoProjeto')?.valid) {
+      this.showToast('warn', 'Formulário incompleto', 'Preencha todos os campos obrigatórios.');
       return false;
     }
     return true;
@@ -714,7 +769,17 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       nome: formValue.nome,
       clienteId: formValue.clienteId,
       tipoProjeto: formValue.tipoProjeto,
-      medidas: { profundidade: formValue.medidas.profundidade, largura: formValue.medidas.largura, altura: formValue.medidas.altura },
+      // As medidas agora são um array de peças
+      pecas: this.pecasProjeto.map(p => ({
+        nome: p.nome,
+        largura: p.largura,
+        altura: p.altura,
+        espessura: p.espessura,
+        unidade: p.unidade,
+        x: p.x,
+        y: p.y,
+        recortes: p.recortes
+      })),
       itens: this.itensFormArray.value.map((item: ProjetoItem) => ({ produtoId: item.produtoId, quantidade: item.quantidade, valorUnitario: item.valorUnitario })),
       margemLucro: formValue.margemLucro,
       usuarioCriacao: formValue.usuarioCriacao
@@ -750,12 +815,10 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   }
 
   salvar(): void {
-    const areaTotal = parseFloat(this.calcularAreaTotalProjeto());
-    if (areaTotal > 0) {
-      const medidasControl = this.projetoForm.get('medidas');
-      if (medidasControl) {
-        medidasControl.patchValue({ largura: areaTotal, profundidade: 1, altura: Math.max(medidasControl.get('altura')?.value || 0, 0.1) }, { emitEvent: false });
-      }
+    // A validação de medidas agora depende da existência de peças
+    if (this.pecasProjeto.length === 0) {
+      this.showToast('error', 'Dados inválidos', 'Adicione pelo menos uma peça ao projeto.');
+      return;
     }
 
     this.calcularTotais();
@@ -778,6 +841,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       dataCriacao: this.isEditMode ? undefined : new Date(),
       dataAtualizacao: new Date()
     };
+
 
     const request = this.isEditMode ? this.projetoService.atualizarProjeto(this.projetoId, projetoData) : this.projetoService.criarProjeto(projetoData);
 
@@ -834,26 +898,23 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     this.sidebarVisible = !this.sidebarVisible;
   }
 
-  ngAfterViewInit(): void {
-    if (this.currentStep === 2) this.aguardarCanvas();
-  }
-
-  aguardarCanvas(): void {
-    let tentativas = 0;
-    const maxTentativas = 20;
-    const verificarCanvas = () => {
-      tentativas++;
-      const canvas = this.canvasRef?.nativeElement || document.querySelector('canvas') as HTMLCanvasElement;
-      if (canvas) {
-        this.inicializarCanvas(canvas);
-      } else if (tentativas < maxTentativas) {
-        setTimeout(verificarCanvas, 500);
-      } else {
-        this.criarCanvasManualmente();
-      }
-    };
-    verificarCanvas();
-  }
+  // Removido aguardarCanvas, pois ngAfterViewInit já garante o canvas
+  // aguardarCanvas(): void {
+  //   let tentativas = 0;
+  //   const maxTentativas = 20;
+  //   const verificarCanvas = () => {
+  //     tentativas++;
+  //     const canvas = this.canvasRef?.nativeElement || document.querySelector('canvas') as HTMLCanvasElement;
+  //     if (canvas) {
+  //       this.inicializarCanvas(canvas);
+  //     } else if (tentativas < maxTentativas) {
+  //       setTimeout(verificarCanvas, 500);
+  //     } else {
+  //       this.criarCanvasManualmente();
+  //     }
+  //   };
+  //   verificarCanvas();
+  // }
 
   inicializarCanvas(canvas: HTMLCanvasElement): void {
     this.ctx = canvas.getContext('2d') || undefined;
@@ -863,22 +924,24 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     } else console.error('Não foi possível obter o contexto do canvas');
   }
 
-  criarCanvasManualmente(): void {
-    const container = document.querySelector('.canvas-container');
-    if (container) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 600; canvas.height = 500;
-      canvas.style.border = '1px solid #dee2e6'; canvas.style.borderRadius = '8px';
-      container.innerHTML = '';
-      container.appendChild(canvas);
-      this.inicializarCanvas(canvas);
-    } else console.error('Container do canvas não encontrado');
-  }
+  // Removido criarCanvasManualmente, pois o ViewChild deve ser suficiente
+  // criarCanvasManualmente(): void {
+  //   const container = document.querySelector('.canvas-container');
+  //   if (container) {
+  //     const canvas = document.createElement('canvas');
+  //     canvas.width = 600; canvas.height = 500;
+  //     canvas.style.border = '1px solid #dee2e6'; canvas.style.borderRadius = '8px';
+  //     container.innerHTML = '';
+  //     container.appendChild(canvas);
+  //     this.inicializarCanvas(canvas);
+  //   } else console.error('Container do canvas não encontrado');
+  // }
 
   desenharFundoInicial(): void {
     if (!this.ctx) return;
-    const canvas = this.canvasRef?.nativeElement || document.querySelector('canvas') as HTMLCanvasElement;
-    if (!canvas) return;
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return; // Adicionado verificação para canvas
+
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.ctx.fillStyle = '#ffffff';
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -905,7 +968,20 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   }
 
   private criarNovaPeca(): void {
-    this.pecaAtiva = { nome: `Peça ${this.pecasProjeto.length + 1}`, tipo: 'simples', largura: 2.0, altura: 0.6, espessura: 0.03, unidade: this.unidadePadrao, recortes: [], x: 50, y: 50 };
+    // Posição inicial da nova peça no canvas
+    const initialX = 50;
+    const initialY = 50;
+    this.pecaAtiva = {
+      nome: `Peça ${this.pecasProjeto.length + 1}`,
+      tipo: 'simples',
+      largura: 2.0,
+      altura: 0.6,
+      espessura: 0.03,
+      unidade: this.unidadePadrao,
+      recortes: [],
+      x: initialX,
+      y: initialY
+    };
     setTimeout(() => this.atualizarCanvas(), 50);
   }
 
@@ -915,19 +991,21 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
       return;
     }
     if (this.pecaAtiva.id !== undefined) {
+      // Atualiza uma peça existente
       this.pecasProjeto[this.pecaAtiva.id] = { ...this.pecaAtiva };
-      delete this.pecaAtiva.id;
     } else {
+      // Adiciona uma nova peça
       this.pecasProjeto.push({ ...this.pecaAtiva });
     }
     this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Peça salva com sucesso' });
-    this.pecaAtiva = undefined;
+    this.pecaAtiva = undefined; // Limpa a peça ativa após salvar
     this.updateStepCompletion('medidas', this.pecasProjeto.length > 0);
     this.atualizarCanvas();
     this.calcularTotais();
   }
 
   editarPecaSalva(peca: PecaProjeto, index: number): void {
+    // Cria uma cópia da peça para edição e adiciona o índice para referência
     this.pecaAtiva = { ...peca, id: index };
     this.atualizarCanvas();
   }
@@ -936,8 +1014,16 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     const peca = this.pecasProjeto[index];
     this.confirmationService.confirm({ message: `Deseja realmente remover a peça \"${peca.nome}\"?`, header: 'Confirmação', icon: 'pi pi-exclamation-triangle', accept: () => {
       this.pecasProjeto.splice(index, 1);
+      // Se a peça removida era a peça ativa, limpa a peça ativa
+      if (this.pecaAtiva?.id === index) {
+        this.pecaAtiva = undefined;
+      }
+      // Ajusta os IDs das peças restantes se necessário (se o ID for o índice)
+      this.pecasProjeto.forEach((p, i) => p.id = i);
+
       this.updateStepCompletion('medidas', this.pecasProjeto.length > 0);
       this.atualizarCanvas();
+      this.calcularTotais();
     }});
   }
 
@@ -947,15 +1033,36 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
         case 'bancada': this.pecaAtiva.altura = this.pecaAtiva.altura || 0.6; this.pecaAtiva.espessura = 0.03; break;
         case 'ilha': this.pecaAtiva.altura = this.pecaAtiva.altura || 1.0; this.pecaAtiva.espessura = 0.03; break;
         case 'soleira': this.pecaAtiva.altura = this.pecaAtiva.altura || 0.15; this.pecaAtiva.espessura = 0.02; break;
+        default:
+          // Para 'simples' ou outros, pode-se definir valores padrão ou manter os existentes
+          if (!this.pecaAtiva.altura) this.pecaAtiva.altura = 0.5;
+          if (!this.pecaAtiva.espessura) this.pecaAtiva.espessura = 0.02;
+          break;
       }
       this.atualizarCanvas();
     }
   }
 
   adicionarRecorte(): void {
-    if (!this.pecaAtiva) return;
+    if (!this.pecaAtiva) {
+      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Selecione ou crie uma peça antes de adicionar um recorte.' });
+      return;
+    }
     if (!this.pecaAtiva.recortes) this.pecaAtiva.recortes = [];
-    this.pecaAtiva.recortes.push({ tipo: 'Furo', largura: 0.1, altura: 0.1 });
+    // Posição inicial do recorte dentro da peça (ex: no centro)
+    const defaultRecorteLargura = 0.1;
+    const defaultRecorteAltura = 0.1;
+
+    const defaultRecorteX = (this.pecaAtiva.largura / 2) - (defaultRecorteLargura / 2);
+    const defaultRecorteY = (this.pecaAtiva.altura / 2) - (defaultRecorteAltura / 2);
+
+    this.pecaAtiva.recortes.push({
+      tipo: 'Furo',
+      largura: defaultRecorteLargura,
+      altura: defaultRecorteAltura,
+      posicaoX: Math.max(0, defaultRecorteX), // Garante que não seja negativo
+      posicaoY: Math.max(0, defaultRecorteY)  // Garante que não seja negativo
+    });
     this.atualizarCanvas();
   }
 
@@ -968,27 +1075,55 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
 
   atualizarCanvas(): void {
     if (!this.ctx) return;
-    const canvas = this.canvasRef?.nativeElement || document.querySelector('canvas') as HTMLCanvasElement;
+    const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
+
     this.desenharFundoInicial();
-    this.pecasProjeto.forEach((peca) => this.desenharPecaSimples(peca, peca.x || 50, peca.y || 50, false));
+
+    // Desenha todas as peças salvas
+    this.pecasProjeto.forEach((peca, index) => {
+      // Se a peça ativa é uma peça salva, não desenhe ela duas vezes
+      if (this.pecaAtiva && this.pecaAtiva.id === index) {
+        return;
+      }
+      this.desenharPeca(peca, peca.x || 50, peca.y || 50, false);
+    });
+
+    // Desenha a peça ativa com destaque e manipuladores
     if (this.pecaAtiva?.largura && this.pecaAtiva.altura) {
-      this.desenharPecaSimples(this.pecaAtiva, this.pecaAtiva.x || 300, this.pecaAtiva.y || 200, true);
+      // Garante que a pecaAtiva tenha uma posição inicial se ainda não tiver
+      if (this.pecaAtiva.x === undefined || this.pecaAtiva.y === undefined) {
+        this.pecaAtiva.x = 50; // Posição inicial padrão
+        this.pecaAtiva.y = 50;
+      }
+      this.desenharPeca(this.pecaAtiva, this.pecaAtiva.x, this.pecaAtiva.y, true);
     }
   }
 
-  desenharPecaSimples(peca: PecaProjeto, x: number, y: number, ativa: boolean): void {
+  // Renomear para ser mais genérico, pois desenha qualquer peça
+  desenharPeca(peca: PecaProjeto, x: number, y: number, ativa: boolean): void {
     if (!this.ctx || !peca.largura || !peca.altura) return;
+
     const larguraPx = this.converterParaPixels(peca.largura, peca.unidade);
     const alturaPx = this.converterParaPixels(peca.altura, peca.unidade);
+
     this.ctx.strokeStyle = ativa ? '#007bff' : '#495057';
     this.ctx.lineWidth = ativa ? 2 : 1;
     this.ctx.strokeRect(x, y, larguraPx, alturaPx);
+
     if (ativa) {
       this.ctx.fillStyle = 'rgba(0, 123, 255, 0.1)';
       this.ctx.fillRect(x, y, larguraPx, alturaPx);
       this.desenharManipuladores(x, y, larguraPx, alturaPx);
+
+      // Desenhar recortes para a peça ativa
+      if (peca.recortes && peca.recortes.length > 0) {
+        peca.recortes.forEach(recorte => {
+          this.desenharRecorte(recorte, x, y, peca.largura, peca.altura, peca.unidade);
+        });
+      }
     }
+
     this.ctx.fillStyle = '#495057';
     this.ctx.font = '12px Arial';
     this.ctx.textAlign = 'left';
@@ -996,16 +1131,53 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     this.desenharCotasSimples(x, y, larguraPx, alturaPx, peca);
   }
 
+  desenharRecorte(recorte: Recorte, pecaX: number, pecaY: number, pecaLargura: number, pecaAltura: number, unidadePeca: string): void {
+    if (!this.ctx || !recorte.largura || !recorte.altura || recorte.posicaoX === undefined || recorte.posicaoY === undefined) return;
+
+    // Converter as posições e dimensões do recorte para pixels, relativas à peça
+    const recorteLarguraPx = this.converterParaPixels(recorte.largura, unidadePeca);
+    const recorteAlturaPx = this.converterParaPixels(recorte.altura, unidadePeca);
+    const recorteXRelativoPx = this.converterParaPixels(recorte.posicaoX, unidadePeca);
+    const recorteYRelativoPx = this.converterParaPixels(recorte.posicaoY, unidadePeca);
+
+    const x = pecaX + recorteXRelativoPx;
+    const y = pecaY + recorteYRelativoPx;
+
+    this.ctx.strokeStyle = '#dc3545'; // Cor para recortes
+    this.ctx.lineWidth = 1;
+    this.ctx.setLineDash([5, 5]); // Linha tracejada
+    this.ctx.strokeRect(x, y, recorteLarguraPx, recorteAlturaPx);
+    this.ctx.setLineDash([]); // Resetar linha
+
+    this.ctx.fillStyle = 'rgba(220, 53, 69, 0.1)'; // Preenchimento leve
+    this.ctx.fillRect(x, y, recorteLarguraPx, recorteAlturaPx);
+
+    this.ctx.fillStyle = '#dc3545';
+    this.ctx.font = '10px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(recorte.tipo || 'Recorte', x + recorteLarguraPx / 2, y + recorteAlturaPx / 2);
+  }
+
   desenharManipuladores(x: number, y: number, largura: number, altura: number): void {
     if (!this.ctx) return;
-    const tamanho = 8;
-    this.ctx.fillStyle = '#007bff';
-    this.ctx.strokeStyle = '#ffffff';
-    this.ctx.lineWidth = 2;
-    const manipuladorX = x + largura - tamanho / 2;
-    const manipuladorY = y + altura - tamanho / 2;
-    this.ctx.fillRect(manipuladorX, manipuladorY, tamanho, tamanho);
-    this.ctx.strokeRect(manipuladorX, manipuladorY, tamanho, tamanho);
+    const tamanho = 8; // Tamanho dos quadrados dos manipuladores
+    const offset = tamanho / 2; // Offset para centralizar o manipulador na borda/canto
+
+    this.ctx.fillStyle = '#007bff'; // Cor dos manipuladores
+    this.ctx.strokeStyle = '#ffffff'; // Borda branca
+    this.ctx.lineWidth = 1;
+
+    // Manipulador de canto inferior direito
+    this.ctx.fillRect(x + largura - offset, y + altura - offset, tamanho, tamanho);
+    this.ctx.strokeRect(x + largura - offset, y + altura - offset, tamanho, tamanho);
+
+    // Manipulador de borda direita (meio da borda direita)
+    this.ctx.fillRect(x + largura - offset, y + altura / 2 - offset, tamanho, tamanho);
+    this.ctx.strokeRect(x + largura - offset, y + altura / 2 - offset, tamanho, tamanho);
+
+    // Manipulador de borda inferior (meio da borda inferior)
+    this.ctx.fillRect(x + largura / 2 - offset, y + altura - offset, tamanho, tamanho);
+    this.ctx.strokeRect(x + largura / 2 - offset, y + altura - offset, tamanho, tamanho);
   }
 
   desenharCotasSimples(x: number, y: number, largura: number, altura: number, peca: PecaProjeto): void {
@@ -1034,10 +1206,16 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
     return valorMetros * this.escala;
   }
 
-  onCanvasClick(event: MouseEvent): void {}
+  onCanvasClick(event: MouseEvent): void {
+    // A lógica de clique agora está em onCanvasMouseDown para iniciar arrasto/redimensionamento
+  }
 
   limparCanvas(): void {
+    this.pecasProjeto = [];
+    this.pecaAtiva = undefined;
     this.desenharFundoInicial();
+    this.updateStepCompletion('medidas', false);
+    this.calcularTotais();
   }
 
   exportarDesenho(): void {
@@ -1090,62 +1268,175 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit {
   }
 
   getSimboloUnidadeCanvas(): string {
-    const map: { [key: string]: string } = { m: 'm', cm: 'cm', in: '"' };
+    const map: { [key: string]: string } = { m: 'm', cm: 'cm', in: '\"' };
     return map[this.unidadePadrao] || 'm';
   }
 
   onCanvasMouseDown(event: MouseEvent): void {
     if (!this.ctx) return;
     const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = event.clientX - rect.left, y = event.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
+    this.arrastando = false;
+    this.redimensionando = false;
+    this.pecaSendoArrastadaOuRedimensionada = undefined;
+    this.tipoManipulador = null;
+
+    const margemManipulador = 10; // Área de clique para manipuladores
+
+    // 1. Tentar interagir com a peça ativa (se existir)
+    if (this.pecaAtiva && this.pecaAtiva.x !== undefined && this.pecaAtiva.y !== undefined && this.pecaAtiva.largura && this.pecaAtiva.altura) {
+      const larguraPx = this.converterParaPixels(this.pecaAtiva.largura, this.pecaAtiva.unidade);
+      const alturaPx = this.converterParaPixels(this.pecaAtiva.altura, this.pecaAtiva.unidade);
+
+      // Verificar manipulador de canto inferior direito
+      if (x >= this.pecaAtiva.x + larguraPx - margemManipulador && x <= this.pecaAtiva.x + larguraPx + margemManipulador &&
+          y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
+        this.redimensionando = true;
+        this.tipoManipulador = 'cantoInferiorDireito';
+        this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
+        this.pontoInicialMouse = { x, y };
+        this.dimensaoInicialPeca = { largura: this.pecaAtiva.largura, altura: this.pecaAtiva.altura };
+        return;
+      }
+      // Verificar manipulador de borda direita
+      if (x >= this.pecaAtiva.x + larguraPx - margemManipulador && x <= this.pecaAtiva.x + larguraPx + margemManipulador &&
+          y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
+        this.redimensionando = true;
+        this.tipoManipulador = 'bordaDireita';
+        this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
+        this.pontoInicialMouse = { x, y };
+        this.dimensaoInicialPeca = { largura: this.pecaAtiva.largura, altura: this.pecaAtiva.altura };
+        return;
+      }
+      // Verificar manipulador de borda inferior
+      if (x >= this.pecaAtiva.x && x <= this.pecaAtiva.x + larguraPx &&
+          y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
+        this.redimensionando = true;
+        this.tipoManipulador = 'bordaInferior';
+        this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
+        this.pontoInicialMouse = { x, y };
+        this.dimensaoInicialPeca = { largura: this.pecaAtiva.largura, altura: this.pecaAtiva.altura };
+        return;
+      }
+
+      // Verificar se clicou na peça ativa para arrastar
+      if (x >= this.pecaAtiva.x && x <= this.pecaAtiva.x + larguraPx &&
+          y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
+        this.arrastando = true;
+        this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
+        this.pontoInicialMouse = { x, y };
+        this.posicaoInicialPeca = { x: this.pecaAtiva.x, y: this.pecaAtiva.y };
+        return;
+      }
+    }
+
+    // 2. Se não interagiu com a peça ativa, tentar interagir com as peças salvas
     for (let i = this.pecasProjeto.length - 1; i >= 0; i--) {
       const peca = this.pecasProjeto[i];
       const larguraPx = this.converterParaPixels(peca.largura, peca.unidade);
       const alturaPx = this.converterParaPixels(peca.altura, peca.unidade);
-      const pecaX = peca.x || 0, pecaY = peca.y || 0;
-      const margem = 10;
+      const pecaX = peca.x || 0;
+      const pecaY = peca.y || 0;
+
       if (x >= pecaX && x <= pecaX + larguraPx && y >= pecaY && y <= pecaY + alturaPx) {
-        this.pecaSelecionada = { ...peca, index: i };
+        // Se uma peça salva for clicada, ela se torna a peça ativa para edição
+        this.editarPecaSalva(peca, i); // Isso define this.pecaAtiva
+        this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva; // Agora a pecaAtiva é a selecionada
+
+        // Verificar manipulador de canto inferior direito
+        if (x >= pecaX + larguraPx - margemManipulador && x <= pecaX + larguraPx + margemManipulador &&
+            y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
+          this.redimensionando = true;
+          this.tipoManipulador = 'cantoInferiorDireito';
+          this.pontoInicialMouse = { x, y };
+          this.dimensaoInicialPeca = { largura: peca.largura, altura: peca.altura };
+          return;
+        }
+        // Verificar manipulador de borda direita
+        if (x >= pecaX + larguraPx - margemManipulador && x <= pecaX + larguraPx + margemManipulador &&
+            y >= pecaY && y <= pecaY + alturaPx) {
+          this.redimensionando = true;
+          this.tipoManipulador = 'bordaDireita';
+          this.pontoInicialMouse = { x, y };
+          this.dimensaoInicialPeca = { largura: peca.largura, altura: peca.altura };
+          return;
+        }
+        // Verificar manipulador de borda inferior
+        if (x >= pecaX && x <= pecaX + larguraPx &&
+            y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
+          this.redimensionando = true;
+          this.tipoManipulador = 'bordaInferior';
+          this.pontoInicialMouse = { x, y };
+          this.dimensaoInicialPeca = { largura: peca.largura, altura: peca.altura };
+          return;
+        }
+
+        // Se clicou na peça salva para arrastar
+        this.arrastando = true;
         this.pontoInicialMouse = { x, y };
         this.posicaoInicialPeca = { x: pecaX, y: pecaY };
-        this.dimensaoInicialPeca = { largura: peca.largura, altura: peca.altura };
-        const naBordaDireita = x >= pecaX + larguraPx - margem;
-        const naBordaInferior = y >= pecaY + alturaPx - margem;
-        this.redimensionando = naBordaDireita || naBordaInferior;
-        this.arrastando = !this.redimensionando;
-        break;
+        return;
       }
     }
+    // Se clicou fora de qualquer peça, desativa a peça ativa
+    this.pecaAtiva = undefined;
+    this.atualizarCanvas();
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
-    if ((!this.arrastando && !this.redimensionando) || !this.pecaSelecionada) return;
+    if (!this.ctx || (!this.arrastando && !this.redimensionando) || !this.pecaSendoArrastadaOuRedimensionada) return;
+
     const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = event.clientX - rect.left, y = event.clientY - rect.top;
-    const deltaX = x - this.pontoInicialMouse.x, deltaY = y - this.pontoInicialMouse.y;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const deltaX = x - this.pontoInicialMouse.x;
+    const deltaY = y - this.pontoInicialMouse.y;
 
     if (this.arrastando) {
-      this.pecasProjeto[this.pecaSelecionada.index].x = this.posicaoInicialPeca.x + deltaX;
-      this.pecasProjeto[this.pecaSelecionada.index].y = this.posicaoInicialPeca.y + deltaY;
+      this.pecaSendoArrastadaOuRedimensionada.x = this.posicaoInicialPeca.x + deltaX;
+      this.pecaSendoArrastadaOuRedimensionada.y = this.posicaoInicialPeca.y + deltaY;
     } else if (this.redimensionando) {
-      const novaLargura = Math.max(0.1, this.dimensaoInicialPeca.largura + (deltaX / this.escala));
-      const novaAltura = Math.max(0.1, this.dimensaoInicialPeca.altura + (deltaY / this.escala));
-      this.pecasProjeto[this.pecaSelecionada.index].largura = novaLargura;
-      this.pecasProjeto[this.pecaSelecionada.index].altura = novaAltura;
-      this.calcularTotais();
+      let novaLargura = this.dimensaoInicialPeca.largura;
+      let novaAltura = this.dimensaoInicialPeca.altura;
+
+      if (this.tipoManipulador === 'cantoInferiorDireito' || this.tipoManipulador === 'bordaDireita') {
+        novaLargura = Math.max(0.01, this.dimensaoInicialPeca.largura + (deltaX / this.escala));
+      }
+      if (this.tipoManipulador === 'cantoInferiorDireito' || this.tipoManipulador === 'bordaInferior') {
+        novaAltura = Math.max(0.01, this.dimensaoInicialPeca.altura + (deltaY / this.escala));
+      }
+
+      this.pecaSendoArrastadaOuRedimensionada.largura = novaLargura;
+      this.pecaSendoArrastadaOuRedimensionada.altura = novaAltura;
+
+      // Atualizar o formulário da peça ativa em tempo real
+      if (this.pecaSendoArrastadaOuRedimensionada === this.pecaAtiva) {
+        this.pecaAtiva.largura = novaLargura;
+        this.pecaAtiva.altura = novaAltura;
+      }
     }
     this.atualizarCanvas();
   }
 
   onCanvasMouseUp(event: MouseEvent): void {
+    if (this.pecaSendoArrastadaOuRedimensionada) {
+      // Se a peça arrastada/redimensionada era a peça ativa, atualiza o formulário
+      if (this.pecaSendoArrastadaOuRedimensionada === this.pecaAtiva) {
+        // Se a pecaAtiva é uma peça salva (tem id), atualiza a original no array
+        if (this.pecaAtiva && this.pecaAtiva.id !== undefined) {
+          this.pecasProjeto[this.pecaAtiva.id] = { ...this.pecaAtiva };
+        }
+      }
+      this.calcularTotais(); // Recalcula totais após mover/redimensionar
+    }
+
     this.arrastando = false;
     this.redimensionando = false;
-    this.pecaSelecionada = undefined;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.pecaSendoArrastadaOuRedimensionada = undefined;
+    this.tipoManipulador = null;
+    this.atualizarCanvas(); // Redesenha para remover manipuladores se necessário
   }
 }

@@ -14,6 +14,7 @@
         Número da OS <span class="text-red-500">*</span>
       </label>
       <input
+        [readonly]="isEditMode"
         pInputText
         id="numero"
         formControlName="numero"
@@ -49,6 +50,7 @@
         ID do Projeto <span class="text-red-500">*</span>
       </label>
       <p-inputNumber
+        [readonly]="isEditMode"
         inputId="projetoId"
         formControlName="projetoId"
         placeholder="ID do projeto"
@@ -62,20 +64,14 @@
     </div>
 
     <div class="col-12 md:col-4">
-      <label for="clienteId" class="block text-900 font-medium mb-2">
-        ID do Cliente <span class="text-red-500">*</span>
+      <label for="clienteNome" class="block text-900 font-medium mb-2">
+        Cliente
       </label>
-      <p-inputNumber
-        inputId="clienteId"
-        formControlName="clienteId"
-        placeholder="ID do cliente"
-        [useGrouping]="false"
-        [class.ng-invalid]="isFieldInvalid('clienteId')"
+      <input
+        pInputText
+        id="clienteNome"
+        formControlName="clienteNome"
         class="w-full">
-      </p-inputNumber>
-      <small class="p-error" *ngIf="isFieldInvalid('clienteId')">
-        {{ getFieldError('clienteId') }}
-      </small>
     </div>
 
     <div class="col-12 md:col-4">
@@ -83,6 +79,7 @@
         Valor Total <span class="text-red-500">*</span>
       </label>
       <p-inputNumber
+        [readonly]="isEditMode"
         inputId="valorTotal"
         formControlName="valorTotal"
         mode="currency"
@@ -219,4 +216,3 @@
     </p-button>
   </div>
 </form>
-

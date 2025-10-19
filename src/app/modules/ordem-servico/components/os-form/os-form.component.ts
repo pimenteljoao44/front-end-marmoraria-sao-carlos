@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { OrdemServicoService, OrdemServico, StatusOrdemServico } from 'src/app/services/os/ordem-de-servico.service';
+import { ClienteService } from 'src/app/services/cliente/cliente.service';
 
 @Component({
   selector: 'app-os-form',
@@ -28,6 +29,7 @@ export class OsFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private ordemServicoService: OrdemServicoService,
+    private clienteService: ClienteService,
     private messageService: MessageService,
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig
@@ -48,6 +50,7 @@ export class OsFormComponent implements OnInit {
       numero: ['', [Validators.required]],
       projetoId: ['', [Validators.required]],
       clienteId: ['', [Validators.required]],
+      clienteNome: [{ value: '', disabled: true }],
       dataEmissao: [new Date(), [Validators.required]],
       dataPrevistaInicio: [''],
       dataPrevistaConclusao: [''],
@@ -76,13 +79,19 @@ export class OsFormComponent implements OnInit {
         valorTotal: this.ordemServico.valorTotal,
         usuarioCriacao: this.ordemServico.usuarioCriacao
       });
+
+      if (this.ordemServico.clienteId) {
+        this.clienteService.getClienteById(this.ordemServico.clienteId).subscribe(cliente => {
+          this.osForm.patchValue({ clienteNome: cliente.nome });
+        });
+      }
     }
   }
 
   onSubmit(): void {
     if (this.osForm.valid) {
       this.loading = true;
-      const formData = this.osForm.value;
+      const formData = this.osForm.getRawValue();
 
       // Converter datas para string ISO
       if (formData.dataEmissao) {
@@ -154,4 +163,3 @@ export class OsFormComponent implements OnInit {
     return '';
   }
 }
-

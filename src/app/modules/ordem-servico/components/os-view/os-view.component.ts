@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { OrdemServico, StatusOrdemServico, OrdemServicoService } from 'src/app/services/os/ordem-de-servico.service';
+import { ClienteService } from 'src/app/services/cliente/cliente.service';
 
 @Component({
   selector: 'app-os-view',
@@ -13,12 +14,18 @@ export class OsViewComponent implements OnInit {
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
-    private ordemServicoService: OrdemServicoService
+    private ordemServicoService: OrdemServicoService,
+    private clienteService: ClienteService
   ) { }
 
   ngOnInit(): void {
     if (this.config.data?.ordemServico) {
       this.ordemServico = this.config.data.ordemServico;
+      if (this.ordemServico.clienteId && !this.ordemServico.cliente) {
+        this.clienteService.getClienteById(this.ordemServico.clienteId).subscribe(clienteData => {
+          this.ordemServico.cliente = clienteData;
+        });
+      }
     }
   }
 
@@ -51,4 +58,3 @@ export class OsViewComponent implements OnInit {
     return new Date(data).toLocaleString('pt-BR');
   }
 }
-

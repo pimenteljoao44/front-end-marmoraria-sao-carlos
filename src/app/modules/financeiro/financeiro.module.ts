@@ -4,7 +4,6 @@ import {CommonModule, DatePipe} from '@angular/common';
 import {FINANCEIRO_ROUTES} from './financeiro-routing.module';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {RouterModule} from "@angular/router";
-import {VENDA_ROUTES} from "../venda/venda.routing";
 import {SharedModule} from "../../shared/shared.module";
 import {HttpClientModule} from "@angular/common/http";
 import {CardModule} from "primeng/card";
@@ -28,8 +27,8 @@ import {ContasAReceberComponent} from "./contas-a-receber/contas-a-receber.compo
 import {ContaPagarFormComponent} from "./components/conta-pagar-form/conta-pagar-form.component";
 import {ContaReceberFormComponent} from "./components/conta-receber-form/conta-receber-form.component";
 import {TagModule} from "primeng/tag";
-import {ParcelasDashboardComponent} from "../dashboard/page/parcelas-dashboard.component";
 import {ChartModule} from "primeng/chart";
+import {CalendarModule} from "primeng/calendar";
 
 
 @NgModule({
@@ -62,7 +61,8 @@ import {ChartModule} from "primeng/chart";
     PanelModule,
     AutoCompleteModule,
     TagModule,
-    ChartModule
+    ChartModule,
+    CalendarModule
   ],
   providers: [DialogService, ConfirmationService, DatePipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

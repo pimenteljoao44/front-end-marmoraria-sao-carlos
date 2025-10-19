@@ -6,7 +6,7 @@
       [rows]="10"
       [paginator]="true"
       [responsive]="true"
-      [globalFilterFields]="['numero','descricao','projeto.nome','funcionarioResponsavel.nome','status']"
+      [globalFilterFields]="['numero','descricao','projeto.nome','responsavel','status']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="osSelected"
       [rowHover]="true"
@@ -80,16 +80,16 @@
               </div>
             </div>
           </th>
-          <th pSortableColumn="funcionarioResponsavel.nome">
+          <th pSortableColumn="responsavel">
             <div class="flex justify-content-between align-items-center">
               <div class="flex justify-content-between align-items-center">
                 Responsável
               </div>
               <div class="flex justify-content-between align-items-center">
-                <p-sortIcon field="funcionarioResponsavel.nome"></p-sortIcon>
+                <p-sortIcon field="responsavel"></p-sortIcon>
                 <p-columnFilter
                   type="text"
-                  field="funcionarioResponsavel.nome"
+                  field="responsavel"
                   display="menu"
                   placeholder="Buscar por responsável"
                 ></p-columnFilter>
@@ -129,6 +129,7 @@
             </div>
           </th>
           <th>
+            <!--
             <div class="flex justify-content-center align-items-center">
               <p-button
                 icon="pi pi-plus"
@@ -138,6 +139,7 @@
                 (onClick)="handleOSEvent(createOSEvent)"
               ></p-button>
             </div>
+            -->
           </th>
         </tr>
       </ng-template>
@@ -148,7 +150,7 @@
           <td>{{ os?.numero }}</td>
           <td>{{ os?.descricao }}</td>
           <td>{{ os?.projeto?.nome || 'N/A' }}</td>
-          <td>{{ os?.funcionarioResponsavel?.nome || 'N/A' }}</td>
+          <td>{{ os?.responsavel || 'N/A' }}</td>
           <td>
             <p-tag
               [value]="getStatusLabel(os?.status)"
