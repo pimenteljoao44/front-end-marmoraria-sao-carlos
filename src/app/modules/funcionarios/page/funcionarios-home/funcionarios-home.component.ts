@@ -61,7 +61,7 @@ export class FuncionariosHomeComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: err.error?.message || err.message || 'Erro desconhecido',
+            detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -155,7 +155,7 @@ export class FuncionariosHomeComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro desconhecido',
+              detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
               life: 3500,
             });
           },

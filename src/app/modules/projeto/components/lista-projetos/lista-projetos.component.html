@@ -325,40 +325,39 @@
                       <div class="col-12 md:col-6">
                         <div class="surface-card p-3 border-round shadow-1 h-full">
                           <h5 class="mt-0 mb-3 text-900">Medidas</h5>
-                          <div *ngIf="projeto.medidas; else noMeasurements">
-                            <div class="grid">
-                              <div class="col-4">
-                                <div class="p-3 text-center border-round surface-100">
-                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.profundidade || 0 }}m</div>
-                                  <small class="text-600">Profundidade</small>
+                          <div *ngIf="projeto.pecas && projeto.pecas.length > 0; else noMeasurements">
+                            <div *ngFor="let peca of projeto.pecas; let i = index" class="mb-3 p-3 border-round surface-100">
+                              <div class="font-medium text-900">{{ peca.nome || ('Peça ' + (i + 1)) }}</div>
+                              <div class="grid mt-2">
+                                <div class="col-6">
+                                  <label class="block text-600 text-sm mb-1">Largura</label>
+                                  <div class="text-900">{{ peca.largura || 0 }}{{ peca.unidade }}</div>
+                                </div>
+                                <div class="col-6">
+                                  <label class="block text-600 text-sm mb-1">Altura</label>
+                                  <div class="text-900">{{ peca.altura || 0 }}{{ peca.unidade }}</div>
+                                </div>
+                                <div class="col-6">
+                                  <label class="block text-600 text-sm mb-1">Espessura</label>
+                                  <div class="text-900">{{ peca.espessura || 0 }}{{ peca.unidade }}</div>
+                                </div>
+                                <div class="col-6">
+                                  <label class="block text-600 text-sm mb-1">Área</label>
+                                  <div class="text-900">{{ calcularAreaPeca(peca) | number:'1.2-2' }}m²</div>
                                 </div>
                               </div>
-                              <div class="col-4">
-                                <div class="p-3 text-center border-round surface-100">
-                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.largura || 0 }}m</div>
-                                  <small class="text-600">Largura</small>
-                                </div>
-                              </div>
-                              <div class="col-4">
-                                <div class="p-3 text-center border-round surface-100">
-                                  <div class="text-2xl font-bold text-primary">{{ projeto.medidas.altura || 0 }}m</div>
-                                  <small class="text-600">Altura</small>
-                                </div>
+                              <div *ngIf="peca.recortes && peca.recortes.length > 0" class="mt-3">
+                                <h6 class="mt-0 mb-2 text-700">Recortes:</h6>
+                                <ul class="list-disc ml-4">
+                                  <li *ngFor="let recorte of peca.recortes">
+                                    {{ recorte.tipo || 'Recorte' }}: {{ recorte.largura || 0 }}{{ peca.unidade }} x {{ recorte.altura || 0 }}{{ peca.unidade }} (Pos: {{ recorte.posicaoX || 0 }}, {{ recorte.posicaoY || 0 }})
+                                  </li>
+                                </ul>
                               </div>
                             </div>
-                            <div class="grid mt-2">
-                              <div class="col-6">
-                                <div class="p-3 text-center border-round surface-100">
-                                  <div class="text-2xl font-bold text-primary">{{ (projeto.medidas.area || 0) | number:'1.2-2' }}m²</div>
-                                  <small class="text-600">Área</small>
-                                </div>
-                              </div>
-                              <div class="col-6">
-                                <div class="p-3 text-center border-round surface-100">
-                                  <div class="text-2xl font-bold text-primary">{{ (projeto.medidas.perimetro || 0) | number:'1.2-2' }}m</div>
-                                  <small class="text-600">Perímetro</small>
-                                </div>
-                              </div>
+                            <div class="mt-3 p-3 border-round surface-100 text-center">
+                              <div class="text-2xl font-bold text-primary">{{ calcularAreaTotalProjeto(projeto.pecas) | number:'1.2-2' }}m²</div>
+                              <small class="text-600">Área Total do Projeto</small>
                             </div>
                           </div>
                           <ng-template #noMeasurements>

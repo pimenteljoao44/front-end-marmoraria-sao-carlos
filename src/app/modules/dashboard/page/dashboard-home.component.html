@@ -187,10 +187,12 @@
     <div class="col-12 md:col-6">
       <p-card header="Produtividade" styleClass="metric-card">
         <div class="metric-grid">
+          <!--
           <div class="metric-item">
             <span class="metric-label">OS por Funcionário</span>
             <span class="metric-value">{{ (kpis.ordensServico.total / Math.max(kpis.totalFuncionarios, 1)).toFixed(1) }}</span>
           </div>
+          -->
           <div class="metric-item">
             <span class="metric-label">Tempo Médio OS</span>
             <span class="metric-value">{{ kpis.tempoMedioOS || 'N/A' }} dias</span>

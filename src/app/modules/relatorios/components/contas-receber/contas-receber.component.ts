@@ -52,7 +52,7 @@ export class ContasReceberComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar clientes'
+          detail: error.error?.message || error.message || 'Erro ao carregar clientes'
         });
       }
     });
@@ -92,4 +92,3 @@ export class ContasReceberComponent implements OnInit {
     });
   }
 }
-

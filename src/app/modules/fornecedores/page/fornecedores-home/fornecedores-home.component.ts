@@ -60,7 +60,7 @@ export class FornecedoresHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: err.error?.message || err.message || 'Erro desconhecido',
+            detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -127,8 +127,14 @@ export class FornecedoresHomeComponent implements OnInit,OnDestroy {
               });
             }
           },
-          error(err) {
+          error: (err) => {
             console.log(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro.',
+              detail: err.error?.message || err.message || 'Erro ao buscar detalhes do fornecedor',
+              life: 2500,
+            });
           },
         });
     }
@@ -154,7 +160,7 @@ export class FornecedoresHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro desconhecido',
+              detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
               life: 2500,
             });
           },

@@ -233,7 +233,7 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         this.dialogRef.close(true);
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: err.error?.message || err.message || 'Erro desconhecido', });
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido', });
       },
     });
   }

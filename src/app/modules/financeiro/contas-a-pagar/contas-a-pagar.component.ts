@@ -46,7 +46,7 @@ export class ContasAPagarComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar contas a pagar',
+            detail: err.error?.message || err.message || 'Erro ao carregar contas a pagar',
             life: 2500
           });
           this.loading = false;
@@ -107,7 +107,7 @@ export class ContasAPagarComponent implements OnInit, OnDestroy {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
-                detail: 'Erro ao pagar conta',
+                detail: err.error?.message || err.message || 'Erro ao pagar conta',
                 life: 2500
               });
             }
@@ -139,7 +139,7 @@ export class ContasAPagarComponent implements OnInit, OnDestroy {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
-                detail: 'Erro ao excluir conta a pagar',
+                detail: err.error?.message || err.message || 'Erro ao excluir conta a pagar',
                 life: 2500
               });
             }
@@ -172,4 +172,3 @@ export class ContasAPagarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

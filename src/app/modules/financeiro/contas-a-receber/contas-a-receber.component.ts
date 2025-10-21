@@ -47,7 +47,7 @@ export class ContasAReceberComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao carregar contas a receber',
+            detail: err.error?.message || err.message || 'Erro ao carregar contas a receber',
             life: 2500
           });
           this.loading = false;
@@ -108,7 +108,7 @@ export class ContasAReceberComponent implements OnInit, OnDestroy {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
-                detail: 'Erro ao receber conta',
+                detail: err.error?.message || err.message || 'Erro ao receber conta',
                 life: 2500
               });
             }
@@ -140,7 +140,7 @@ export class ContasAReceberComponent implements OnInit, OnDestroy {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erro',
-                detail: 'Erro ao excluir conta a receber',
+                detail: err.error?.message || err.message || 'Erro ao excluir conta a receber',
                 life: 2500
               });
             }
@@ -173,4 +173,3 @@ export class ContasAReceberComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

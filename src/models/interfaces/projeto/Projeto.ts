@@ -42,7 +42,7 @@ export interface Projeto {
   margemLucro: number;
   observacoes?: string;
   itens: ProjetoItem[];
-  medidas: MedidasProjeto;
+  medidas?: MedidasProjeto;
   pecas?: PecaProjeto[]; // Adicionado campo para as peças
   ordemServico?: any; // Reference to OrdemServico
   dataCriacao: Date;

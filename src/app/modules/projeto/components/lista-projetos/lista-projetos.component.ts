@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {ProjetoService} from "../../../../services/projeto/projeto.service";
-import {Projeto} from "../../../../../models/interfaces/projeto/Projeto";
+import {PecaProjeto, Projeto} from "../../../../../models/interfaces/projeto/Projeto";
 import {StatusProjeto} from "../../../../../models/enums/projeto/StatusProjeto";
 import {TipoProjeto} from "../../../../../models/enums/projeto/TipoProjeto";
 import {forkJoin, map, of} from "rxjs";
@@ -455,5 +455,25 @@ export class ListaProjetosComponent implements OnInit {
       const valor = Number(item.valorTotal) || 0;
       return total + valor;
     }, 0);
+  }
+
+  // Métodos para cálculo de área das peças
+  converterUnidade(valor: number | undefined, unidade: string | undefined): number {
+    if (valor === undefined || valor === null) return 0;
+    if (unidade === 'cm') return valor / 100;
+    if (unidade === 'in') return valor * 0.0254;
+    return valor; // Assume 'm' como padrão
+  }
+
+  calcularAreaPeca(peca: PecaProjeto): string {
+    if (!peca.largura || !peca.altura) return '0.00';
+    const larguraMetros = this.converterUnidade(peca.largura, peca.unidade);
+    const alturaMetros = this.converterUnidade(peca.altura, peca.unidade);
+    return (larguraMetros * alturaMetros).toFixed(2);
+  }
+
+  calcularAreaTotalProjeto(pecas: PecaProjeto[] | undefined): string {
+    if (!pecas || pecas.length === 0) return '0.00';
+    return pecas.reduce((total, peca) => total + parseFloat(this.calcularAreaPeca(peca)), 0).toFixed(2);
   }
 }

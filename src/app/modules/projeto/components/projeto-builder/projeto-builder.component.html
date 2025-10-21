@@ -652,7 +652,7 @@
               </div>
               <div class="summary-item">
                 <label>Área</label>
-                <div>{{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }} m²</div>
+                <div>{{ calcularAreaTotalProjeto() }} m²</div>
               </div>
             </div>
           </div>
@@ -685,7 +685,7 @@
                   R$ {{ valorMaoObra.toFixed(2) }}
                 </div>
                 <div class="calc-details">
-                  R$ {{ getLaborRate(projetoForm.get('tipoProjeto')?.value).toFixed(2) }}/m² × {{ (projetoForm.get('medidas.profundidade')?.value * projetoForm.get('medidas.largura')?.value).toFixed(2) }}m²
+                  R$ {{ getLaborRate(projetoForm.get("tipoProjeto")?.value).toFixed(2) }}/m² × {{ calcularAreaTotalProjeto() }}m²
                 </div>
               </div>
 

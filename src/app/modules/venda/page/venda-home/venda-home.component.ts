@@ -49,7 +49,7 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: err.error?.message || err.message || 'Erro desconhecido',
+            detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -105,7 +105,7 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Não foi possível gerar a Ordem de Serviço.',
+              detail: err.error?.message || err.message || 'Não foi possível gerar a Ordem de Serviço.',
               life: 3000,
             });
             console.error(err);
@@ -142,8 +142,14 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
               });
             }
           },
-          error(err) {
+          error: (err) => {
             console.log(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro.',
+              detail: err.error?.message || err.message || 'Erro ao buscar detalhes da venda',
+              life: 2500,
+            });
           },
         });
     }

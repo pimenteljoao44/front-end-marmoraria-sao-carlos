@@ -518,7 +518,7 @@ export class FornecedoresFormComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro desconhecido',
+              detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
               life: 2000,
             });
             return;
@@ -611,7 +611,7 @@ export class FornecedoresFormComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: err.error?.message || err.message || 'Erro desconhecido',
+            detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
             life: 2000,
           });
         },

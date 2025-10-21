@@ -75,7 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Não encontramos nenhum usuário com essas credenciais',
+              detail: err.error?.message || err.message || 'Não encontramos nenhum usuário com essas credenciais',
               life: 4000,
             });
             console.log(err);
@@ -115,7 +115,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Não encontramos nenhum usuário com o email informado',
+              detail: err.error?.message || err.message || 'Não encontramos nenhum usuário com o email informado',
               life: 2000,
             });
             this.loadingForgotPassword = false;

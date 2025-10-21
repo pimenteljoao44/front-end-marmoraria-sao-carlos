@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RelatorioService } from 'src/app/services/relatorio.service';
-import { FornecedorService } from 'src/app/services/fornecedor/fornecedor.service';
 import { MessageService } from 'primeng/api';
 import { saveAs } from 'file-saver';
+import { FornecedorService } from 'src/app/services/fornecedor/fornecedor.service';
 
 @Component({
   selector: 'app-compras-fornecedor-periodo',
@@ -50,7 +50,7 @@ export class ComprasFornecedorPeriodoComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: error.error?.message || error.message || 'Erro desconhecido'
+          detail: error.error?.message || error.message || 'Erro ao carregar fornecedores'
         });
       }
     });
@@ -95,4 +95,3 @@ export class ComprasFornecedorPeriodoComponent implements OnInit {
     this.form.reset();
   }
 }
-

@@ -9,7 +9,7 @@ import {ProjetoItem, ProjetoItemForm} from "../../../../../models/interfaces/pro
 import { StatusProjeto } from "../../../../../models/enums/projeto/StatusProjeto";
 import {ClientesService} from "../../../../services/clientes/clientes.service";
 import {ProdutoService} from "../../../../services/produto/produto.service";
-import {debounceTime, distinctUntilChanged, finalize, Subject, takeUntil} from "rxjs";
+import {debounceTime, finalize, Subject, takeUntil} from "rxjs";
 import {RelatorioService} from "../../../../services/relatorio.service";
 
 interface ProjetoStep {
@@ -162,6 +162,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
   clientes: any[] = [];
   materiaisDisponiveis: MaterialTemplate[] = [];
   materiaisSelecionados: MaterialTemplate[] = [];
+  private _materiaisSelecionadosCache: MaterialTemplate[] = [];
   materiaisSugeridos: any[] = [];
 
   pecasProjeto: PecaProjeto[] = [];
@@ -222,6 +223,32 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     this.initializeForm();
   }
 
+  private carregarMateriaisSelecionadosDoForm(): void {
+    this._materiaisSelecionadosCache = [];
+    this.itensFormArray.controls.forEach(control => {
+      const produtoId = control.get("produtoId")?.value;
+      if (produtoId) {
+        const material = this.getMaterialById(produtoId);
+        if (material) {
+          this._materiaisSelecionadosCache.push(material);
+        }
+      }
+    });
+    this.materiaisSelecionados = [...this._materiaisSelecionadosCache];
+  }
+
+  setItensFormArray(itens: ProjetoItem[]) {
+    const formArray = this.projetoForm.get("itens") as FormArray;
+    formArray.clear();
+    itens.forEach(item => formArray.push(this.fb.group({
+      produtoId: [item.produtoId, Validators.required],
+      quantidade: [item.quantidade, [Validators.required, Validators.min(0.01)]],
+      valorUnitario: [item.valorUnitario, [Validators.required, Validators.min(0)]],
+      valorTotal: [item.valorUnitario, [Validators.required, Validators.min(0)]]
+    })));
+    this.carregarMateriaisSelecionadosDoForm();
+  }
+
   ngOnInit() {
     this.projetoId = +this.route.snapshot.params['id'];
     this.isEditMode = !!this.projetoId;
@@ -233,7 +260,10 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     this.setupFormWatchers();
-    this.cdr.detectChanges(); // Força a detecção de mudanças após a inicialização
+    this.cdr.detectChanges();
+
+    // Garante que os materiais selecionados sejam carregados ao iniciar
+    this.carregarMateriaisSelecionadosDoForm();
   }
 
   ngAfterViewInit(): void {
@@ -268,14 +298,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       dataPrevista: [null],
       observacoes: [''],
       margemLucro: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
-      // As medidas principais do projeto serão derivadas das peças individuais
-      // Mantido para compatibilidade, mas pode ser removido se não for mais usado diretamente
-      medidas: this.fb.group({
-        profundidade: [null], // Não mais obrigatório aqui, pois vem das peças
-        largura: [null],     // Não mais obrigatório aqui, pois vem das peças
-        altura: [null],      // Não mais obrigatório aqui, pois vem das peças
-        observacoes: ['']
-      }),
       itens: this.fb.array([]),
       usuarioCriacao: [1, Validators.required]
     });
@@ -401,32 +423,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       });
   }
 
-  visualizarPDF(): void {
-    if (!this.validarFormularioParaCalculoBasico()) {
-      this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'Preencha todos os campos obrigatórios antes de visualizar o PDF.', life: 5000 });
-      return;
-    }
-
-    this.gerandoPDF = true;
-    const dadosPDF = this.prepararDadosParaPDF();
-
-    this.relatorioService.gerarPDF(dadosPDF)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.gerandoPDF = false)
-      )
-      .subscribe({
-        next: (blob: Blob) => {
-          this.relatorioService.viewPDF(blob);
-          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'PDF aberto em nova aba!', life: 3000 });
-        },
-        error: (error) => {
-          console.error('Erro ao visualizar PDF:', error);
-          this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao visualizar o PDF do orçamento. Tente novamente.', life: 5000 });
-        }
-      });
-  }
-
   private setupFormWatchers(): void {
     this.projetoForm.get('tipoProjeto')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((tipo) => {
       if (this.isInitializing) return;
@@ -443,13 +439,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
         this.autoAdvanceStep();
       }
     });
-
-    // Removido watcher de medidas do formulário principal, pois as medidas vêm das peças
-    // this.projetoForm.get('medidas')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(500), distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c))).subscribe(() => {
-    //   if (this.isInitializing) return;
-    //   this.calcularArea(); // Esta função precisará ser adaptada ou removida
-    //   if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
-    // });
 
     this.projetoForm.get('margemLucro')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300)).subscribe(() => {
       if (this.isInitializing) return;
@@ -468,7 +457,10 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     if (stepIndex >= 0 && stepIndex < this.steps.length) {
       this.currentStep = stepIndex;
       this.updateStepsState();
-      if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100); // Garante inicialização do canvas
+      if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100);
+      if (this.currentStep === 3) {
+        this.carregarMateriaisSelecionadosDoForm();
+      }
     }
   }
 
@@ -485,7 +477,14 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   previousStep(): void {
-    if (this.currentStep > 0) this.goToStep(this.currentStep - 1);
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.updateStepsState();
+      if (this.currentStep === 2) setTimeout(() => this.inicializarCanvas(this.canvasRef.nativeElement), 100);
+      if (this.currentStep === 3) {
+        this.carregarMateriaisSelecionadosDoForm();
+      }
+    }
   }
 
   canAdvanceStep(): boolean {
@@ -535,7 +534,8 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     this.adicionarItem({ produtoId: material.id, quantidade: quantidadeInicial, valorUnitario: material.preco });
-    this.materiaisSelecionados.push(material);
+    this._materiaisSelecionadosCache.push(material);
+    this.materiaisSelecionados = [...this._materiaisSelecionadosCache];
     this.updateStepCompletion('materiais', true);
   }
 
@@ -543,7 +543,8 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     const index = this.itensFormArray.controls.findIndex(c => c.get('produtoId')?.value === materialId);
     if (index >= 0) {
       this.itensFormArray.removeAt(index);
-      this.materiaisSelecionados = this.materiaisSelecionados.filter(m => m.id !== materialId);
+      this._materiaisSelecionadosCache = this._materiaisSelecionadosCache.filter(m => m.id !== materialId);
+      this.materiaisSelecionados = [...this._materiaisSelecionadosCache];
       this.calcularTotais();
       if (this.itensFormArray.length === 0) this.updateStepCompletion('materiais', false);
     }
@@ -631,20 +632,14 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       dataPrevista: projeto.dataPrevista ? new Date(projeto.dataPrevista) : null,
       observacoes: projeto.observacoes,
       margemLucro: projeto.margemLucro,
-      // medidas: projeto.medidas // Removido, pois as medidas vêm das peças
+
     });
 
     if (projeto.pecas && Array.isArray(projeto.pecas)) {
       this.pecasProjeto = [...projeto.pecas];
     }
 
-    this.itensFormArray.clear();
-    projeto.itens.forEach(item => this.adicionarItem(item));
-
-    // Repopula materiaisSelecionados com base nos itens do projeto
-    this.materiaisSelecionados = projeto.itens
-      .map(item => this.getMaterialById(item.produtoId))
-      .filter((material): material is MaterialTemplate => material !== undefined);
+    this.setItensFormArray(projeto.itens || []);
 
     this.calcularTotais();
     this.updateAllStepsCompletion();
@@ -692,15 +687,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       'Quartzo': { [TipoProjeto.COZINHA]: 'Bancada premium', [TipoProjeto.BANHEIRO]: 'Bancada de luxo' }
     };
     return aplicacoes[material.categoria]?.[tipoProjeto] || 'Aplicação geral';
-  }
-
-  // Esta função não é mais usada diretamente, pois as medidas vêm das peças
-  calcularArea(): void {
-    // const medidas = this.projetoForm.get('medidas')?.value;
-    // if (!medidas || medidas.profundidade <= 0 || medidas.largura <= 0) return;
-    // const area = medidas.profundidade * medidas.largura;
-    // const perimetro = 2 * (medidas.profundidade + medidas.largura);
-    // this.projetoForm.get('medidas')?.patchValue({ area, perimetro }, { emitEvent: false });
   }
 
   calcularTotais() {
@@ -1013,18 +999,18 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
   removerPeca(index: number): void {
     const peca = this.pecasProjeto[index];
     this.confirmationService.confirm({ message: `Deseja realmente remover a peça \"${peca.nome}\"?`, header: 'Confirmação', icon: 'pi pi-exclamation-triangle', accept: () => {
-      this.pecasProjeto.splice(index, 1);
-      // Se a peça removida era a peça ativa, limpa a peça ativa
-      if (this.pecaAtiva?.id === index) {
-        this.pecaAtiva = undefined;
-      }
-      // Ajusta os IDs das peças restantes se necessário (se o ID for o índice)
-      this.pecasProjeto.forEach((p, i) => p.id = i);
+        this.pecasProjeto.splice(index, 1);
+        // Se a peça removida era a peça ativa, limpa a peça ativa
+        if (this.pecaAtiva?.id === index) {
+          this.pecaAtiva = undefined;
+        }
+        // Ajusta os IDs das peças restantes se necessário (se o ID for o índice)
+        this.pecasProjeto.forEach((p, i) => p.id = i);
 
-      this.updateStepCompletion('medidas', this.pecasProjeto.length > 0);
-      this.atualizarCanvas();
-      this.calcularTotais();
-    }});
+        this.updateStepCompletion('medidas', this.pecasProjeto.length > 0);
+        this.atualizarCanvas();
+        this.calcularTotais();
+      }});
   }
 
   onTipoPecaChange(): void {
@@ -1206,10 +1192,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     return valorMetros * this.escala;
   }
 
-  onCanvasClick(event: MouseEvent): void {
-    // A lógica de clique agora está em onCanvasMouseDown para iniciar arrasto/redimensionamento
-  }
-
   limparCanvas(): void {
     this.pecasProjeto = [];
     this.pecaAtiva = undefined;
@@ -1292,7 +1274,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
       // Verificar manipulador de canto inferior direito
       if (x >= this.pecaAtiva.x + larguraPx - margemManipulador && x <= this.pecaAtiva.x + larguraPx + margemManipulador &&
-          y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
+        y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
         this.redimensionando = true;
         this.tipoManipulador = 'cantoInferiorDireito';
         this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
@@ -1302,7 +1284,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       }
       // Verificar manipulador de borda direita
       if (x >= this.pecaAtiva.x + larguraPx - margemManipulador && x <= this.pecaAtiva.x + larguraPx + margemManipulador &&
-          y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
+        y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
         this.redimensionando = true;
         this.tipoManipulador = 'bordaDireita';
         this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
@@ -1312,7 +1294,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       }
       // Verificar manipulador de borda inferior
       if (x >= this.pecaAtiva.x && x <= this.pecaAtiva.x + larguraPx &&
-          y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
+        y >= this.pecaAtiva.y + alturaPx - margemManipulador && y <= this.pecaAtiva.y + alturaPx + margemManipulador) {
         this.redimensionando = true;
         this.tipoManipulador = 'bordaInferior';
         this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
@@ -1323,7 +1305,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
       // Verificar se clicou na peça ativa para arrastar
       if (x >= this.pecaAtiva.x && x <= this.pecaAtiva.x + larguraPx &&
-          y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
+        y >= this.pecaAtiva.y && y <= this.pecaAtiva.y + alturaPx) {
         this.arrastando = true;
         this.pecaSendoArrastadaOuRedimensionada = this.pecaAtiva;
         this.pontoInicialMouse = { x, y };
@@ -1347,7 +1329,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
         // Verificar manipulador de canto inferior direito
         if (x >= pecaX + larguraPx - margemManipulador && x <= pecaX + larguraPx + margemManipulador &&
-            y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
+          y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
           this.redimensionando = true;
           this.tipoManipulador = 'cantoInferiorDireito';
           this.pontoInicialMouse = { x, y };
@@ -1356,7 +1338,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
         }
         // Verificar manipulador de borda direita
         if (x >= pecaX + larguraPx - margemManipulador && x <= pecaX + larguraPx + margemManipulador &&
-            y >= pecaY && y <= pecaY + alturaPx) {
+          y >= pecaY && y <= pecaY + alturaPx) {
           this.redimensionando = true;
           this.tipoManipulador = 'bordaDireita';
           this.pontoInicialMouse = { x, y };
@@ -1365,7 +1347,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
         }
         // Verificar manipulador de borda inferior
         if (x >= pecaX && x <= pecaX + larguraPx &&
-            y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
+          y >= pecaY + alturaPx - margemManipulador && y <= pecaY + alturaPx + margemManipulador) {
           this.redimensionando = true;
           this.tipoManipulador = 'bordaInferior';
           this.pontoInicialMouse = { x, y };

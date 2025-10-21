@@ -50,7 +50,7 @@ export class VendasClientePeriodoComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar clientes'
+          detail: error.error?.message || error.message || 'Erro ao carregar clientes'
         });
       }
     });
@@ -95,4 +95,3 @@ export class VendasClientePeriodoComponent implements OnInit {
     this.form.reset();
   }
 }
-
