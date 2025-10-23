@@ -9,13 +9,15 @@ import {DialogService} from 'primeng/dynamicdialog';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { SidebarModule } from 'primeng/sidebar';
+import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 
 
 
 @NgModule({
   declarations: [
     ToolbarComponent,
-    SideBarComponent
+    SideBarComponent,
+    AccessDeniedComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +29,7 @@ import { SidebarModule } from 'primeng/sidebar';
     ButtonModule,
     SidebarModule
   ],
-  exports:[ToolbarComponent,SideBarComponent],
+  exports:[ToolbarComponent,SideBarComponent,AccessDeniedComponent],
   providers:[DialogService,CurrencyPipe]
 })
 export class SharedModule { }

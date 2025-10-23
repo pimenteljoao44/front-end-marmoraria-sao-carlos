@@ -15,17 +15,14 @@ export class SideBarComponent implements OnInit {
   cadatrosOpen:boolean = false;
   expedientOpen:boolean = false;
   financeiroOpen:boolean = false;
-  isGerente:boolean = false;
+  isAdmin:boolean = false;
+  isFuncionario:boolean = false;
 
   constructor(private userService:UserService) {}
 
   ngOnInit(): void {
-    this.userService.findAll().subscribe(users => {
-      const loggedInUser = users[0];
-      if (loggedInUser && loggedInUser.nivelAcesso === 'GERENTE') {
-        this.isGerente = true;
-      }
-    });
+    this.isAdmin = this.userService.isAdmin();
+    this.isFuncionario = this.userService.isUser();
   }
 
   toggleCadastros():void {

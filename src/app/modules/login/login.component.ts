@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { UserService } from 'src/app/services/user/user.service';
 import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
+import { jwtDecode } from 'jwt-decode'; // Importar jwtDecode
 
 @Component({
   selector: 'app-home',
@@ -54,17 +55,34 @@ export class LoginComponent implements OnInit, OnDestroy {
                 expires: 1,
               });
 
+              // Decodificar o token para obter o nível de acesso
+              let nivelAcesso: string | null = null;
+              try {
+                const decodedToken: any = jwtDecode(response.token);
+                nivelAcesso = decodedToken.nivelAcesso;
+              } catch (error) {
+                console.error('Erro ao decodificar o token JWT após o login:', error);
+              }
+
               setTimeout(() => {
                 // Navegue após garantir que o cookie foi salvo
-                this.router.navigate(['home'], { replaceUrl: true }).then(() => {
-                  this.loginForm.reset();
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: `Bem-vindo de volta ${response.nome}`,
-                    life: 2000,
-                  });
+                this.loginForm.reset();
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Sucesso',
+                  detail: `Bem-vindo de volta ${response.nome}`,
+                  life: 2000,
                 });
+
+                // Lógica de redirecionamento baseada no nível de acesso
+                if (nivelAcesso === 'ADMIN' || nivelAcesso === 'GERENTE') {
+                  this.router.navigate(['dashboard'], { replaceUrl: true });
+                } else if (nivelAcesso === 'FUNCIONARIO') {
+                  this.router.navigate(['home/welcome'], { replaceUrl: true });
+                } else {
+                  // Redirecionamento padrão caso o nível de acesso não seja reconhecido
+                  this.router.navigate(['home'], { replaceUrl: true });
+                }
               }, 100);
             }
             this.loading = false;

@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import {PrimeNGConfig} from "primeng/api";
+import {UserService} from "../../../services/user/user.service";
 
 
 @Component({
@@ -10,7 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class ToolbarComponent {
 
-  constructor(private cookie:CookieService,private router:Router){}
+  constructor(private cookie:CookieService,private router:Router,private userService:UserService, private primeNgConfig: PrimeNGConfig){}
 
   @Output() openSidebarEvent = new EventEmitter<void>();
 
@@ -19,7 +21,6 @@ export class ToolbarComponent {
   }
 
   handleLogout():void {
-    this.cookie.delete('USER_INFO');
-    this.router.navigate(['']);
+    this.userService.logout()
   }
 }
