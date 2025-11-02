@@ -157,7 +157,7 @@ export class ProdutoHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: err.error?.message || err.message || 'Erro ao excluir produto',
+              detail: err.error.error || err.message || 'Erro ao excluir produto',
               life: 2500,
             });
           },
