@@ -39,7 +39,6 @@ interface MaterialTemplate {
 })
 export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy { // Adicionado OnDestroy
   private readonly destroy$: Subject<void> = new Subject();
-  private isInitializing = false;
   projetoForm!: FormGroup;
   isEditMode = false;
   projetoId!: number;
@@ -240,13 +239,23 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
   setItensFormArray(itens: ProjetoItem[]) {
     const formArray = this.projetoForm.get("itens") as FormArray;
     formArray.clear();
-    itens.forEach(item => formArray.push(this.fb.group({
-      produtoId: [item.produtoId, Validators.required],
-      quantidade: [item.quantidade, [Validators.required, Validators.min(0.01)]],
-      valorUnitario: [item.valorUnitario, [Validators.required, Validators.min(0)]],
-      valorTotal: [item.valorUnitario, [Validators.required, Validators.min(0)]]
-    })));
+    itens.forEach(item => {
+      const valorTotal = (item.quantidade || 0) * (item.valorUnitario || 0);
+      const itemForm = this.fb.group({
+        produtoId: [item.produtoId, Validators.required],
+        quantidade: [item.quantidade, [Validators.required, Validators.min(0.01)]],
+        valorUnitario: [item.valorUnitario, [Validators.required, Validators.min(0)]],
+        valorTotal: [{ value: valorTotal, disabled: true }, [Validators.required, Validators.min(0)]]
+      });
+
+      itemForm.get('quantidade')?.valueChanges.subscribe(() => this.calcularItemTotal(itemForm));
+      itemForm.get('valorUnitario')?.valueChanges.subscribe(() => this.calcularItemTotal(itemForm));
+
+      formArray.push(itemForm);
+    });
+
     this.carregarMateriaisSelecionadosDoForm();
+    this.calcularTotais();
   }
 
   ngOnInit() {
@@ -257,9 +266,10 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
     if (this.isEditMode) {
       this.carregarProjeto();
+    } else {
+      this.setupFormWatchers();
     }
 
-    this.setupFormWatchers();
     this.cdr.detectChanges();
 
     // Garante que os materiais selecionados sejam carregados ao iniciar
@@ -425,7 +435,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
   private setupFormWatchers(): void {
     this.projetoForm.get('tipoProjeto')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((tipo) => {
-      if (this.isInitializing) return;
       this.carregarMateriaisSugeridos();
       this.updateStepCompletion('tipo', true);
       if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
@@ -433,7 +442,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     });
 
     this.projetoForm.get('clienteId')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300)).subscribe((clienteId) => {
-      if (this.isInitializing) return;
       if (clienteId) {
         this.updateStepCompletion('cliente', true);
         this.autoAdvanceStep();
@@ -441,12 +449,10 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
     });
 
     this.projetoForm.get('margemLucro')?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300)).subscribe(() => {
-      if (this.isInitializing) return;
       if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
     });
 
     this.itensFormArray.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300)).subscribe(() => {
-      if (this.isInitializing) return;
       this.valorMateriais = Math.max(0, this.itensFormArray.controls.reduce((total, control) => total + (control.get('valorTotal')?.value || 0), 0));
       if (this.validarFormularioParaCalculoBasico()) this.calcularOrcamentoAutomatico();
       this.updateStepCompletion('materiais', this.itensFormArray.length > 0);
@@ -606,17 +612,15 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   carregarProjeto() {
-    this.isInitializing = true;
     this.loading = true;
     this.projetoService.buscarProjetoPorId(this.projetoId).subscribe({
       next: (projeto) => {
         this.preencherForm(projeto);
         this.loading = false;
-        this.isInitializing = false;
+        this.setupFormWatchers();
       },
       error: (error) => {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: error.error?.message || 'Erro desconhecido' });
-        this.isInitializing = false;
         this.loading = false;
       }
     });
@@ -632,7 +636,6 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
       dataPrevista: projeto.dataPrevista ? new Date(projeto.dataPrevista) : null,
       observacoes: projeto.observacoes,
       margemLucro: projeto.margemLucro,
-
     });
 
     if (projeto.pecas && Array.isArray(projeto.pecas)) {
@@ -641,7 +644,11 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.setItensFormArray(projeto.itens || []);
 
-    this.calcularTotais();
+    // Em vez de recalcular, restauramos os valores salvos para garantir a consistência.
+    this.valorMateriais = (projeto.itens || []).reduce((acc, item) => acc + ((item.quantidade || 0) * (item.valorUnitario || 0)), 0);
+    this.valorMaoObra = projeto.valorMaoObra || 0;
+    this.valorTotal = projeto.valorTotal || 0;
+
     this.updateAllStepsCompletion();
 
     // Garante que o canvas seja atualizado após carregar o projeto
@@ -998,7 +1005,7 @@ export class ProjetoBuilderComponent implements OnInit, AfterViewInit, OnDestroy
 
   removerPeca(index: number): void {
     const peca = this.pecasProjeto[index];
-    this.confirmationService.confirm({ message: `Deseja realmente remover a peça \"${peca.nome}\"?`, header: 'Confirmação', icon: 'pi pi-exclamation-triangle', accept: () => {
+    this.confirmationService.confirm({ message: `Deseja realmente remover a peça \\"${peca.nome}\\"?`, header: 'Confirmação', icon: 'pi pi-exclamation-triangle', accept: () => {
         this.pecasProjeto.splice(index, 1);
         // Se a peça removida era a peça ativa, limpa a peça ativa
         if (this.pecaAtiva?.id === index) {
