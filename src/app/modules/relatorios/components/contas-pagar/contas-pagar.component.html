@@ -1,0 +1,91 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<div class="grid">
+  <div class="col-12">
+    <div class="card">
+      <h5>Relatório de Contas a Pagar</h5>
+
+      <form [formGroup]="form" (ngSubmit)="gerarRelatorio()">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <label for="fornecedor">Fornecedor (Opcional)</label>
+            <p-dropdown
+              id="fornecedor"
+              formControlName="fornecedorId"
+              [options]="fornecedores"
+              placeholder="Selecione um fornecedor"
+              [showClear]="true"
+              styleClass="w-full">
+            </p-dropdown>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <label for="dataVencimentoInicio">Data Vencimento Início</label>
+            <p-calendar
+              id="dataVencimentoInicio"
+              formControlName="dataVencimentoInicio"
+              dateFormat="dd/mm/yy"
+              placeholder="dd/mm/aaaa"
+              styleClass="w-full"
+              [showIcon]="true">
+            </p-calendar>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <label for="dataVencimentoFim">Data Vencimento Fim</label>
+            <p-calendar
+              id="dataVencimentoFim"
+              formControlName="dataVencimentoFim"
+              dateFormat="dd/mm/yy"
+              placeholder="dd/mm/aaaa"
+              styleClass="w-full"
+              [showIcon]="true">
+            </p-calendar>
+          </div>
+        </div>
+
+        <div class="grid mt-3">
+          <div class="col-12 md:col-6">
+            <div class="field-checkbox">
+              <p-checkbox
+                id="apenasVencidas"
+                formControlName="apenasVencidas"
+                [binary]="true">
+              </p-checkbox>
+              <label for="apenasVencidas" class="ml-2">Apenas contas vencidas</label>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="field-checkbox">
+              <p-checkbox
+                id="apenasQuitadas"
+                formControlName="apenasQuitadas"
+                [binary]="true">
+              </p-checkbox>
+              <label for="apenasQuitadas" class="ml-2">Apenas contas quitadas</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2 mt-4">
+          <p-button
+            label="Limpar"
+            icon="pi pi-refresh"
+            severity="secondary"
+            type="button"
+            (onClick)="limparFiltros()">
+          </p-button>
+
+          <p-button
+            label="Gerar Relatório"
+            icon="pi pi-file-pdf"
+            type="submit"
+            [loading]="loading">
+          </p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

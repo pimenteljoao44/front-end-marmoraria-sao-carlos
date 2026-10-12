@@ -11,14 +11,14 @@ export class ParcelasListComponent implements OnInit {
   parcelas: ParcelaDTO[] = [];
   parcelasFiltradas: ParcelaDTO[] = [];
   loading = false;
-  
+
   // Filtros
   filtroStatus = '';
   filtroTipo = '';
   filtroDataInicio = '';
   filtroDataFim = '';
   filtroVencidas = false;
-  
+
   // Opções para dropdowns
   statusOptions = [
     { label: 'Todos', value: '' },
@@ -26,13 +26,13 @@ export class ParcelasListComponent implements OnInit {
     { label: 'Pago', value: 'PAGO' },
     { label: 'Cancelado', value: 'CANCELADO' }
   ];
-  
+
   tipoOptions = [
     { label: 'Todos', value: '' },
     { label: 'Contas a Pagar', value: 'PAGAR' },
     { label: 'Contas a Receber', value: 'RECEBER' }
   ];
-  
+
   // Colunas da tabela
   cols = [
     { field: 'descricaoParcela', header: 'Parcela' },
@@ -67,7 +67,7 @@ export class ParcelasListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar parcelas'
+          detail: error.error?.message || error.message || 'Erro ao carregar parcelas'
         });
         this.loading = false;
       }
@@ -80,7 +80,7 @@ export class ParcelasListComponent implements OnInit {
       if (this.filtroStatus && parcela.status !== this.filtroStatus) {
         return false;
       }
-      
+
       // Filtro por tipo (pagar/receber)
       if (this.filtroTipo) {
         if (this.filtroTipo === 'PAGAR' && !parcela.contaPagarId) {
@@ -90,7 +90,7 @@ export class ParcelasListComponent implements OnInit {
           return false;
         }
       }
-      
+
       // Filtro por data de vencimento
       if (this.filtroDataInicio) {
         const dataInicio = new Date(this.filtroDataInicio);
@@ -99,7 +99,7 @@ export class ParcelasListComponent implements OnInit {
           return false;
         }
       }
-      
+
       if (this.filtroDataFim) {
         const dataFim = new Date(this.filtroDataFim);
         const dataVencimento = new Date(parcela.dataVencimento);
@@ -107,12 +107,12 @@ export class ParcelasListComponent implements OnInit {
           return false;
         }
       }
-      
+
       // Filtro por vencidas
       if (this.filtroVencidas && !this.parcelaService.isVencida(parcela)) {
         return false;
       }
-      
+
       return true;
     });
   }
@@ -163,7 +163,7 @@ export class ParcelasListComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao marcar parcela como paga'
+              detail: error.error?.message || error.message || 'Erro ao marcar parcela como paga'
             });
           }
         });
@@ -204,7 +204,7 @@ export class ParcelasListComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao cancelar parcela'
+              detail: error.error?.message || error.message || 'Erro ao cancelar parcela'
             });
           }
         });
@@ -250,4 +250,3 @@ export class ParcelasListComponent implements OnInit {
     return parcela.nomeCliente || parcela.nomeFornecedor || 'N/A';
   }
 }
-

@@ -76,7 +76,7 @@ export class TelaRelatorioVendaComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro ao gerar relatório',
-          detail: error.error.error,
+          detail: error.error?.message || error.message || 'Erro desconhecido',
           life: 3000,
           closable: true,
         });

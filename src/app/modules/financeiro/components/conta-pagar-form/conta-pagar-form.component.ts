@@ -48,7 +48,7 @@ export class ContaPagarFormComponent implements OnInit, OnDestroy {
       descricao: ['', [Validators.required, Validators.minLength(3)]],
       valor: [0, [Validators.required, Validators.min(0.01)]],
       dataVencimento: ['', [Validators.required]],
-      fornecedorId: [null, [Validators.required]],
+      fornecedorId: [null],
       observacoes: [''],
       status: ['PENDENTE']
     });
@@ -200,4 +200,3 @@ export class ContaPagarFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

@@ -1,0 +1,10 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible"></app-side-bar>
+
+<app-os-list
+  [ordensServico]="ossList"
+  (osEvent)="handleOSAction($event)"
+></app-os-list>
+
+<p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>
+

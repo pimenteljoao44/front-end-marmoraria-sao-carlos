@@ -15,15 +15,15 @@ export class ParcelasDashboardComponent implements OnInit {
     parcelasPagas: 0,
     parcelasPendentes: 0
   };
-  
+
   parcelasVencidas: ParcelaDTO[] = [];
   proximasVencer: ParcelaDTO[] = [];
   loading = false;
-  
+
   // Dados para gráficos
   statusChartData: any;
   statusChartOptions: any;
-  
+
   vencimentoChartData: any;
   vencimentoChartOptions: any;
 
@@ -40,7 +40,7 @@ export class ParcelasDashboardComponent implements OnInit {
 
   carregarDados(): void {
     this.loading = true;
-    
+
     // Carregar resumo
     this.parcelaService.obterResumo().subscribe({
       next: (resumo) => {
@@ -52,11 +52,11 @@ export class ParcelasDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao carregar resumo das parcelas'
+          detail: error.error?.message || error.message || 'Erro ao carregar resumo das parcelas'
         });
       }
     });
-    
+
     // Carregar parcelas vencidas
     this.parcelaService.listarVencidas().subscribe({
       next: (parcelas) => {
@@ -64,9 +64,14 @@ export class ParcelasDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar parcelas vencidas:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: error.error?.message || error.message || 'Erro ao carregar parcelas vencidas'
+        });
       }
     });
-    
+
     // Carregar próximas a vencer (próximos 7 dias)
     this.parcelaService.listarProximasAVencer(7).subscribe({
       next: (parcelas) => {
@@ -76,6 +81,11 @@ export class ParcelasDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar próximas a vencer:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: error.error?.message || error.message || 'Erro ao carregar próximas parcelas a vencer'
+        });
         this.loading = false;
       }
     });
@@ -91,7 +101,7 @@ export class ParcelasDashboardComponent implements OnInit {
       responsive: true,
       maintainAspectRatio: false
     };
-    
+
     this.vencimentoChartOptions = {
       plugins: {
         legend: {
@@ -134,18 +144,18 @@ export class ParcelasDashboardComponent implements OnInit {
       data.setDate(data.getDate() + i);
       return data;
     });
-    
-    const labels = proximosDias.map(data => 
+
+    const labels = proximosDias.map(data =>
       data.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })
     );
-    
+
     const dados = proximosDias.map(data => {
       const dataStr = data.toISOString().split('T')[0];
-      return this.proximasVencer.filter(parcela => 
+      return this.proximasVencer.filter(parcela =>
         parcela.dataVencimento === dataStr
       ).length;
     });
-    
+
     this.vencimentoChartData = {
       labels: labels,
       datasets: [{
@@ -174,7 +184,7 @@ export class ParcelasDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: 'Erro ao marcar parcela como paga'
+          detail: error.error?.message || error.message || 'Erro ao marcar parcela como paga'
         });
       }
     });
@@ -215,4 +225,3 @@ export class ParcelasDashboardComponent implements OnInit {
     return this.proximasVencer.reduce((total, parcela) => total + parcela.valorParcela, 0);
   }
 }
-

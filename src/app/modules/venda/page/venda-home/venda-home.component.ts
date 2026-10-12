@@ -49,7 +49,7 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar Vendas',
+            detail: err.error?.error || err.error?.message || err.message || 'Erro desconhecido',
             life: 2500,
           });
         },
@@ -73,10 +73,48 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
       this.ref.onClose.pipe(takeUntil(this.destroy$)).subscribe({
         next: () => this.getAPIVendasDatas(),
       });
+    } else if (event.action === VendaEvent.GERAR_ORDEM_SERVICO_EVENT) {
+      this.handleGerarOrdemServicoAction(event);
     } else {
       this.handleViewVendaAction(event);
     }
   }
+
+  handleGerarOrdemServicoAction(event: { action: string; id?: number }): void {
+    if (event.id === undefined) {
+      return;
+    }
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja gerar a Ordem de Serviço para esta venda?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Não',
+      accept: () => {
+        this.vendaService.gerarOrdemServico(event.id as number).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Ordem de Serviço gerada com sucesso!',
+              life: 3000,
+            });
+            this.getAPIVendasDatas();
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: err.error?.message || err.message || 'Não foi possível gerar a Ordem de Serviço.',
+              life: 3000,
+            });
+            console.error(err);
+          },
+        });
+      },
+    });
+  }
+
 
   handleOpenSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
@@ -104,8 +142,14 @@ export class VendaHomeComponent implements OnInit, OnDestroy {
               });
             }
           },
-          error(err) {
+          error: (err) => {
             console.log(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro.',
+              detail: err.error?.message || err.message || 'Erro ao buscar detalhes da venda',
+              life: 2500,
+            });
           },
         });
     }

@@ -62,7 +62,7 @@ export class EstadoHomeComponent implements OnInit,OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro.',
-            detail: 'Erro ao buscar estados',
+            detail: err.error?.message || err.message || 'Erro ao buscar estados',
             life: 2500,
           });
         },
@@ -129,8 +129,14 @@ export class EstadoHomeComponent implements OnInit,OnDestroy {
               });
             }
           },
-          error(err) {
+          error: (err) => {
             console.log(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erro.',
+              detail: err.error?.message || err.message || 'Erro ao buscar detalhes do estado',
+              life: 2500,
+            });
           },
         });
     }
@@ -156,7 +162,7 @@ export class EstadoHomeComponent implements OnInit,OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Erro ao excluir estado',
+              detail: err.error?.message || err.message || 'Erro ao excluir estado',
               life: 2500,
             });
           },
