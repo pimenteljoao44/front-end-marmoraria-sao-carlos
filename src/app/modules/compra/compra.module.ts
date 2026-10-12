@@ -39,32 +39,35 @@ import {CheckboxModule} from "primeng/checkbox";
         CompraTableComponent,
         InstallmentConfigComponent
     ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule.forChild(COMPRA_ROUTES),
-    SharedModule,
-    HttpClientModule,
-    CardModule,
-    RadioButtonModule,
-    ButtonModule,
-    TableModule,
-    InputMaskModule,
-    InputSwitchModule,
-    InputTextModule,
-    InputTextareaModule,
-    InputNumberModule,
-    DynamicDialogModule,
-    DropdownModule,
-    ConfirmDialogModule,
-    TooltipModule,
-    PanelModule,
-    AutoCompleteModule,
-    CalendarModule,
-    CheckboxModule
-  ],
-  providers: [DialogService, ConfirmationService, DatePipe],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forChild(COMPRA_ROUTES),
+        SharedModule,
+        HttpClientModule,
+        CardModule,
+        RadioButtonModule,
+        ButtonModule,
+        TableModule,
+        InputMaskModule,
+        InputSwitchModule,
+        InputTextModule,
+        InputTextareaModule,
+        InputNumberModule,
+        DynamicDialogModule,
+        DropdownModule,
+        ConfirmDialogModule,
+        TooltipModule,
+        PanelModule,
+        AutoCompleteModule,
+        CalendarModule,
+        CheckboxModule
+    ],
+    providers: [DialogService, ConfirmationService, DatePipe],
+    exports: [
+        InstallmentConfigComponent
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CompraModule { }

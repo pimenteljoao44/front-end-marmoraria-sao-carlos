@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import {CookieService} from "ngx-cookie-service";
 
 export interface ParcelaDTO {
   id?: number;
@@ -48,40 +49,56 @@ export interface ResumoParcelasDTO {
 export class ParcelaService {
   private apiUrl = `${environment.baseUrl}/api/parcelas`;
 
-  constructor(private http: HttpClient) { }
+  private JWT_TOKEN: string;
+
+  constructor(
+    private http: HttpClient,
+    private cookieService: CookieService
+  ) {
+    this.JWT_TOKEN = this.cookieService.get('USER_INFO');
+  }
+
+  private get httpOptions() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.JWT_TOKEN}`
+      })
+    };
+  }
 
   // CRUD Operations
   listarTodas(): Observable<ParcelaDTO[]> {
-    return this.http.get<ParcelaDTO[]>(this.apiUrl);
+    return this.http.get<ParcelaDTO[]>(this.apiUrl,this.httpOptions);
   }
 
   buscarPorId(id: number): Observable<ParcelaDTO> {
-    return this.http.get<ParcelaDTO>(`${this.apiUrl}/${id}`);
+    return this.http.get<ParcelaDTO>(`${this.apiUrl}/${id}`,this.httpOptions);
   }
 
   atualizar(id: number, parcela: ParcelaDTO): Observable<ParcelaDTO> {
-    return this.http.put<ParcelaDTO>(`${this.apiUrl}/${id}`, parcela);
+    return this.http.put<ParcelaDTO>(`${this.apiUrl}/${id}`, parcela,this.httpOptions);
   }
 
   deletar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`,this.httpOptions);
   }
 
   // Query Operations
   listarPorContaPagar(contaId: number): Observable<ParcelaDTO[]> {
-    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/conta-pagar/${contaId}`);
+    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/conta-pagar/${contaId}`,this.httpOptions);
   }
 
   listarPorContaReceber(contaId: number): Observable<ParcelaDTO[]> {
-    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/conta-receber/${contaId}`);
+    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/conta-receber/${contaId}`,this.httpOptions);
   }
 
   listarPorStatus(status: string): Observable<ParcelaDTO[]> {
-    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/status/${status}`);
+    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/status/${status}`,this.httpOptions);
   }
 
   listarVencidas(): Observable<ParcelaDTO[]> {
-    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/vencidas`);
+    return this.http.get<ParcelaDTO[]>(`${this.apiUrl}/vencidas`,this.httpOptions);
   }
 
   listarPorPeriodo(dataInicio: string, dataFim: string): Observable<ParcelaDTO[]> {
@@ -103,12 +120,12 @@ export class ParcelaService {
   }
 
   cancelar(id: number): Observable<ParcelaDTO> {
-    return this.http.put<ParcelaDTO>(`${this.apiUrl}/${id}/cancelar`, {});
+    return this.http.put<ParcelaDTO>(`${this.apiUrl}/${id}/cancelar`, {},this.httpOptions);
   }
 
   // Dashboard Operations
   obterResumo(): Observable<ResumoParcelasDTO> {
-    return this.http.get<ResumoParcelasDTO>(`${this.apiUrl}/dashboard/resumo`);
+    return this.http.get<ResumoParcelasDTO>(`${this.apiUrl}/dashboard/resumo`,this.httpOptions);
   }
 
   // Utility Methods

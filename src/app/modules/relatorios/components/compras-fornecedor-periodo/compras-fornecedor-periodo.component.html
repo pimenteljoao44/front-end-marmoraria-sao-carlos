@@ -1,0 +1,74 @@
+<app-toolbar (openSidebarEvent)="handleOpenSidebar()"></app-toolbar>
+<app-side-bar [sidebarVisible]="sidebarVisible" ></app-side-bar>
+<div class="grid">
+  <div class="col-12">
+    <div class="card">
+      <h5>Relatório de Compras por Fornecedor e Período</h5>
+
+      <form [formGroup]="form" (ngSubmit)="gerarRelatorio()">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <label for="fornecedor">Fornecedor (Opcional)</label>
+            <p-dropdown
+              id="fornecedor"
+              formControlName="fornecedorId"
+              [options]="fornecedores"
+              placeholder="Selecione um fornecedor"
+              [showClear]="true"
+              styleClass="w-full">
+            </p-dropdown>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <label for="dataInicio">Data Início *</label>
+            <p-calendar
+              id="dataInicio"
+              formControlName="dataInicio"
+              dateFormat="dd/mm/yy"
+              placeholder="dd/mm/aaaa"
+              styleClass="w-full"
+              [showIcon]="true">
+            </p-calendar>
+            <small class="p-error" *ngIf="form.get('dataInicio')?.invalid && form.get('dataInicio')?.touched">
+              Data de início é obrigatória
+            </small>
+          </div>
+
+          <div class="col-12 md:col-3">
+            <label for="dataFim">Data Fim *</label>
+            <p-calendar
+              id="dataFim"
+              formControlName="dataFim"
+              dateFormat="dd/mm/yy"
+              placeholder="dd/mm/aaaa"
+              styleClass="w-full"
+              [showIcon]="true">
+            </p-calendar>
+            <small class="p-error" *ngIf="form.get('dataFim')?.invalid && form.get('dataFim')?.touched">
+              Data de fim é obrigatória
+            </small>
+          </div>
+        </div>
+
+        <div class="flex justify-content-end gap-2 mt-4">
+          <p-button
+            label="Limpar"
+            icon="pi pi-refresh"
+            severity="secondary"
+            type="button"
+            (onClick)="limparFiltros()">
+          </p-button>
+
+          <p-button
+            label="Gerar Relatório"
+            icon="pi pi-file-pdf"
+            type="submit"
+            [loading]="loading"
+            [disabled]="form.invalid">
+          </p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

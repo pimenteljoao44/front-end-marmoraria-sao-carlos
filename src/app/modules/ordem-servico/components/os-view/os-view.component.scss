@@ -1,0 +1,79 @@
+.os-view-container {
+  padding: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+:host ::ng-deep {
+  .p-card {
+    .p-card-header {
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .p-card-body {
+      padding: 1rem;
+    }
+  }
+
+  .p-tag {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+  }
+
+  .p-datatable-sm {
+    .p-datatable-thead > tr > th {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.info-item {
+  margin-bottom: 1rem;
+
+  .label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  .value {
+    font-size: 0.875rem;
+    color: #495057;
+  }
+}
+
+.status-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.value-display {
+  text-align: right;
+
+  .label {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+  }
+}
+

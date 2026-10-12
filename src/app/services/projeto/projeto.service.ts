@@ -82,6 +82,10 @@ export class ProjetoService {
     return this.httpClient.patch<Projeto>(`${this.baseUrl}/${id}/status`, { status }, this.httpOptions);
   }
 
+  aprovarProjeto(id: number, requestBody?: { observacoes?: string }): Observable<Projeto> {
+    return this.httpClient.patch<Projeto>(`${this.baseUrl}/${id}/aprovar`, requestBody || {}, this.httpOptions);
+  }
+
   // Ordem de Serviço Operations
   gerarOrdemServico(projetoId: number): Observable<OrdemDeServico> {
     return this.httpClient.post<OrdemDeServico>(`${environment.baseUrl}/os/gerar-por-projeto/${projetoId}`, {}, this.httpOptions);
@@ -110,6 +114,11 @@ export class ProjetoService {
       params,
       responseType: 'blob'
     });
+  }
+  listarProjetosAprovadosPorCliente(clienteId: number): Observable<Projeto[]> {
+    console.log('ProjetoService: Buscando projetos aprovados para cliente', clienteId);
+
+    return this.httpClient.get<Projeto[]>(`${this.baseUrl}/cliente/${clienteId}`);
   }
 
 }

@@ -1,0 +1,55 @@
+:host ::ng-deep {
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .p-datatable-tbody > tr {
+      &:hover {
+        background-color: #f8f9fa;
+      }
+    }
+
+    .p-rowgroup-header {
+      background-color: #e9ecef;
+    }
+  }
+
+  .p-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .p-button-sm {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.expansion-content {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+
+.info-grid {
+  .info-item {
+    margin-bottom: 0.75rem;
+
+    .label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #6c757d;
+      margin-bottom: 0.25rem;
+    }
+
+    .value {
+      font-size: 0.875rem;
+      color: #495057;
+    }
+  }
+}
+

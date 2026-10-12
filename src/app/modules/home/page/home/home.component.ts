@@ -47,9 +47,9 @@ export class HomeComponent implements OnInit {
       error: (err) => {
         console.log(err);
         this.messageService.add({
-          severity: 'Error',
-          summary: 'Erro.',
-          detail: 'Erro ao buscar produtos',
+          severity: 'error',
+          summary: 'Erro',
+          detail: err.error?.message || err.message || 'Erro ao buscar usuários',
           life: 2500,
         });
       },
@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro ao alterar senha',
+            detail: err.error?.message || err.message || 'Erro ao alterar senha',
             life: 2500,
           });
         },

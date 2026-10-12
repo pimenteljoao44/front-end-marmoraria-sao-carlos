@@ -1,0 +1,98 @@
+<div class="itens-form-array">
+  <div *ngFor="let item of itensFormArray.controls; let i = index" [formGroupName]="i" class="item-row p-mb-3 p-p-3 p-shadow-2">
+    <div class="p-grid p-align-center">
+      <div class="p-col-12 p-md-4">
+        <label>Produto *</label>
+        <p-dropdown
+          formControlName="produtoId"
+          [options]="produtos"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione o produto"
+          [filter]="true"
+          [required]="true"
+          (onChange)="onProdutoChange(asFormGroup(item), $event.value)">
+          <ng-template let-produto pTemplate="item">
+            <div class="produto-item">
+              <div>{{ produto.nome }}</div>
+              <small>{{ formatCurrency(produto.precoVenda) }} - Estoque: {{ produto.quantidade }}</small>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <small class="p-error" *ngIf="item.get('produtoId')?.invalid && item.get('produtoId')?.touched">
+          Produto é obrigatório
+        </small>
+      </div>
+
+      <div class="p-col-12 p-md-2">
+        <label>Quantidade *</label>
+        <p-inputNumber
+          formControlName="quantidade"
+          [min]="0.01"
+          [step]="0.01"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [required]="true">
+        </p-inputNumber>
+        <small class="p-error" *ngIf="item.get('quantidade')?.invalid && item.get('quantidade')?.touched">
+          Quantidade é obrigatória
+        </small>
+      </div>
+
+      <div class="p-col-12 p-md-2">
+        <label>Preço *</label>
+        <p-inputNumber
+          formControlName="preco"
+          [min]="0"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [required]="true">
+        </p-inputNumber>
+        <small class="p-error" *ngIf="item.get('preco')?.invalid && item.get('preco')?.touched">
+          Preço é obrigatório
+        </small>
+      </div>
+
+      <div class="p-col-12 p-md-2">
+        <label>Subtotal</label>
+        <div class="subtotal-display">
+          {{ formatCurrency(calcularSubtotal(item.value)) }}
+        </div>
+      </div>
+
+      <div class="p-col-12 p-md-2">
+        <label>&nbsp;</label>
+        <div class="item-actions">
+          <p-button
+            icon="pi pi-trash"
+            (onClick)="removerItem(i)"
+            class="p-button-rounded p-button-danger p-button-text"
+            [disabled]="itensFormArray.length === 1">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-grid p-mt-2">
+      <div class="p-col-12">
+        <label>Observações do Item</label>
+        <textarea
+          pInputTextarea
+          formControlName="observacoes"
+          rows="2"
+          placeholder="Observações sobre este item">
+        </textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="add-item-section">
+  <p-button
+    label="Adicionar Item"
+    icon="pi pi-plus"
+    (onClick)="adicionarItem()"
+    class="p-button-outlined">
+  </p-button>
+</div>

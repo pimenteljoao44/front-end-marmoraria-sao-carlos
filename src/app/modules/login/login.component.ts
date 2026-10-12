@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { UserService } from 'src/app/services/user/user.service';
 import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
+import { jwtDecode } from 'jwt-decode'; // Importar jwtDecode
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,8 @@ import { AuthRequest } from 'src/models/interfaces/User/AuthRequest';
 export class LoginComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   displayForgotPasswordDialog: boolean = false;
+  loading: boolean = false;
+  loadingForgotPassword: boolean = false;
 
   loginForm = this.formBuilder.group({
     login: ['', Validators.required],
@@ -39,6 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onsubmitLoginForm(): void {
     if (this.loginForm.value && this.loginForm.valid) {
+      this.loading = true;
       this.userService
         .authUser(this.loginForm.value as AuthRequest)
         .pipe(takeUntil(this.destroy$))
@@ -50,23 +54,46 @@ export class LoginComponent implements OnInit, OnDestroy {
                 path: '/',
                 expires: 1,
               });
-              // Navegue imediatamente após o token ser salvo
-              this.router.navigate(['home'], { replaceUrl: true });
-              this.loginForm.reset();
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Sucesso',
-                detail: `Bem-vindo de volta ${response.nome}`,
-                life: 2000,
-              });
+
+              // Decodificar o token para obter o nível de acesso
+              let nivelAcesso: string | null = null;
+              try {
+                const decodedToken: any = jwtDecode(response.token);
+                nivelAcesso = decodedToken.nivelAcesso;
+              } catch (error) {
+                console.error('Erro ao decodificar o token JWT após o login:', error);
+              }
+
+              setTimeout(() => {
+                // Navegue após garantir que o cookie foi salvo
+                this.loginForm.reset();
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Sucesso',
+                  detail: `Bem-vindo de volta ${response.nome}`,
+                  life: 2000,
+                });
+
+                // Lógica de redirecionamento baseada no nível de acesso
+                if (nivelAcesso === 'ADMIN' || nivelAcesso === 'GERENTE') {
+                  this.router.navigate(['dashboard'], { replaceUrl: true });
+                } else if (nivelAcesso === 'FUNCIONARIO') {
+                  this.router.navigate(['home/welcome'], { replaceUrl: true });
+                } else {
+                  // Redirecionamento padrão caso o nível de acesso não seja reconhecido
+                  this.router.navigate(['home'], { replaceUrl: true });
+                }
+              }, 100);
             }
+            this.loading = false;
           },
           error: (err) => {
+            this.loading = false;
             this.cookieService.delete('USER_INFO', '/');
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Não encontramos nenhum usuário com essas credenciais',
+              detail: err.error?.message || err.message || 'Não encontramos nenhum usuário com essas credenciais',
               life: 4000,
             });
             console.log(err);
@@ -106,9 +133,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'error',
               summary: 'Erro',
-              detail: 'Não encontramos nenhum usuário com o email informado',
+              detail: err.error?.message || err.message || 'Não encontramos nenhum usuário com o email informado',
               life: 2000,
             });
+            this.loadingForgotPassword = false;
           },
         });
     }

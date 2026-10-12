@@ -16,6 +16,7 @@ export interface MaterialSugerido {
 
 export interface ProjetoItem {
   produtoId: number;
+  produtoNome?: string;
   quantidade: number;
   valorUnitario: number;
 }

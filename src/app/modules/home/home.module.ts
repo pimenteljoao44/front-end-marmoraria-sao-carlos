@@ -14,9 +14,11 @@ import { CookieService } from 'ngx-cookie-service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import {DashboardModule} from "../dashboard/dashboard.module";
+import { WelcomeComponent } from './page/welcome/welcome.component'; // Importar WelcomeComponent
 
 @NgModule({
-  declarations: [HomeComponent],
+  declarations: [HomeComponent, WelcomeComponent], // Adicionar WelcomeComponent aqui
   imports: [
     CommonModule,
     FormsModule,
@@ -30,6 +32,7 @@ import { InputTextModule } from 'primeng/inputtext';
     DialogModule,
     InputTextModule,
     SidebarModule,
+    DashboardModule,
     //shared
     SharedModule
   ],

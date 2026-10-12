@@ -1,315 +1,416 @@
 <!-- FORMULÁRIO DE NOVO CLIENTE -->
 <div *ngIf="clientAction.event.action === addClientAction">
   <form [formGroup]="addClientForm" (ngSubmit)="handleSubmitAddClient()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <div
-        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
-        <label for="pessoaFisica" class="mr-3">Pessoa Física</label>
-        <p-radioButton
-          class="mr-5 p-radiobutton"
-          inputId="pessoaFisica"
-          name="tipoPessoa"
-          value="PESSOA_FISICA"
-          formControlName="tipoPessoa"
-          (onClick)="onTipoPessoaChange(addClientForm)"
-        ></p-radioButton>
-        <label for="pessoaJuridica" class="mr-3">Pessoa Jurídica</label>
-        <p-radioButton
-          inputId="pessoaJuridica"
-          name="tipoPessoa"
-          class="p-radiobutton"
-          value="PESSOA_JURIDICA"
-          formControlName="tipoPessoa"
-          (onClick)="onTipoPessoaChange(addClientForm)"
-        ></p-radioButton>
-      </div>
-      <input
-        pInputText
-        placeholder="Nome"
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            addClientForm.get('nome')?.invalid &&
-            addClientForm.get('nome')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Telefone"
-        formControlName="telefone"
-        [ngClass]="{
-          'p-invalid':
-            addClientForm.get('telefone')?.invalid &&
-            addClientForm.get('telefone')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="CPF"
-        *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
-        formControlName="cpf"
-        (input)="formatarCPF($event, addClientForm)"
-        (keyup)="formatarCPF($event, addClientForm)"
-        (keydown)="formatarCPF($event, addClientForm)"
-        [ngClass]="{
-          'p-invalid':
-            addClientForm.get('cpf')?.invalid &&
-            addClientForm.get('cpf')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="RG"
-        *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
-        formControlName="rg"
-        (input)="formatarRG($event, addClientForm)"
-        (keyup)="formatarRG($event, addClientForm)"
-        (keydown)="formatarRG($event, addClientForm)"
-        [ngClass]="{
-          'p-invalid':
-            addClientForm.get('rg')?.invalid && addClientForm.get('rg')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="CNPJ"
-        *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
-        formControlName="cnpj"
-        (input)="formatarCNPJ($event, addClientForm)"
-        (keyup)="formatarCNPJ($event, addClientForm)"
-        (keydown)="formatarCNPJ($event, addClientForm)"
-        [ngClass]="{
-          'p-invalid':
-            addClientForm.get('cnpj')?.invalid &&
-            addClientForm.get('cnpj')?.touched
-        }"
-      />
+    <div class="card">
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12">
+          <div class="flex justify-content-center">
+            <div class="mr-4">
+              <p-radioButton
+                inputId="pessoaFisica"
+                name="tipoPessoa"
+                value="PESSOA_FISICA"
+                formControlName="tipoPessoa"
+                (onClick)="onTipoPessoaChange(addClientForm)"
+              ></p-radioButton>
+              <label for="pessoaFisica" class="ml-2">Pessoa Física</label>
+            </div>
+            <div>
+              <p-radioButton
+                inputId="pessoaJuridica"
+                name="tipoPessoa"
+                value="PESSOA_JURIDICA"
+                formControlName="tipoPessoa"
+                (onClick)="onTipoPessoaChange(addClientForm)"
+              ></p-radioButton>
+              <label for="pessoaJuridica" class="ml-2">Pessoa Jurídica</label>
+            </div>
+          </div>
+        </div>
 
-      <div formGroupName="endereco">
-        <input
-          pInputText
-          placeholder="Rua"
-          formControlName="rua"
-          [ngClass]="{
-            'p-invalid':
-              addClientForm.get('endereco.rua')?.invalid &&
-              addClientForm.get('endereco.rua')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Número"
-          formControlName="numero"
-          [ngClass]="{
-            'p-invalid':
-              addClientForm.get('endereco.numero')?.invalid &&
-              addClientForm.get('endereco.numero')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Complemento"
-          formControlName="complemento"
-          [ngClass]="{
-            'p-invalid':
-              addClientForm.get('endereco.complemento')?.invalid &&
-              addClientForm.get('endereco.complemento')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Bairro"
-          formControlName="bairro"
-          [ngClass]="{
-            'p-invalid':
-              addClientForm.get('endereco.bairro')?.invalid &&
-              addClientForm.get('endereco.bairro')?.touched
-          }"
-        />
-        <br />
-        <div formGroupName="estado">
-          <p-autoComplete
-            [suggestions]="filteredEstados"
-            (completeMethod)="filterEstados($event)"
-            [dropdown]="true"
+        <div class="field col-12 md:col-6">
+          <label for="nome">Nome</label>
+          <input
+            pInputText
+            id="nome"
+            class="w-full"
+            placeholder="Nome"
             formControlName="nome"
-            field="nome"
-            styleClass="w-full"
-            placeholder="Selecione um estado"
-            (onSelect)="onEstadoChange($event.value, addClientForm)"
             [ngClass]="{
               'p-invalid':
-                addClientForm.get('endereco.cidade.id')?.invalid &&
-                addClientForm.get('endereco.cidade.id')?.touched
+                addClientForm.get('nome')?.invalid &&
+                addClientForm.get('nome')?.touched
             }"
-          ></p-autoComplete>
+          />
         </div>
-        <div formGroupName="cidade">
-          <p-autoComplete
-            formControlName="nome"
-            [suggestions]="cidadesFiltradas"
-            (onSelect)="onCidadeSelect($event,addClientForm)"
-            (completeMethod)="searchCidades($event)"
-            field="nome"
-            styleClass="w-full"
-            placeholder="Selecione uma cidade"
-          ></p-autoComplete>
+        <div class="field col-12 md:col-6">
+          <label for="telefone">Telefone</label>
+          <input
+            pInputText
+            id="telefone"
+            class="w-full"
+            placeholder="Telefone"
+            formControlName="telefone"
+            [ngClass]="{
+              'p-invalid':
+                addClientForm.get('telefone')?.invalid &&
+                addClientForm.get('telefone')?.touched
+            }"
+          />
+        </div>
+
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        >
+          <label for="cpf">CPF</label>
+          <input
+            pInputText
+            id="cpf"
+            class="w-full"
+            placeholder="CPF"
+            formControlName="cpf"
+            (input)="formatarCPF($event, addClientForm)"
+            (keyup)="formatarCPF($event, addClientForm)"
+            (keydown)="formatarCPF($event, addClientForm)"
+            [ngClass]="{
+              'p-invalid':
+                addClientForm.get('cpf')?.invalid &&
+                addClientForm.get('cpf')?.touched
+            }"
+          />
+        </div>
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        >
+          <label for="rg">RG</label>
+          <input
+            pInputText
+            id="rg"
+            class="w-full"
+            placeholder="RG"
+            formControlName="rg"
+            (input)="formatarRG($event, addClientForm)"
+            (keyup)="formatarRG($event, addClientForm)"
+            (keydown)="formatarRG($event, addClientForm)"
+            [ngClass]="{
+              'p-invalid':
+                addClientForm.get('rg')?.invalid && addClientForm.get('rg')?.touched
+            }"
+          />
+        </div>
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="addClientForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
+        >
+          <label for="cnpj">CNPJ</label>
+          <input
+            pInputText
+            id="cnpj"
+            class="w-full"
+            placeholder="CNPJ"
+            formControlName="cnpj"
+            (input)="formatarCNPJ($event, addClientForm)"
+            (keyup)="formatarCNPJ($event, addClientForm)"
+            (keydown)="formatarCNPJ($event, addClientForm)"
+            [ngClass]="{
+              'p-invalid':
+                addClientForm.get('cnpj')?.invalid &&
+                addClientForm.get('cnpj')?.touched
+            }"
+          />
+        </div>
+
+        <div class="field col-12" formGroupName="endereco">
+          <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="rua">Rua</label>
+              <input
+                pInputText
+                id="rua"
+                class="w-full"
+                placeholder="Rua"
+                formControlName="rua"
+                [ngClass]="{
+                  'p-invalid':
+                    addClientForm.get('endereco.rua')?.invalid &&
+                    addClientForm.get('endereco.rua')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="numero">Número</label>
+              <input
+                pInputText
+                id="numero"
+                class="w-full"
+                placeholder="Número"
+                formControlName="numero"
+                [ngClass]="{
+                  'p-invalid':
+                    addClientForm.get('endereco.numero')?.invalid &&
+                    addClientForm.get('endereco.numero')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="complemento">Complemento</label>
+              <input
+                pInputText
+                id="complemento"
+                class="w-full"
+                placeholder="Complemento"
+                formControlName="complemento"
+              />
+            </div>
+            <div class="field col-12 md:col-4">
+              <label for="bairro">Bairro</label>
+              <input
+                pInputText
+                id="bairro"
+                class="w-full"
+                placeholder="Bairro"
+                formControlName="bairro"
+                [ngClass]="{
+                  'p-invalid':
+                    addClientForm.get('endereco.bairro')?.invalid &&
+                    addClientForm.get('endereco.bairro')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-4" formGroupName="estado">
+              <label for="estado">Estado</label>
+              <p-autoComplete
+                id="estado"
+                [suggestions]="filteredEstados"
+                (completeMethod)="filterEstados($event)"
+                [dropdown]="true"
+                formControlName="nome"
+                field="nome"
+                styleClass="w-full"
+                placeholder="Selecione um estado"
+                (onSelect)="onEstadoChange($event.value, addClientForm)"
+                [ngClass]="{
+                  'p-invalid':
+                    addClientForm.get('endereco.cidade.id')?.invalid &&
+                    addClientForm.get('endereco.cidade.id')?.touched
+                }"
+              ></p-autoComplete>
+            </div>
+            <div class="field col-12 md:col-4" formGroupName="cidade">
+              <label for="cidade">Cidade</label>
+              <p-autoComplete
+                id="cidade"
+                formControlName="nome"
+                [suggestions]="cidadesFiltradas"
+                (onSelect)="onCidadeSelect($event, addClientForm)"
+                (completeMethod)="searchCidades($event)"
+                field="nome"
+                styleClass="w-full"
+                placeholder="Selecione uma cidade"
+              ></p-autoComplete>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
+      <div class="flex justify-content-center mt-4">
         <button type="submit" class="p-button">Concluir</button>
       </div>
     </div>
   </form>
 </div>
 
+<!-- FORMULÁRIO DE EDITAR CLIENTE -->
 <div *ngIf="clientAction.event.action === editClientAction">
   <form [formGroup]="editClientForm" (ngSubmit)="handleSubmitEditClient()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <div
-        class="p-field flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
-
-      </div>
-      <input
-        pInputText
-        placeholder="Nome"
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            editClientForm.get('nome')?.invalid &&
-            editClientForm.get('nome')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="Telefone"
-        formControlName="telefone"
-        [ngClass]="{
-          'p-invalid':
-            editClientForm.get('telefone')?.invalid &&
-            editClientForm.get('telefone')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="CPF"
-        *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
-        formControlName="cpf"
-        (input)="formatarCPF($event, editClientForm)"
-        (keyup)="formatarCPF($event, editClientForm)"
-        (keydown)="formatarCPF($event, editClientForm)"
-        [ngClass]="{
-          'p-invalid':
-            editClientForm.get('cpf')?.invalid &&
-            editClientForm.get('cpf')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="RG"
-        *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
-        formControlName="rg"
-        (input)="formatarRG($event, editClientForm)"
-        (keyup)="formatarRG($event, editClientForm)"
-        (keydown)="formatarRG($event, editClientForm)"
-        [ngClass]="{
-          'p-invalid':
-            editClientForm.get('rg')?.invalid &&
-            editClientForm.get('rg')?.touched
-        }"
-      />
-      <input
-        pInputText
-        placeholder="CNPJ"
-        *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
-        formControlName="cnpj"
-        [ngClass]="{
-          'p-invalid':
-            editClientForm.get('cnpj')?.invalid &&
-            editClientForm.get('cnpj')?.touched
-        }"
-      />
-
-      <div formGroupName="endereco">
-        <input
-          pInputText
-          placeholder="Rua"
-          formControlName="rua"
-          [ngClass]="{
-            'p-invalid':
-              editClientForm.get('endereco.rua')?.invalid &&
-              editClientForm.get('endereco.rua')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Número"
-          formControlName="numero"
-          [ngClass]="{
-            'p-invalid':
-              editClientForm.get('endereco.numero')?.invalid &&
-              editClientForm.get('endereco.numero')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Complemento"
-          formControlName="complemento"
-          [ngClass]="{
-            'p-invalid':
-              editClientForm.get('endereco.complemento')?.invalid &&
-              editClientForm.get('endereco.complemento')?.touched
-          }"
-        />
-        <input
-          pInputText
-          placeholder="Bairro"
-          formControlName="bairro"
-          [ngClass]="{
-            'p-invalid':
-              editClientForm.get('endereco.bairro')?.invalid &&
-              editClientForm.get('endereco.bairro')?.touched
-          }"
-        />
-        <div formGroupName="estado">
-          <p-autoComplete
-            [suggestions]="filteredEstados"
-            (completeMethod)="filterEstados($event)"
-            [dropdown]="true"
+    <div class="card">
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="editNome">Nome</label>
+          <input
+            pInputText
+            id="editNome"
+            class="w-full"
+            placeholder="Nome"
             formControlName="nome"
-            field="nome"
-            optionLabel="nome"
-            styleClass="w-full"
-            placeholder="Selecione um estado"
-            (onSelect)="onEstadoChange($event.value,editClientForm)"
             [ngClass]="{
               'p-invalid':
-                editClientForm.get('endereco.cidade.id')?.invalid &&
-                editClientForm.get('endereco.cidade.id')?.touched
+                editClientForm.get('nome')?.invalid &&
+                editClientForm.get('nome')?.touched
             }"
-          ></p-autoComplete>
+          />
         </div>
-        <div formGroupName="cidade">
-          <p-autoComplete
-            formControlName="nome"
-            [suggestions]="cidadesFiltradas"
-            (completeMethod)="searchCidades($event)"
-            (onSelect)="onCidadeSelect($event, editClientForm)"
-            field="nome"
-            styleClass="w-full"
-            placeholder="Selecione uma cidade"
-          ></p-autoComplete>
+        <div class="field col-12 md:col-6">
+          <label for="editTelefone">Telefone</label>
+          <input
+            pInputText
+            id="editTelefone"
+            class="w-full"
+            placeholder="Telefone"
+            formControlName="telefone"
+            [ngClass]="{
+              'p-invalid':
+                editClientForm.get('telefone')?.invalid &&
+                editClientForm.get('telefone')?.touched
+            }"
+          />
+        </div>
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        >
+          <label for="editCpf">CPF</label>
+          <input
+            pInputText
+            id="editCpf"
+            class="w-full"
+            placeholder="CPF"
+            formControlName="cpf"
+            (input)="formatarCPF($event, editClientForm)"
+            (keyup)="formatarCPF($event, editClientForm)"
+            (keydown)="formatarCPF($event, editClientForm)"
+            [ngClass]="{
+              'p-invalid':
+                editClientForm.get('cpf')?.invalid &&
+                editClientForm.get('cpf')?.touched
+            }"
+          />
+        </div>
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_FISICA'"
+        >
+          <label for="editRg">RG</label>
+          <input
+            pInputText
+            id="editRg"
+            class="w-full"
+            placeholder="RG"
+            formControlName="rg"
+            (input)="formatarRG($event, editClientForm)"
+            (keyup)="formatarRG($event, editClientForm)"
+            (keydown)="formatarRG($event, editClientForm)"
+            [ngClass]="{
+              'p-invalid':
+                editClientForm.get('rg')?.invalid &&
+                editClientForm.get('rg')?.touched
+            }"
+          />
+        </div>
+        <div
+          class="field col-12 md:col-6"
+          *ngIf="editClientForm.get('tipoPessoa')?.value === 'PESSOA_JURIDICA'"
+        >
+          <label for="editCnpj">CNPJ</label>
+          <input
+            pInputText
+            id="editCnpj"
+            class="w-full"
+            placeholder="CNPJ"
+            formControlName="cnpj"
+            [ngClass]="{
+              'p-invalid':
+                editClientForm.get('cnpj')?.invalid &&
+                editClientForm.get('cnpj')?.touched
+            }"
+          />
+        </div>
+
+        <div class="field col-12" formGroupName="endereco">
+          <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="editRua">Rua</label>
+              <input
+                pInputText
+                id="editRua"
+                class="w-full"
+                placeholder="Rua"
+                formControlName="rua"
+                [ngClass]="{
+                  'p-invalid':
+                    editClientForm.get('endereco.rua')?.invalid &&
+                    editClientForm.get('endereco.rua')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="editNumero">Número</label>
+              <input
+                pInputText
+                id="editNumero"
+                class="w-full"
+                placeholder="Número"
+                formControlName="numero"
+                [ngClass]="{
+                  'p-invalid':
+                    editClientForm.get('endereco.numero')?.invalid &&
+                    editClientForm.get('endereco.numero')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="editComplemento">Complemento</label>
+              <input
+                pInputText
+                id="editComplemento"
+                class="w-full"
+                placeholder="Complemento"
+                formControlName="complemento"
+              />
+            </div>
+            <div class="field col-12 md:col-4">
+              <label for="editBairro">Bairro</label>
+              <input
+                pInputText
+                id="editBairro"
+                class="w-full"
+                placeholder="Bairro"
+                formControlName="bairro"
+                [ngClass]="{
+                  'p-invalid':
+                    editClientForm.get('endereco.bairro')?.invalid &&
+                    editClientForm.get('endereco.bairro')?.touched
+                }"
+              />
+            </div>
+            <div class="field col-12 md:col-4" formGroupName="estado">
+              <label for="editEstado">Estado</label>
+              <p-autoComplete
+                id="editEstado"
+                [suggestions]="filteredEstados"
+                (completeMethod)="filterEstados($event)"
+                [dropdown]="true"
+                formControlName="nome"
+                field="nome"
+                optionLabel="nome"
+                styleClass="w-full"
+                placeholder="Selecione um estado"
+                (onSelect)="onEstadoChange($event.value, editClientForm)"
+                [ngClass]="{
+                  'p-invalid':
+                    editClientForm.get('endereco.cidade.id')?.invalid &&
+                    editClientForm.get('endereco.cidade.id')?.touched
+                }"
+              ></p-autoComplete>
+            </div>
+            <div class="field col-12 md:col-4" formGroupName="cidade">
+              <label for="editCidade">Cidade</label>
+              <p-autoComplete
+                id="editCidade"
+                formControlName="nome"
+                [suggestions]="cidadesFiltradas"
+                (completeMethod)="searchCidades($event)"
+                (onSelect)="onCidadeSelect($event, editClientForm)"
+                field="nome"
+                styleClass="w-full"
+                placeholder="Selecione uma cidade"
+              ></p-autoComplete>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
+      <div class="flex justify-content-center mt-4">
         <button type="submit" class="p-button">Concluir</button>
       </div>
     </div>

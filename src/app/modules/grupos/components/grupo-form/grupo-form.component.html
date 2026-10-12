@@ -1,39 +1,47 @@
 <!-- FORMULÁRIO DE NOVO GRUPO -->
 <div *ngIf="grupoAction.event.action === addGrupoAction">
   <form [formGroup]="addGrupoform" (ngSubmit)="handleSubmitAddGrupo()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <input
-        pInputText
-        placeholder="Nome"
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            !addGrupoform.get('nome')?.valid &&
-            addGrupoform.get('nome')?.touched
-        }"
-      />
-      <div formGroupName="grupoPai">
-        <p-dropdown
-          styleClass="w-full"
-          [options]="grupos"
-          placeholder="Selecione o Grupo Pai"
-          formControlName="grupoPaiId"
-          optionLabel="nome"
-          optionValue="id"
-          (onChange)="onGrupoChange($event.value)"
-          [ngClass]="{
-            'p-invalid':
-              !addGrupoform.get('grupoPai')?.valid &&
-              addGrupoform.get('grupoPai')?.touched
-          }"
-        ></p-dropdown>
+    <div class="card">
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="nome">Nome</label>
+          <input
+            pInputText
+            id="nome"
+            class="w-full"
+            placeholder="Nome"
+            formControlName="nome"
+            [ngClass]="{
+              'p-invalid':
+                !addGrupoform.get('nome')?.valid &&
+                addGrupoform.get('nome')?.touched
+            }"
+          />
+        </div>
+        <div class="field col-12 md:col-6" formGroupName="grupoPai">
+          <label for="grupoPai">Grupo Pai</label>
+          <p-dropdown
+            id="grupoPai"
+            styleClass="w-full"
+            [options]="grupos"
+            placeholder="Selecione o Grupo Pai"
+            formControlName="grupoPaiId"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onGrupoChange($event.value)"
+            [showClear]="true"
+          ></p-dropdown>
+        </div>
+
+        <div class="field col-12">
+          <div class="field-checkbox">
+            <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoAdd"></p-checkbox>
+            <label for="ativoAdd" class="ml-2">Ativo</label>
+          </div>
+        </div>
       </div>
 
-      Ativo:
-      <p-checkbox formControlName="ativo" [binary]="true" inputId="binary" />
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
+      <div class="flex justify-content-center mt-4">
         <button type="submit" class="p-button">Concluir</button>
       </div>
     </div>
@@ -43,39 +51,47 @@
 <!-- FORMULÁRIO DE EDITAR GRUPO-->
 <div *ngIf="grupoAction.event.action === editGrupoAction">
   <form [formGroup]="editGrupoForm" (ngSubmit)="handleSubmitEditGrupo()">
-    <div class="card flex flex-column md:flex-column gap-3">
-      <input
-        pInputText
-        placeholder="Nome"
-        formControlName="nome"
-        [ngClass]="{
-          'p-invalid':
-            !editGrupoForm.get('nome')?.valid &&
-            editGrupoForm.get('nome')?.touched
-        }"
-      />
-      <div formGroupName="grupoPai">
-        <p-dropdown
-          styleClass="w-full"
-          [options]="grupos"
-          placeholder="Selecione o grupo Pai"
-          formControlName="grupoPaiId"
-          optionLabel="nome"
-          optionValue="id"
-          (onChange)="onGrupoChange($event.value)"
-          [ngClass]="{
-            'p-invalid':
-              !editGrupoForm.get('grupoPai')?.valid &&
-              editGrupoForm.get('grupoPai')?.touched
-          }"
-        ></p-dropdown>
+    <div class="card">
+      <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="editNome">Nome</label>
+          <input
+            pInputText
+            id="editNome"
+            class="w-full"
+            placeholder="Nome"
+            formControlName="nome"
+            [ngClass]="{
+              'p-invalid':
+                !editGrupoForm.get('nome')?.valid &&
+                editGrupoForm.get('nome')?.touched
+            }"
+          />
+        </div>
+        <div class="field col-12 md:col-6" formGroupName="grupoPai">
+          <label for="editGrupoPai">Grupo Pai</label>
+          <p-dropdown
+            id="editGrupoPai"
+            styleClass="w-full"
+            [options]="grupos"
+            placeholder="Selecione o grupo Pai"
+            formControlName="grupoPaiId"
+            optionLabel="nome"
+            optionValue="id"
+            (onChange)="onGrupoChange($event.value)"
+            [showClear]="true"
+          ></p-dropdown>
+        </div>
+
+        <div class="field col-12">
+          <div class="field-checkbox">
+            <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoEdit"></p-checkbox>
+            <label for="ativoEdit" class="ml-2">Ativo</label>
+          </div>
+        </div>
       </div>
 
-      Ativo:
-      <p-checkbox formControlName="ativo" [binary]="true" inputId="binary" />
-      <div
-        class="flex flex-row justify-content-center align-items-center align-content-center m-1"
-      >
+      <div class="flex justify-content-center mt-4">
         <button type="submit" class="p-button">Concluir</button>
       </div>
     </div>
